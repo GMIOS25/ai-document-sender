@@ -1,3 +1,4 @@
 .agents
-
-resources
+__pycache__/
+*.pyc
+resources/văn bản mẫu/
