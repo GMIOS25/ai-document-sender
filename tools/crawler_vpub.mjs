@@ -20,6 +20,33 @@ const CONFIG = {
   concurrency: 5
 };
 
+// CLI Arguments support:
+// --min-doc <number>       Stop crawling when document number is < minDoc
+// --max-doc <number>       Only process documents <= maxDoc
+// --start-page <number>    Override starting page (default 0 when minDoc is specified)
+// --max-pages <number>     Limit number of pages to process
+// --save-state             Whether to persist page progress to crawler_state.json (default false when minDoc is set)
+const args = process.argv.slice(2);
+function getArg(name, defaultVal = null) {
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === `--${name}`) {
+      return args[i + 1] !== undefined ? args[i + 1] : true;
+    }
+    if (args[i].startsWith(`--${name}=`)) {
+      return args[i].substring(`--${name}=`.length);
+    }
+  }
+  return defaultVal;
+}
+
+const CLI_OPTIONS = {
+  minDoc: getArg('min-doc') !== null ? parseInt(getArg('min-doc'), 10) : null,
+  maxDoc: getArg('max-doc') !== null ? parseInt(getArg('max-doc'), 10) : null,
+  startPage: getArg('start-page') !== null ? parseInt(getArg('start-page'), 10) : null,
+  maxPages: getArg('max-pages') !== null ? parseInt(getArg('max-pages'), 10) : null,
+  saveState: getArg('save-state') !== null ? (getArg('save-state') === true || getArg('save-state') === 'true') : null
+};
+
 let currentJsessionId = '';
 
 function log(msg) {
@@ -339,7 +366,14 @@ async function run() {
   }
 
   const state = loadState();
-  log(`Starting crawler. Resuming from page ${state.currentPage}...`);
+  const isIncremental = CLI_OPTIONS.minDoc !== null;
+  const startPage = CLI_OPTIONS.startPage !== null 
+    ? CLI_OPTIONS.startPage 
+    : (isIncremental ? 0 : state.currentPage);
+  const shouldSaveState = CLI_OPTIONS.saveState !== null ? CLI_OPTIONS.saveState : !isIncremental;
+
+  log(`Starting crawler. Mode: ${isIncremental ? `Incremental (minDoc=${CLI_OPTIONS.minDoc}, maxDoc=${CLI_OPTIONS.maxDoc ?? 'none'})` : 'Full / Resume'}`);
+  log(`Starting from page ${startPage}...`);
   log(`Target output directory: ${CONFIG.outputDir}`);
 
   // Fetch page 0 to discover total records
@@ -347,10 +381,17 @@ async function run() {
   state.totalRecords = initPage.total || 0;
   state.totalPages = Math.ceil(state.totalRecords / CONFIG.pageSize);
   log(`Total records: ${state.totalRecords} (Total pages: ${state.totalPages} at pageSize=${CONFIG.pageSize})`);
-  saveState(state);
+  if (shouldSaveState) saveState(state);
 
-  for (let page = state.currentPage; page < state.totalPages; page++) {
-    state.currentPage = page;
+  const endPage = CLI_OPTIONS.maxPages ? Math.min(state.totalPages, startPage + CLI_OPTIONS.maxPages) : state.totalPages;
+  let reachedStopCondition = false;
+  let totalSavedThisRun = 0;
+  let totalSkippedThisRun = 0;
+
+  for (let page = startPage; page < endPage; page++) {
+    if (shouldSaveState) {
+      state.currentPage = page;
+    }
     log(`--- Processing Page ${page + 1}/${state.totalPages} (records ${page * CONFIG.pageSize} - ${Math.min((page + 1) * CONFIG.pageSize, state.totalRecords)}) ---`);
 
     let pageData;
@@ -377,16 +418,37 @@ async function run() {
     const internalItems = items.filter(it => it.edSearchDto && it.edSearchDto.internalTransfer > 0);
     log(`Page ${page + 1}: Found ${internalItems.length}/${items.length} internal transfer documents.`);
 
+    const itemsToProcess = [];
+    for (const item of internalItems) {
+      const signNumber = item.edSearchDto?.signNumber || '';
+      const slashUbnd = signNumber.match(/^(\d{1,7})\s*\/UBND/i);
+      if (slashUbnd) {
+        const num = parseInt(slashUbnd[1], 10);
+        if (CLI_OPTIONS.maxDoc !== null && num > CLI_OPTIONS.maxDoc) {
+          log(`[Filter] Skipping doc ${signNumber} (> maxDoc ${CLI_OPTIONS.maxDoc})`);
+          continue;
+        }
+        if (CLI_OPTIONS.minDoc !== null && num < CLI_OPTIONS.minDoc) {
+          log(`[Stop Condition] Encountered ${signNumber} (< minDoc ${CLI_OPTIONS.minDoc}). Stopping crawl at this threshold.`);
+          reachedStopCondition = true;
+          break;
+        }
+      }
+      itemsToProcess.push(item);
+    }
+
     // Process internal items with controlled concurrency
-    for (let i = 0; i < internalItems.length; i += CONFIG.concurrency) {
-      const chunk = internalItems.slice(i, i + CONFIG.concurrency);
+    for (let i = 0; i < itemsToProcess.length; i += CONFIG.concurrency) {
+      const chunk = itemsToProcess.slice(i, i + CONFIG.concurrency);
       await Promise.all(chunk.map(async (item) => {
         try {
           const res = await processDocument(item);
           if (res.skipped) {
             state.skipped++;
+            totalSkippedThisRun++;
           } else {
             state.crawledInternal++;
+            totalSavedThisRun++;
             log(`[Saved] ${res.signNumber} (${res.filesCount} files)`);
           }
         } catch (err) {
@@ -396,14 +458,19 @@ async function run() {
       }));
     }
 
-    saveState(state);
-    log(`Page ${page + 1} completed. Summary: Crawled=${state.crawledInternal}, Skipped=${state.skipped}, Errors=${state.errors}`);
+    if (shouldSaveState) saveState(state);
+    log(`Page ${page + 1} completed. Summary this run: Saved=${totalSavedThisRun}, Skipped=${totalSkippedThisRun}`);
+
+    if (reachedStopCondition) {
+      log(`Stopped crawler as minDoc condition (${CLI_OPTIONS.minDoc}) was satisfied.`);
+      break;
+    }
 
     // Small delay between pages to keep server load polite
     await new Promise(r => setTimeout(r, 500));
   }
 
-  log(`CRAWLER COMPLETED! Total internal documents crawled: ${state.crawledInternal}, Skipped: ${state.skipped}, Errors: ${state.errors}`);
+  log(`CRAWLER COMPLETED! Total new documents saved this run: ${totalSavedThisRun}, Skipped: ${totalSkippedThisRun}`);
 }
 
 run().catch(err => {
