@@ -23,6 +23,7 @@ temp/
 # Python Artifacts & Virtual Environments
 # ==========================================
 __pycache__/
+var/
 *.py[cod]
 *$py.class
 .pytest_cache/

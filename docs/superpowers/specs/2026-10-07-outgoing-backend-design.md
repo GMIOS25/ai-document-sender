@@ -1,6 +1,6 @@
 # Thiết kế backend nhận diện nơi nhận văn bản đi
 
-Ngày: 2026-10-07. Trạng thái: bản đặc tả để người dùng rà soát trước triển khai.
+Ngày: 2026-10-07. Người dùng đã duyệt triển khai ngày 2026-10-09; MVP đã hiện thực và kiểm chứng offline.
 
 ## Mục tiêu và phạm vi
 
@@ -167,7 +167,7 @@ Document ID và file bắt buộc; các trường khác optional, không tự b�
 }
 ```
 
-field_assignments optional, field chỉ nhận responsible/save/participants/follow/inside_unit/outside_unit. Review action chỉ nhận resolve/exclude/accept_missing. Schema/version sai trả 422/409 có mã lỗi; không diễn giải feedback thành thao tác gửi trên iDesk. Lưu append-only để đánh giá/duyệt rule sau, không tự sửa alias/registry.
+field_assignments optional, field chỉ nhận responsible/save/participants/follow/inside_unit/outside_unit. Review action chỉ nhận resolve/exclude/accept_missing. Decision resolve bắt buộc có `recipient_ids` không rỗng, trỏ tới định danh trong danh sách cuối; exclude/accept_missing giữ danh sách này rỗng và có lý do. Với các lý do toàn cục, `mention_id="reason:<review_reason>"` chỉ nhận accept_missing và phải đúng reason của job. Schema/version sai trả 422/409 có mã lỗi; không diễn giải feedback thành thao tác gửi trên iDesk. Lưu append-only để đánh giá/duyệt rule sau, không tự sửa alias/registry.
 
 `GET /health` trả readiness, provider capabilities/configured, schema version, registry_version và alias_policy_version hiện tại, không trả secret. Client so cả hai version trước fill; khác job thì resolve lại. registry_version cập nhật khi DB/overlay/group membership thay đổi; alias_policy_version cập nhật khi policy thay đổi. Cả hai được theo dõi khi đang chạy, không chỉ khi restart.
 

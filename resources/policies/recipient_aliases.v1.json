@@ -1,0 +1,15 @@
+{
+  "version": "1",
+  "aliases": [
+    {"raw_alias": "CT", "canonical_role": "Chủ tịch UBND tỉnh", "verification_status": "verified", "verified_by": "reviewed_design", "evidence": "Chair role abbreviation in recipient section; resolved against current registry"},
+    {"raw_alias": "CVP", "canonical_role": "Chánh Văn phòng UBND tỉnh", "verification_status": "verified", "verified_by": "reviewed_design", "evidence": "Approved role abbreviation, resolved against current registry"},
+    {"raw_alias": "PCT UBND tỉnh", "canonical_role": "Phó Chủ tịch UBND tỉnh", "verification_status": "verified", "verified_by": "reviewed_design", "evidence": "Abbreviation expansion only; ambiguous people remain unresolved"},
+    {"raw_alias": "PCVP", "canonical_role": "Phó Chánh Văn phòng", "verification_status": "verified", "verified_by": "reviewed_design", "evidence": "Abbreviation expansion only; no portfolio mapping"},
+    {"raw_alias": "PVPQT", "verification_status": "pending"},
+    {"raw_alias": "PVPVX", "verification_status": "pending"},
+    {"raw_alias": "PCVP XD", "verification_status": "pending"},
+    {"raw_alias": "PCVPXD", "verification_status": "pending"},
+    {"raw_alias": "VT", "verification_status": "pending", "pending_reason": "policy_unknown"}
+  ],
+  "staff_code": {"verification_status": "verified", "verified_by": "user", "evidence": "Current staff role suffix within the same department; never historical names"}
+}
