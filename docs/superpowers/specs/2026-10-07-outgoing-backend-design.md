@@ -108,7 +108,7 @@ Backend mặc định bind 127.0.0.1:8001. Client tải tài liệu từ iDesk v
 }
 ```
 
-Document ID và file bắt buộc; các trường khác optional, không tự bịa ngày phát hành từ PDF trắng header. HTTP 202 trả `{job_id,status:"queued"}`. Cùng key/cùng fingerprint trả job cũ; cùng key/khác fingerprint trả 409. Fingerprint gồm workflow, file hash, metadata dùng trong resolution và registry_version/alias_policy_version chụp lúc tạo job. Client lấy hai version từ health để cấu thành key; khi version thay đổi, tạo key mới và vẫn dùng lại extraction cache. Phiên bản thực sự job dùng được trả trong result; client kiểm tra lại trước fill để xử lý race cập nhật directory.
+Document ID và file bắt buộc; các trường khác optional, không tự bịa ngày phát hành từ PDF trắng header. HTTP 202 trả `{job_id,status:"queued"}` khi tạo mới. Cùng key/cùng fingerprint và phiên bản xử lý trả job cũ; cùng key/khác fingerprint trả 409. Backend lưu request key gốc và tạo khóa nội bộ theo extractor, prompt, chế độ provider, model và giới hạn đọc. Sau khi phiên bản xử lý đổi, request giống hệt tạo job mới nếu job trước đã completed/failed; job đang chạy vẫn được dùng lại. Bảng job legacy được migrate thêm thông tin phiên bản, giữ nguyên result/snapshot/feedback cũ. Fingerprint gồm workflow, file hash, metadata dùng trong resolution và registry_version/alias_policy_version chụp lúc tạo job. Client lấy hai version từ health để cấu thành key; khi version danh bạ thay đổi, tạo key mới và vẫn dùng lại extraction cache. Phiên bản thực sự job dùng được trả trong result; client kiểm tra lại trước fill để xử lý race cập nhật directory.
 
 ### Đọc job
 

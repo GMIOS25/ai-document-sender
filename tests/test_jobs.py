@@ -1,4 +1,5 @@
 import asyncio
+from dataclasses import replace
 import pytest
 from ai_document_sender.contracts import DocumentMetadata, Evidence, Extraction, Mention
 from ai_document_sender.registry import Registry
@@ -23,6 +24,71 @@ def test_idempotency_conflict_and_lease_recovery(settings):
     assert reclaimed["job_id"] == claimed["job_id"]
     assert reclaimed["lease_token"] != claimed["lease_token"]
     assert not s.update(claimed["job_id"],claimed["lease_token"],status="completed")
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("change", ["extractor", "prompt", "model", "vision_limit", "legacy"])
+async def test_same_request_reprocesses_after_processing_change(settings, monkeypatch, change):
+    from ai_document_sender import extraction, provider
+
+    store = JobStore(settings)
+    calls = []
+
+    async def extract(*args):
+        raw = "V5" if not calls else "V8"
+        calls.append(raw)
+        return Extraction(status="complete", mentions=[Mention(
+            mention_id="m", raw=raw, kind="staff_code",
+            evidence=[Evidence(page=1, section="luu", raw=raw)])])
+
+    original = create(store, settings)
+    await Worker(settings, store, extractor=extract).run_once()
+    saved = store.get(original["job_id"])
+    assert create(store, settings)["job_id"] == original["job_id"]
+    if change == "extractor":
+        monkeypatch.setattr(extraction, "EXTRACTOR_VERSION", "new-extractor")
+    elif change == "prompt":
+        monkeypatch.setattr(provider, "PROMPT_VERSION", "new-prompt")
+    elif change == "model":
+        settings = replace(settings, openrouter_text_model="new-model")
+    elif change == "vision_limit":
+        settings = replace(settings, max_vision_pages=settings.max_vision_pages + 1)
+    else:
+        # Reopen a real pre-migration table, preserving completed audit records.
+        with store.connection() as conn:
+            conn.execute("UPDATE jobs SET idempotency_key='k'")
+            conn.execute("DROP INDEX jobs_request_key")
+            conn.execute("ALTER TABLE jobs DROP COLUMN request_key")
+            conn.execute("ALTER TABLE jobs DROP COLUMN processing_version")
+        monkeypatch.setattr(extraction, "EXTRACTOR_VERSION", "new-extractor")
+    store = JobStore(settings)
+    current = create(store, settings)
+    assert current["job_id"] != original["job_id"]
+    assert create(store, settings)["job_id"] == current["job_id"]
+    await Worker(settings, store, extractor=extract).run_once()
+    assert calls == ["V5", "V8"]
+    assert store.get(current["job_id"])["result"]["people"][0]["recipient_id"] == "internal_485"
+    assert store.get(original["job_id"])["result"] == saved["result"]
+    assert create(store, settings)["job_id"] == current["job_id"]
+    with pytest.raises(StoreError) as error:
+        create(store, settings, data=b"different")
+    assert error.value.code == "idempotency_key_conflict"
+
+
+def test_processing_change_keeps_inflight_request_idempotent(settings, monkeypatch):
+    from ai_document_sender import extraction
+
+    store = JobStore(settings)
+    original = create(store, settings)
+    monkeypatch.setattr(extraction, "EXTRACTOR_VERSION", "new-extractor")
+    assert create(store, settings)["job_id"] == original["job_id"]
+    claimed = store.claim()
+    assert create(store, settings)["job_id"] == original["job_id"]
+    store.update(claimed["job_id"], claimed["lease_token"], status="failed")
+    upgraded = create(store, settings)
+    assert upgraded["job_id"] != original["job_id"]
+    monkeypatch.setattr(extraction, "EXTRACTOR_VERSION", "third-extractor")
+    assert create(store, settings)["job_id"] == upgraded["job_id"]
 
 
 @pytest.mark.asyncio

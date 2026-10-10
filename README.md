@@ -25,7 +25,7 @@ PDF text dùng pypdf/pdfplumber. Vision scan/hybrid cần Poppler `pdftoppm` tro
 
 `GET /health`: schema, hai version registry/policy, provider capability và giới hạn. `POST /v1/outgoing/jobs`: multipart PDF `file` và `metadata` JSON, bắt buộc header `Idempotency-Key`. Metadata cần `document_id`; có thể thêm `sign_number`, `subject`, `document_date`, `issuer`, `department_code`, attachment UID/name. Client tải PDF trong phiên iDesk trước rồi upload bytes; backend không nhận URL/cookie/mật khẩu iDesk.
 
-Tạo job trả 202 `{job_id,status}`. Cùng key/cùng tài liệu/context/snapshot trả job cũ; khác trả 409. Sau khi job failed, muốn thử lại phải dùng key mới. Tạo key từ document ID, file hash và cả hai version ở health. Version đổi vẫn có thể dùng lại extraction cache.
+Tạo job trả 202 `{job_id,status}`. Cùng key/cùng tài liệu/context/snapshot và phiên bản xử lý trả job cũ; khác tài liệu/context/snapshot trả 409. Backend tạo lượt mới khi extractor, prompt, model, chế độ provider hoặc giới hạn đọc thay đổi, kể cả với userscript cũ. Job đang chạy được dùng lại để tránh xử lý trùng; job/kết quả/feedback cũ vẫn giữ để đối chiếu. Sau khi job failed, muốn thử lại cùng phiên bản xử lý phải dùng key mới. Tạo key từ document ID, file hash và cả hai version ở health. Version danh bạ đổi vẫn có thể dùng lại extraction cache.
 
 `GET /v1/outgoing/jobs/{job_id}` trả `{job_id,status,result,error}`. Status: queued/extracting/resolving/completed/failed. Result có `people`, `units`, `mentions`, `unresolved`, `excluded`, bằng chứng, version và `resolution_as_of`. Completed nghĩa xử lý xong; `needs_review` vẫn true nếu partial/failed/unresolved hoặc có cảnh báo. Giao diện phải kiểm tra hai version và identity thực trên iDesk trước khi điền.
 
@@ -57,7 +57,7 @@ Policy alias versioned ở `resources/policies/recipient_aliases.v1.json`. Chỉ
 
 ## Vận hành và kiểm chứng
 
-Một worker dùng SQLite transaction/lease, heartbeat và checkpoint. Restart phục hồi lease hết hạn; poll không tạo job mới. Cache extraction chỉ chia sẻ khi complete, theo file/context/extractor/prompt/model; result được giữ theo idempotency fingerprint có registry+policy. Runtime nằm trong `var/` đã ignore. Khi khởi động, dữ liệu PDF/checkpoint/cache quá `SENDER_RETENTION_DAYS` được dọn nếu không thuộc job còn chạy; result/snapshot/feedback vẫn giữ làm audit. Không dùng đồng thời nhiều process Uvicorn với MVP.
+Một worker dùng SQLite transaction/lease, heartbeat và checkpoint. Restart phục hồi lease hết hạn; poll không tạo job mới. Cache extraction chỉ chia sẻ khi complete, theo file/context/extractor/prompt/model; result được giữ theo idempotency fingerprint có registry+policy và phiên bản xử lý. Runtime nằm trong `var/` đã ignore; bảng job cũ được bổ sung thông tin phiên bản khi khởi động. Bấm Phân tích sau khi nâng phiên bản sẽ tạo job mới thay vì trả kết quả cũ. Khi khởi động, dữ liệu PDF/checkpoint/cache quá `SENDER_RETENTION_DAYS` được dọn nếu không thuộc job còn chạy; result/snapshot/feedback vẫn giữ làm audit. Không dùng đồng thời nhiều process Uvicorn với MVP.
 
 ```powershell
 .\.venv\Scripts\python.exe -m pytest -q

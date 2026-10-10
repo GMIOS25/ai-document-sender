@@ -19,6 +19,15 @@ class StoreError(Exception):
         self.code, self.message, self.status = code, message, status
 
 
+def processing_version(settings):
+    from .extraction import EXTRACTOR_VERSION
+    from .provider import PROMPT_VERSION
+    return digest({"extractor":EXTRACTOR_VERSION,"prompt":PROMPT_VERSION,
+                   "mode":settings.provider_mode,"text_model":settings.openrouter_text_model,
+                   "vision_model":settings.openrouter_vision_model,
+                   "limits":{"max_pages":settings.max_pages,"max_vision_pages":settings.max_vision_pages}})
+
+
 class JobStore:
     def __init__(self, settings):
         self.settings = settings
@@ -37,6 +46,11 @@ class JobStore:
                 CREATE TABLE IF NOT EXISTS feedback (feedback_id TEXT PRIMARY KEY,job_id TEXT NOT NULL,body TEXT NOT NULL,created_at REAL NOT NULL);
                 CREATE TABLE IF NOT EXISTS registry_overlay (overlay_id TEXT PRIMARY KEY, body TEXT NOT NULL,created_at REAL NOT NULL);
             """)
+            columns={row["name"] for row in conn.execute("PRAGMA table_info(jobs)")}
+            for name in ("request_key", "processing_version"):
+                if name not in columns:
+                    conn.execute("ALTER TABLE jobs ADD COLUMN "+name+" TEXT")
+            conn.execute("CREATE INDEX IF NOT EXISTS jobs_request_key ON jobs(request_key)")
 
     @contextmanager
     def connection(self):
@@ -55,14 +69,20 @@ class JobStore:
         input_hash=hashlib.sha256(data).hexdigest()
         fingerprint=digest({"workflow":"outgoing.v1","input":input_hash,"metadata":metadata.model_dump(mode="json"),
                            "registry":registry.registry_version,"policy":registry.alias_policy_version})
+        version=processing_version(self.settings)
+        stored_key=digest({"request_key":key,"processing_version":version})
         now=time.time()
         with self.connection() as conn:
             conn.execute("BEGIN IMMEDIATE")
-            existing=conn.execute("SELECT * FROM jobs WHERE idempotency_key=?",(key,)).fetchone()
-            if existing:
-                if existing["fingerprint"] != fingerprint:
-                    raise StoreError("idempotency_key_conflict","Idempotency key belongs to a different input or snapshot")
-                return dict(existing)
+            # Legacy rows keep their original key; new rows retain the client
+            # intent separately so upgrades cannot replay a completed old result.
+            previous=conn.execute("SELECT * FROM jobs WHERE request_key=? OR idempotency_key=? ORDER BY created_at DESC",(key,key)).fetchall()
+            if any(row["fingerprint"] != fingerprint for row in previous):
+                raise StoreError("idempotency_key_conflict","Idempotency key belongs to a different input or snapshot")
+            active=next((row for row in previous if row["status"] not in {"completed","failed"}),None)
+            current=next((row for row in previous if row["processing_version"] == version),None)
+            if active is not None or current is not None:
+                return dict(active if active is not None else current)
             pending=conn.execute("SELECT COUNT(*) FROM jobs WHERE status NOT IN ('completed','failed')").fetchone()[0]
             if pending >= self.settings.max_pending_jobs:
                 raise StoreError("queue_full","Job queue is full; retry later",429)
@@ -72,8 +92,8 @@ class JobStore:
                 temporary.write_bytes(data)
                 os.replace(temporary,file_path)
             job_id=uuid.uuid4().hex
-            conn.execute("INSERT INTO jobs (job_id,idempotency_key,fingerprint,input_sha256,file_path,metadata,snapshot,status,created_at,updated_at) VALUES (?,?,?,?,?,?,?,'queued',?,?)",
-                         (job_id,key,fingerprint,input_hash,str(file_path),metadata.model_dump_json(),json.dumps(registry.snapshot(),ensure_ascii=False),now,now))
+            conn.execute("INSERT INTO jobs (job_id,idempotency_key,fingerprint,input_sha256,file_path,metadata,snapshot,status,created_at,updated_at,request_key,processing_version) VALUES (?,?,?,?,?,?,?,'queued',?,?,?,?)",
+                         (job_id,stored_key,fingerprint,input_hash,str(file_path),metadata.model_dump_json(),json.dumps(registry.snapshot(),ensure_ascii=False),now,now,key,version))
             return dict(conn.execute("SELECT * FROM jobs WHERE job_id=?",(job_id,)).fetchone())
 
     def get(self, job_id):
@@ -203,13 +223,7 @@ class Worker:
 
     def extraction_key(self,job,metadata):
         # Changing implementations/prompts invalidates caches without editing data.
-        from . import extraction as extraction_module
-        from . import provider as provider_module
-        return digest({"input":job["input_sha256"],"extractor":getattr(extraction_module,"EXTRACTOR_VERSION","extraction-v1"),
-                       "prompt":getattr(provider_module,"PROMPT_VERSION","outgoing-mentions-v1"),
-                       "mode":self.settings.provider_mode,"text_model":self.settings.openrouter_text_model,
-                       "vision_model":self.settings.openrouter_vision_model,
-                       "limits":{"max_pages":self.settings.max_pages,"max_vision_pages":self.settings.max_vision_pages},
+        return digest({"input":job["input_sha256"],"processing":processing_version(self.settings),
                        "context":{k:v for k,v in metadata.model_dump(mode="json").items() if k not in {"document_id","attachment_content_uid","attachment_name"}}})
 
     async def heartbeat(self,job):
