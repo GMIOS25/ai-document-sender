@@ -14,10 +14,11 @@ import pdfplumber
 from pypdf import PdfReader
 from pydantic import ValidationError
 from .contracts import Extraction, Mention
-from .mentions import HEADERS, _entries, compact, extract_rule_mentions, stable_id
+from .mentions import HEADERS, _entries, compact, extract_rule_mentions, normalized, stable_id
+from .article_references import article_number
 from .provider import GeneratedExtraction, ProviderError, PROMPT_VERSION
 
-VERSION = "pdf-regional-v2"
+VERSION = "pdf-regional-v3"
 EXTRACTOR_VERSION = VERSION
 
 
@@ -131,9 +132,7 @@ def _section_source(page, section):
             if other:
                 tail = tail[:other.start()]
         return "\n".join(_entries(tail, section))
-    # Body references require a verified source-to-target link. Until that
-    # link is supported, a model's reference string cannot certify a person
-    # mentioned in background text or in the signature block as a recipient.
+    # Body evidence is checked against verified article subjects in _ground_model.
     return ""
 
 
@@ -147,19 +146,47 @@ def _ground_model(payload, pages, images):
             continue
         page = by_page[transcription.page]
         page["text"] += "\n" + transcription.text
-        if HEADERS["noi_nhan"].search(unicodedata.normalize("NFC", transcription.text)):
+        recipient = unicodedata.normalize("NFC", page.get("recipient_text", ""))
+        header = HEADERS["noi_nhan"].search(recipient)
+        clean_column = header and _entries(recipient[header.end():], "noi_nhan") and "\ufffd" not in recipient
+        # Whole-page OCR supplies article/list bodies; retain a readable layout crop.
+        if HEADERS["noi_nhan"].search(unicodedata.normalize("NFC", transcription.text)) and not clean_column:
             page["recipient_text"] = transcription.text
         page["ocr_text"] = transcription.text
+    rules, _ = extract_rule_mentions(pages)
+    linked = [m for m in rules if any(e.section == "body_reference" for e in m.evidence) and m.kind != "reference"]
     for item in payload.mentions:
+        body_evidence = [e for e in item.evidence if e.section == "body_reference"]
+        # The rules expand these routing links; they are never recipient names.
+        if re.fullmatch(r"(?:Như\s+(?:tại\s+)?)?Điều\s*\d+", normalized(item.raw).strip(" -–—•;."), re.I):
+            continue
+        if not body_evidence and any(e.section == "noi_nhan" and article_number(e.raw.strip(" -–—•")) is not None for e in item.evidence):
+            continue
+        if body_evidence:
+            candidates = [m for m in linked if item.kind == m.kind
+                          and compact(item.raw) in {compact(m.raw), compact(" ".join(filter(None, (m.qualifier, m.raw))))}
+                          and any(compact(ref) == compact(m.references[0]) for ref in item.references)]
+            verified = next((m for m in candidates if all(
+                any(e.page == source.page and compact(e.raw) in compact(source.raw)
+                    for source in m.evidence if source.section == "body_reference")
+                for e in body_evidence)), None)
+            other_valid = all(
+                e.page in by_page and compact(e.raw) in compact(_section_source(by_page[e.page], e.section))
+                for e in item.evidence if e.section != "body_reference"
+            )
+            if (verified is None or not other_valid
+                    or compact(verified.raw) not in compact(" ".join(e.raw for e in body_evidence))):
+                reasons.extend(["unsupported_reference", "ungrounded_model_mention"])
+                continue
+            # Preserve the complete verified chain, including the Nơi nhận link.
+            output.append(verified.model_copy(deep=True))
+            continue
         valid = True
         for evidence in item.evidence:
             page = by_page.get(evidence.page)
             source = _section_source(page, evidence.section) if page else ""
             if not source or compact(evidence.raw) not in compact(source) or compact(item.raw) not in compact(evidence.raw):
                 valid = False
-            if evidence.section == "body_reference":
-                valid = False
-                reasons.append("unsupported_reference")
             # Model offsets are untrusted. Only retain exact source positions.
             if page and evidence.raw in page["text"]:
                 start = page["text"].index(evidence.raw)

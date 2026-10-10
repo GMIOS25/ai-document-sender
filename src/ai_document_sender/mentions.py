@@ -131,6 +131,8 @@ def _split_recipient(entry, page, section, scope):
 
 
 def extract_rule_mentions(pages, metadata=None):
+    from .article_references import expand_article_reference
+
     metadata = metadata.model_dump(mode="json") if hasattr(metadata, "model_dump") else (metadata or {})
     scope = metadata.get("issuer")
     sections, mentions, reasons, reference_pages = [], [], [], []
@@ -151,7 +153,8 @@ def extract_rule_mentions(pages, metadata=None):
                 if re.fullmatch(r"Như\s+trên", entry, re.I):
                     reference_pages.append(page["page"])
                     continue
-                parsed = _split_recipient(entry, page["page"], section, scope)
+                expanded = expand_article_reference(entry, page["page"], pages, scope) if section == "noi_nhan" else None
+                parsed = expanded if expanded is not None else _split_recipient(entry, page["page"], section, scope)
                 if any(m.kind == "reference" for m in parsed):
                     reasons.append("unsupported_reference")
                 mentions.extend(parsed)

@@ -19,6 +19,8 @@ Mặc định chạy `127.0.0.1:8001`, offline, không gửi tài liệu ra Open
 
 PDF text dùng pypdf/pdfplumber. Vision scan/hybrid cần Poppler `pdftoppm` trong PATH hoặc thư mục `SENDER_POPPLER_PATH`. Không cần GPU. Thiếu renderer/model/key sẽ có lý do chưa đọc đủ, không trả danh sách rỗng như thành công đầy đủ.
 
+`Như Điều N` trong Nơi nhận được truy về đúng điều, kể cả nội dung qua nhiều trang. Backend lấy người/đơn vị chịu trách nhiệm, được giao nhiệm vụ hoặc phối hợp; danh sách các Sở được tách riêng. Tham chiếu tới các cá nhân ở điều khác có thể truy tiếp đến danh sách kèm theo, giữ bằng chứng cả chuỗi. Vision cần chép cả nội dung điều và danh sách để kiểm chứng. Thiếu điều/danh sách, tham chiếu vòng hoặc không rõ đối tượng vẫn giữ `reference` cần rà soát; số điều không được dùng làm tên người/đơn vị. Người ký, cơ quan công tác trong danh sách cá nhân và đối tượng chỉ được nhắc trong diễn giải nhiệm vụ không tự trở thành nơi nhận.
+
 ## API outgoing.v1
 
 `GET /health`: schema, hai version registry/policy, provider capability và giới hạn. `POST /v1/outgoing/jobs`: multipart PDF `file` và `metadata` JSON, bắt buộc header `Idempotency-Key`. Metadata cần `document_id`; có thể thêm `sign_number`, `subject`, `document_date`, `issuer`, `department_code`, attachment UID/name. Client tải PDF trong phiên iDesk trước rồi upload bytes; backend không nhận URL/cookie/mật khẩu iDesk.
