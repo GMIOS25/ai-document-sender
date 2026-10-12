@@ -17,8 +17,9 @@ from .contracts import Extraction, Mention
 from .mentions import HEADERS, _entries, compact, extract_rule_mentions, normalized, stable_id
 from .article_references import article_number
 from .provider import GeneratedExtraction, ProviderError, PROMPT_VERSION
+from .ocr import ocr_missing_pages
 
-VERSION = "pdf-regional-v3"
+VERSION = "pdf-local-ocr-v4"
 EXTRACTOR_VERSION = VERSION
 
 
@@ -77,6 +78,8 @@ def select_vision_pages(pages, limit=6):
     required = []
     reasons = []
     for page in pages:
+        if page.get("local_ocr_complete"):
+            continue
         text = unicodedata.normalize("NFC", page.get("text", ""))
         recipient = unicodedata.normalize("NFC", page.get("recipient_text", text))
         header = HEADERS["noi_nhan"].search(recipient)
@@ -89,9 +92,9 @@ def select_vision_pages(pages, limit=6):
         if broken or empty_region or left_image:
             required.append(page["page"])
     all_text = "\n".join(unicodedata.normalize("NFC", page.get("text", "")) for page in pages)
-    if pages and not HEADERS["noi_nhan"].search(all_text):
+    if pages and not pages[-1].get("local_ocr_complete") and not HEADERS["noi_nhan"].search(all_text):
         required.append(pages[-1]["page"])
-    if pages and re.search(r"Như\s+trên", all_text, re.I) and not HEADERS["kinh_gui"].search(all_text):
+    if pages and not pages[0].get("local_ocr_complete") and re.search(r"Như\s+trên", all_text, re.I) and not HEADERS["kinh_gui"].search(all_text):
         required.append(pages[0]["page"])
     required = list(dict.fromkeys(required))
     if len(required) > limit:
@@ -207,16 +210,27 @@ def _ground_model(payload, pages, images):
 async def extract_document(path, provider, metadata, settings):
     started = time.monotonic()
     pages = await asyncio.to_thread(_read_pages, path, settings)
+    local_audit, local_reasons = None, []
+    missing_text = {page["page"] for page in pages if not page["text"].strip()}
+    if settings.ocr_backend == "vietocr" and missing_text:
+        local_audit, local_reasons = await asyncio.to_thread(ocr_missing_pages, path, pages, settings)
     rules, rule_reasons = extract_rule_mentions(pages, metadata)
     chosen, vision_reasons = select_vision_pages(pages, settings.max_vision_pages)
+    if settings.ocr_backend == "vietocr":
+        # Explicit local OCR never silently falls back to slow cloud OCR on failure.
+        if missing_text.intersection(chosen):
+            local_reasons.append("unreadable_region")
+        chosen = [page for page in chosen if page not in missing_text]
     audit = {"extractor_version": VERSION, "prompt_version": PROMPT_VERSION, "vision_pages_requested": chosen, "provider_used": False}
+    if local_audit is not None:
+        audit["local_ocr"] = local_audit
     if provider is None or getattr(provider, "available", True) is False:
-        reasons = rule_reasons + vision_reasons + ["provider_unavailable"]
+        reasons = rule_reasons + vision_reasons + local_reasons + ["provider_unavailable"]
         if chosen:
             reasons.append("unreadable_region")
         audit["duration_ms"] = round((time.monotonic()-started)*1000, 2)
         return Extraction(mentions=rules, status="partial", review_reasons=list(dict.fromkeys(reasons)), pages=pages, audit=audit)
-    images, reasons = [], list(vision_reasons)
+    images, reasons = [], list(vision_reasons) + local_reasons
     if chosen:
         try:
             images = await asyncio.to_thread(_render_pages, path, chosen, settings)

@@ -19,6 +19,43 @@ Mặc định chạy `127.0.0.1:8001`, offline, không gửi tài liệu ra Open
 
 PDF text dùng pypdf/pdfplumber. Vision scan/hybrid cần Poppler `pdftoppm` trong PATH hoặc thư mục `SENDER_POPPLER_PATH`. Không cần GPU. Thiếu renderer/model/key sẽ có lý do chưa đọc đủ, không trả danh sách rỗng như thành công đầy đủ.
 
+### OCR cục bộ bằng VietOCR
+
+Để đọc nhanh các trang không có lớp chữ, bật `SENDER_OCR_BACKEND=vietocr` trong `.env`.
+Trang có chữ vẫn đọc trực tiếp. Trang scan dùng model PP-OCRv4 qua ONNX Runtime/OpenCV
+**chỉ để phát hiện vị trí dòng**, sau đó [VietOCR](https://github.com/pbcquoc/vietocr)
+`vgg_seq2seq` nhận dạng chữ tiếng Việt.
+Model được giữ trong RAM và nhận dạng theo batch. `SENDER_OCR_DEVICE=auto` chọn CUDA khi
+PyTorch hỗ trợ GPU, nếu không dùng CPU; có thể đặt `cpu` hoặc `cuda:0`.
+
+PowerShell tại repo (VietOCR upstream đọc README theo UTF-8 khi cài đặt):
+
+```powershell
+$env:PYTHONUTF8 = '1'
+# Máy NVIDIA có driver hỗ trợ CUDA 12.6; bỏ dòng này nếu chỉ dùng CPU.
+.\.venv\Scripts\python.exe -m pip install torch==2.9.1 torchvision==0.24.1 --index-url https://download.pytorch.org/whl/cu126
+.\.venv\Scripts\python.exe -m pip install -e ".[ocr]"
+.\.venv\Scripts\python.exe -m ai_document_sender prepare-ocr
+```
+
+```dotenv
+SENDER_OCR_BACKEND=vietocr
+SENDER_OCR_DEVICE=auto
+SENDER_OCR_BATCH_SIZE=16
+SENDER_OCR_WEIGHTS=var/models/vgg_seq2seq.pth
+```
+
+Khởi động lại backend sau khi đổi cấu hình. Các trang scan đã OCR cục bộ được gửi dưới
+dạng **chữ** tới `OPENROUTER_TEXT_MODEL` để phân tích nơi nhận, không gửi ảnh tới model
+vision. Chế độ offline cũng nhận được phần trích xuất theo rule từ chữ OCR.
+Lần đầu cần thời gian nạp model; các lượt tiếp theo dùng lại model. Không tự tải weights
+khi xử lý tài liệu và không tự quay lại cloud OCR khi OCR cục bộ lỗi. Thiếu phụ thuộc,
+weights, trang không đọc được hoặc độ tin cậy thấp đều giữ trạng thái cần rà soát.
+Giới hạn `SENDER_MAX_VISION_PAGES` chỉ áp dụng cloud vision, không cắt số trang OCR cục bộ.
+Checkpoint giữ vị trí/độ tin cậy dòng; audit lưu trang OCR, GPU/CPU và thời gian. Đổi cấu hình OCR tạo
+lượt xử lý mới để tránh dùng lại kết quả cũ. Bản upstream được ghim commit vì VietOCR
+0.3.13 trên PyPI khóa Pillow cũ không tương thích Python 3.14.
+
 `Như Điều N` trong Nơi nhận được truy về đúng điều, kể cả nội dung qua nhiều trang. Backend lấy người/đơn vị chịu trách nhiệm, được giao nhiệm vụ hoặc phối hợp; danh sách các Sở được tách riêng. Tham chiếu tới các cá nhân ở điều khác có thể truy tiếp đến danh sách kèm theo, giữ bằng chứng cả chuỗi. Vision cần chép cả nội dung điều và danh sách để kiểm chứng. Thiếu điều/danh sách, tham chiếu vòng hoặc không rõ đối tượng vẫn giữ `reference` cần rà soát; số điều không được dùng làm tên người/đơn vị. Người ký, cơ quan công tác trong danh sách cá nhân và đối tượng chỉ được nhắc trong diễn giải nhiệm vụ không tự trở thành nơi nhận.
 
 ## API outgoing.v1

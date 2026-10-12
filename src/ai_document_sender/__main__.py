@@ -10,11 +10,15 @@ def main():
     parser.add_argument("--env-file",type=Path)
     sub=parser.add_subparsers(dest="command")
     sub.add_parser("serve")
+    sub.add_parser("prepare-ocr", help="Download the local VietOCR model once")
     overlay=sub.add_parser("import-overlay")
     overlay.add_argument("path",type=Path)
     args=parser.parse_args()
     settings=Settings.from_env(args.env_file)
-    if args.command == "import-overlay":
+    if args.command == "prepare-ocr":
+        from .ocr import prepare_weights
+        print(f"VietOCR weights ready: {prepare_weights(settings)}")
+    elif args.command == "import-overlay":
         from .jobs import JobStore
         records=json.loads(args.path.read_text(encoding="utf-8-sig"))
         if not isinstance(records,list): parser.error("Overlay must be a JSON list of verified records")

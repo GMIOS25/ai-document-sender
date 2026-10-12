@@ -1,5 +1,6 @@
 import asyncio
 import tempfile
+from dataclasses import replace
 from pathlib import Path
 from unittest.mock import patch
 
@@ -160,3 +161,58 @@ def test_partial_word_header_spacing_and_inline_addressee_are_read():
     assert "recipient_sections_missing" not in reasons
     assert {"Sở Nông nghiệp và Môi trường", "VT", "V1"} <= {m.raw for m in mentions}
     assert not any("Thực hiện" in m.raw for m in mentions)
+
+
+def test_vietocr_scan_supplies_grounded_text_without_cloud_images(settings):
+    scan = pages("")
+    scan[0]["images"] = [{"bbox": [0, 0, 595, 842]}]
+    provider = FakeProvider({"mentions": [{"raw": "Chủ tịch UBND tỉnh", "kind": "role",
+        "evidence": [{"page": 1, "section": "noi_nhan", "raw": "Chủ tịch UBND tỉnh"}]}],
+        "status": "complete", "review_reasons": [], "ocr_pages": []})
+    configured = replace(settings, ocr_backend="vietocr")
+    def ocr(path, records, active_settings):
+        records[0].update(text=TEXT, ocr_text=TEXT, recipient_text=TEXT, local_ocr_complete=True)
+        return {"backend": "vietocr", "pages": [1], "device": "cpu", "duration_ms": 10}, []
+    with patch("ai_document_sender.extraction._read_pages", return_value=scan), \
+            patch("ai_document_sender.extraction.ocr_missing_pages", side_effect=ocr), \
+            patch("ai_document_sender.extraction._render_pages") as renderer:
+        result = asyncio.run(extract_document(Path("scan.pdf"), provider,
+            DocumentMetadata(document_id="local-scan"), configured))
+    renderer.assert_not_called()
+    assert provider.calls == [None]
+    assert result.status == "complete"
+    assert result.audit["local_ocr"]["pages"] == [1]
+    assert any(m.raw == "Chủ tịch UBND tỉnh" for m in result.mentions)
+
+
+def test_vietocr_also_recovers_rules_offline_and_skips_text_pages(settings):
+    configured = replace(settings, ocr_backend="vietocr")
+    def ocr(path, records, active_settings):
+        records[0].update(text=TEXT, ocr_text=TEXT, recipient_text=TEXT, local_ocr_complete=True)
+        return {"backend": "vietocr", "pages": [1]}, []
+    with patch("ai_document_sender.extraction._read_pages", return_value=pages("")), \
+            patch("ai_document_sender.extraction.ocr_missing_pages", side_effect=ocr):
+        result = asyncio.run(extract_document(Path("scan.pdf"), None,
+            DocumentMetadata(document_id="offline-scan"), configured))
+    assert any(m.raw == "V5" for m in result.mentions)
+    assert "unreadable_region" not in result.review_reasons
+    with patch("ai_document_sender.extraction._read_pages", return_value=pages()), \
+            patch("ai_document_sender.extraction.ocr_missing_pages") as local:
+        asyncio.run(extract_document(Path("text.pdf"), None,
+            DocumentMetadata(document_id="text"), configured))
+    local.assert_not_called()
+
+
+def test_vietocr_failure_is_reviewable_and_does_not_use_cloud_ocr(settings):
+    configured = replace(settings, ocr_backend="vietocr")
+    provider = FakeProvider({"mentions": [], "status": "partial", "review_reasons": [], "ocr_pages": []})
+    with patch("ai_document_sender.extraction._read_pages", return_value=pages("")), \
+            patch("ai_document_sender.extraction.ocr_missing_pages",
+                  return_value=({"backend": "vietocr", "pages": []}, ["local_ocr_unavailable"])), \
+            patch("ai_document_sender.extraction._render_pages") as renderer:
+        result = asyncio.run(extract_document(Path("scan.pdf"), provider,
+            DocumentMetadata(document_id="bad-ocr"), configured))
+    renderer.assert_not_called()
+    assert "local_ocr_unavailable" in result.review_reasons
+    assert "unreadable_region" in result.review_reasons
+    assert result.status == "partial"

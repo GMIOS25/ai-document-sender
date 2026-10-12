@@ -90,12 +90,14 @@ def create_app(settings=None,provider=None,extractor=None):
 
     @app.get("/health",dependencies=[Depends(authenticate)])
     async def health():
+        from .ocr import capabilities as ocr_capabilities
         registry=current_registry()
         active=getattr(app.state,"provider",None)
         capabilities=active.capabilities() if active and hasattr(active,"capabilities") else {"text":False,"vision":False}
         return {"readiness":"ready","schema_version":"outgoing.v1","registry_version":registry.registry_version,
                 "alias_policy_version":registry.alias_policy_version,"provider":{"mode":settings.provider_mode,
                 "configured":bool(active and getattr(active,"available",True)),"capabilities":capabilities},
+                "local_ocr":ocr_capabilities(settings),
                 "limits":{"max_file_bytes":settings.max_file_bytes,"max_pages":settings.max_pages}}
 
     @app.get("/v1/outgoing/recipients/search",dependencies=[Depends(authenticate)])

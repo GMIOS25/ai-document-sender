@@ -22,9 +22,14 @@ class StoreError(Exception):
 def processing_version(settings):
     from .extraction import EXTRACTOR_VERSION
     from .provider import PROMPT_VERSION
+    from .ocr import VERSION as OCR_VERSION, model_signature
     return digest({"extractor":EXTRACTOR_VERSION,"prompt":PROMPT_VERSION,
                    "mode":settings.provider_mode,"text_model":settings.openrouter_text_model,
                    "vision_model":settings.openrouter_vision_model,
+                   "local_ocr":{"backend":settings.ocr_backend,"device":settings.ocr_device,
+                                "weights":str(settings.ocr_weights),"batch_size":settings.ocr_batch_size,
+                                "version":OCR_VERSION,
+                                "model_signature":model_signature(settings) if settings.ocr_backend == "vietocr" else None},
                    "limits":{"max_pages":settings.max_pages,"max_vision_pages":settings.max_vision_pages}})
 
 

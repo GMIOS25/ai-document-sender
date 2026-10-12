@@ -11,6 +11,14 @@ dependencies = ["fastapi>=0.115", "uvicorn>=0.30", "pydantic>=2.8", "python-mult
 
 [project.optional-dependencies]
 test = ["pytest>=8", "pytest-asyncio>=0.24", "reportlab>=4"]
+ocr = [
+    # Upstream fixes the old PyPI release's incompatible Pillow/training pins.
+    "vietocr @ https://github.com/pbcquoc/vietocr/archive/fe8c3a7fc714aec57ab81cec844eb3adf0c1636c.zip",
+    "onnxruntime>=1.23,<2",
+    "opencv-python-headless>=4.10,<6",
+    "torch>=2.9,<3",
+    "torchvision>=0.24,<1",
+]
 
 [tool.setuptools.packages.find]
 where = ["src"]

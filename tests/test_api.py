@@ -32,6 +32,15 @@ def test_upload_auth_bounds_and_search(settings):
         assert submit(client).status_code == 413
 
 
+def test_health_reports_local_ocr_configuration_and_missing_weights(settings):
+    configured = replace(settings, ocr_backend="vietocr", ocr_weights=settings.runtime_dir / "missing.pth")
+    with TestClient(create_app(configured)) as client:
+        health = client.get("/health").json()
+    assert health["local_ocr"]["backend"] == "vietocr"
+    assert health["local_ocr"]["weights_ready"] is False
+    assert health["local_ocr"]["configured"] is False
+
+
 def test_create_poll_feedback_smoke_and_source_unchanged(settings):
     async def extract(*args):
         return Extraction(status="partial",mentions=[Mention(mention_id="m",raw="Chủ tịch UBND tỉnh",kind="role",evidence=[Evidence(page=1,section="noi_nhan",raw="Chủ tịch UBND tỉnh")])])

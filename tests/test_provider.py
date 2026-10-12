@@ -60,6 +60,23 @@ def test_vision_uses_only_configured_vision_model_and_data_url():
     assert any(c["type"] == "image_url" for c in calls[0]["messages"][1]["content"])
 
 
+def test_local_ocr_sends_text_without_duplicate_transcription_or_line_audit():
+    calls = []
+    def handler(request):
+        calls.append(json.loads(request.content))
+        return response(json.dumps(valid()))
+    page = {"page": 1, "text": "Nơi nhận:\n- Sở Y tế;", "recipient_text": "Nơi nhận:\n- Sở Y tế;",
+            "ocr_text": "Nơi nhận:\n- Sở Y tế;", "ocr_lines": [{"text": "Sở Y tế", "confidence": 0.99}],
+            "local_ocr_complete": True}
+    asyncio.run(provider(handler).extract_mentions([page], {}))
+    content = calls[0]["messages"][1]["content"]
+    sent = json.loads(content[0]["text"])["pages"][0]
+    assert sent["text"] == page["text"] and sent["recipient_text"] == page["recipient_text"]
+    assert not {"ocr_text", "ocr_lines", "local_ocr_complete"}.intersection(sent)
+    assert len(content) == 1 and calls[0]["model"] == "configured/text:free"
+    assert page["ocr_lines"][0]["confidence"] == 0.99
+
+
 def test_429_retry_after_is_honored_with_bounded_attempts():
     attempts, sleeps = [], []
     async def sleep(seconds):

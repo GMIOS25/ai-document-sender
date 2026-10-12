@@ -121,7 +121,11 @@ class OpenRouterProvider:
 
     async def extract_mentions(self, pages, metadata, images=None):
         model = self._require(bool(images))
-        payload = {"metadata": _dump(metadata), "pages": pages}
+        # OCR line boxes/scores stay in the checkpoint; avoid duplicating text
+        # and inflating the analysis request with local inference diagnostics.
+        input_pages = [{key: value for key, value in page.items()
+                        if key not in {"ocr_text", "ocr_lines", "local_ocr_complete"}} for page in pages]
+        payload = {"metadata": _dump(metadata), "pages": input_pages}
         content = [{"type": "text", "text": json.dumps(payload, ensure_ascii=False)}]
         for image in images or []:
             if not isinstance(image.get("data_url"), str) or not image["data_url"].startswith("data:image/"):

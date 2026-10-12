@@ -27,6 +27,10 @@ class Settings:
     max_pages: int = 100
     max_vision_pages: int = 6
     poppler_path: str | None = None
+    ocr_backend: str = "disabled"
+    ocr_device: str = "auto"
+    ocr_batch_size: int = 16
+    ocr_weights: Path = ROOT / "var/models/vgg_seq2seq.pth"
     lease_seconds: int = 300
     max_pending_jobs: int = 32
     retention_days: int = 7
@@ -50,6 +54,12 @@ class Settings:
             raise ValueError("Limits must be positive")
         if self.provider_timeout_seconds <= 0 or self.provider_max_retries < 0 or self.max_vision_pages < 0:
             raise ValueError("Provider limits must be bounded positive values")
+        if self.ocr_backend not in {"disabled", "vietocr"}:
+            raise ValueError("SENDER_OCR_BACKEND must be disabled or vietocr")
+        if self.ocr_device not in {"auto", "cpu", "cuda", "cuda:0"}:
+            raise ValueError("SENDER_OCR_DEVICE must be auto, cpu, cuda or cuda:0")
+        if not 1 <= self.ocr_batch_size <= 64:
+            raise ValueError("SENDER_OCR_BATCH_SIZE must be between 1 and 64")
         return self
 
     @classmethod
@@ -71,10 +81,12 @@ class Settings:
             "provider_max_retries": ("SENDER_PROVIDER_MAX_RETRIES", int), "max_file_bytes": ("SENDER_MAX_FILE_BYTES", int),
             "max_pages": ("SENDER_MAX_PAGES", int), "max_vision_pages": ("SENDER_MAX_VISION_PAGES", int),
             "poppler_path": ("SENDER_POPPLER_PATH", str), "lease_seconds": ("SENDER_LEASE_SECONDS", int),
+            "ocr_backend": ("SENDER_OCR_BACKEND", str), "ocr_device": ("SENDER_OCR_DEVICE", str),
+            "ocr_batch_size": ("SENDER_OCR_BATCH_SIZE", int), "ocr_weights": ("SENDER_OCR_WEIGHTS", Path),
             "max_pending_jobs": ("SENDER_MAX_PENDING_JOBS", int), "retention_days": ("SENDER_RETENTION_DAYS", int),
         }
         kwargs = {field: cast(values[key]) for field, (key, cast) in mapping.items() if values.get(key)}
-        for name in ("lookup_db", "policy_path", "runtime_dir"):
+        for name in ("lookup_db", "policy_path", "runtime_dir", "ocr_weights"):
             if name in kwargs and not kwargs[name].is_absolute():
                 kwargs[name] = (ROOT / kwargs[name]).resolve()
         return cls(**kwargs).validate()

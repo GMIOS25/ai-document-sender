@@ -10,6 +10,19 @@ def create(store, settings, key="k", data=b"fake-pdf"):
     return store.create(data, DocumentMetadata(document_id="doc",department_code="KGVX"), key, Registry(settings))
 
 
+def test_replacing_local_ocr_weights_invalidates_processing_version(settings):
+    from ai_document_sender.jobs import processing_version
+    path = settings.runtime_dir / "weights.pth"
+    configured = replace(settings, ocr_backend="vietocr", ocr_weights=path)
+    path.parent.mkdir(parents=True)
+    before = processing_version(configured)
+    path.write_bytes(b"first model")
+    first = processing_version(configured)
+    path.write_bytes(b"second model with different weights")
+    assert first != before
+    assert processing_version(configured) != first
+
+
 def test_idempotency_conflict_and_lease_recovery(settings):
     s = JobStore(settings)
     a = create(s, settings)
@@ -27,7 +40,7 @@ def test_idempotency_conflict_and_lease_recovery(settings):
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("change", ["extractor", "prompt", "model", "vision_limit", "legacy"])
+@pytest.mark.parametrize("change", ["extractor", "prompt", "model", "vision_limit", "ocr", "legacy"])
 async def test_same_request_reprocesses_after_processing_change(settings, monkeypatch, change):
     from ai_document_sender import extraction, provider
 
@@ -53,6 +66,8 @@ async def test_same_request_reprocesses_after_processing_change(settings, monkey
         settings = replace(settings, openrouter_text_model="new-model")
     elif change == "vision_limit":
         settings = replace(settings, max_vision_pages=settings.max_vision_pages + 1)
+    elif change == "ocr":
+        settings = replace(settings, ocr_backend="vietocr")
     else:
         # Reopen a real pre-migration table, preserving completed audit records.
         with store.connection() as conn:
