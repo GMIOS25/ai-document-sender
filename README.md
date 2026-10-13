@@ -13,7 +13,7 @@ Copy-Item .env.example .env
 .\.venv\Scripts\python.exe -m ai_document_sender serve
 ```
 
-Mặc định chạy `127.0.0.1:8001`, offline, không gửi tài liệu ra OpenRouter. Biến môi trường của process ưu tiên hơn `.env`; đường dẫn tương đối theo repo. API dùng `X-API-Key` khi có `SENDER_API_KEY`. Bind ngoài loopback bắt buộc cấu hình key. Không đưa key OpenRouter vào Script-Idesk.
+Mặc định chạy `127.0.0.1:8000`, offline, không gửi tài liệu ra OpenRouter. Biến môi trường của process ưu tiên hơn `.env`; đường dẫn tương đối theo repo. API dùng `X-API-Key` khi có `SENDER_API_KEY`. Bind ngoài loopback bắt buộc cấu hình key. Không đưa key OpenRouter vào Script-Idesk.
 
 Để thử cloud, chỉnh `SENDER_PROVIDER_MODE=cloud`, `OPENROUTER_API_KEY`, `OPENROUTER_TEXT_MODEL`, và model vision nếu cần trong `.env` backend. Chọn model còn hoạt động, hỗ trợ JSON/vision và hạn mức phù hợp; không có fallback tự động sang model trả phí. Bản offline giữ phần deterministic có thể đọc, trả partial/review khi chưa chứng minh đủ; không phải chế độ đạt 95–99%.
 

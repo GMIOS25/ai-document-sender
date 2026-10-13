@@ -72,7 +72,10 @@ def init_database(db_path: Path):
     """Khởi tạo cấu trúc các bảng và chỉ mục trong SQLite."""
     if db_path.exists():
         try:
-            db_path.unlink()
+            for suffix in ["", "-wal", "-shm"]:
+                p = db_path.with_name(db_path.name + suffix) if suffix else db_path
+                if p.exists():
+                    p.unlink()
             print(f"[*] Đã xóa database cũ tại {db_path.name}")
         except Exception as e:
             print(f"[!] Không thể xóa file DB cũ ({e}), sẽ làm sạch các bảng hiện có.")
@@ -463,6 +466,7 @@ def main():
         print(f"  - {r_type:<25}: {count:>5} bản ghi")
     print("=" * 60)
 
+    conn.execute("PRAGMA wal_checkpoint(TRUNCATE);")
     conn.close()
 
 
