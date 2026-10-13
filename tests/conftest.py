@@ -34,4 +34,4 @@ def settings(tmp_path):
     c.commit(); c.close()
     from pathlib import Path
     policy = Path(__file__).resolve().parents[1] / "resources/policies/recipient_aliases.v1.json"
-    return Settings(lookup_db=db, policy_path=policy, runtime_dir=tmp_path / "runtime", worker_enabled=False)
+    return Settings(lookup_db=db, tenants_dir=tmp_path / "tenants", policy_path=policy, runtime_dir=tmp_path / "runtime", worker_enabled=False)

@@ -11,6 +11,8 @@ ROOT = Path(__file__).resolve().parents[2]
 @dataclass(frozen=True)
 class Settings:
     lookup_db: Path = ROOT / "resources/data/lookup.db"
+    tenants_dir: Path = ROOT / "resources/tenants"
+    default_tenant: str = "vpub"
     policy_path: Path = ROOT / "resources/policies/recipient_aliases.v1.json"
     runtime_dir: Path = ROOT / "var"
     host: str = "127.0.0.1"
@@ -72,7 +74,8 @@ class Settings:
             values.update(dotenv_values(path,encoding="utf-8-sig",interpolate=False))
         values.update(os.environ)
         mapping = {
-            "lookup_db": ("SENDER_LOOKUP_DB", Path), "policy_path": ("SENDER_POLICY_PATH", Path),
+            "lookup_db": ("SENDER_LOOKUP_DB", Path), "tenants_dir": ("SENDER_TENANTS_DIR", Path),
+            "default_tenant": ("SENDER_DEFAULT_TENANT", str), "policy_path": ("SENDER_POLICY_PATH", Path),
             "runtime_dir": ("SENDER_RUNTIME_DIR", Path), "host": ("SENDER_HOST", str), "port": ("SENDER_PORT", int),
             "api_key": ("SENDER_API_KEY", str), "provider_mode": ("SENDER_PROVIDER_MODE", str),
             "openrouter_api_key": ("OPENROUTER_API_KEY", str), "openrouter_text_model": ("OPENROUTER_TEXT_MODEL", str),
@@ -86,7 +89,7 @@ class Settings:
             "max_pending_jobs": ("SENDER_MAX_PENDING_JOBS", int), "retention_days": ("SENDER_RETENTION_DAYS", int),
         }
         kwargs = {field: cast(values[key]) for field, (key, cast) in mapping.items() if values.get(key)}
-        for name in ("lookup_db", "policy_path", "runtime_dir", "ocr_weights"):
+        for name in ("lookup_db", "tenants_dir", "policy_path", "runtime_dir", "ocr_weights"):
             if name in kwargs and not kwargs[name].is_absolute():
                 kwargs[name] = (ROOT / kwargs[name]).resolve()
         return cls(**kwargs).validate()

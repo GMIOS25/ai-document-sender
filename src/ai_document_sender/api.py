@@ -14,6 +14,8 @@ from .config import Settings
 from .contracts import DocumentMetadata, Feedback, JobEnvelope
 from .jobs import JobStore, StoreError, Worker
 from .registry import Registry
+from .tenants import TenantManager, normalize_tenant_id
+from .sync import sync_tenant_lookup
 
 
 class RequestTooLarge(Exception): pass
@@ -46,6 +48,7 @@ class RequestLimit:
 
 def create_app(settings=None,provider=None,extractor=None):
     settings=(settings or Settings.from_env()).validate()
+    tenant_manager=TenantManager(settings)
 
     @asynccontextmanager
     async def lifespan(app):
@@ -83,31 +86,34 @@ def create_app(settings=None,provider=None,extractor=None):
     async def validation_error(request,error):
         return JSONResponse({"error":{"code":"invalid_request","message":"Request does not match outgoing.v1 schema"}},status_code=422)
 
-    def current_registry():
-        try: return Registry(settings)
+    def current_registry(tenant_id: str | None = None):
+        tid=normalize_tenant_id(tenant_id, settings.default_tenant)
+        try: return tenant_manager.get_registry(tid)
         except (OSError,ValueError,KeyError,sqlite3.Error) as error:
-            raise StoreError("registry_unavailable","Registry or policy could not be loaded",503) from error
+            raise StoreError("registry_unavailable",f"Registry or policy could not be loaded for tenant '{tid}'",503) from error
 
     @app.get("/health",dependencies=[Depends(authenticate)])
-    async def health():
+    async def health(x_tenant_id: str | None = Header(default=None)):
         from .ocr import capabilities as ocr_capabilities
-        registry=current_registry()
+        registry=current_registry(x_tenant_id)
         active=getattr(app.state,"provider",None)
         capabilities=active.capabilities() if active and hasattr(active,"capabilities") else {"text":False,"vision":False}
-        return {"readiness":"ready","schema_version":"outgoing.v1","registry_version":registry.registry_version,
+        tid=normalize_tenant_id(x_tenant_id, settings.default_tenant)
+        return {"readiness":"ready","schema_version":"outgoing.v1","tenant_id":tid,
+                "registry_version":registry.registry_version,
                 "alias_policy_version":registry.alias_policy_version,"provider":{"mode":settings.provider_mode,
                 "configured":bool(active and getattr(active,"available",True)),"capabilities":capabilities},
                 "local_ocr":ocr_capabilities(settings),
                 "limits":{"max_file_bytes":settings.max_file_bytes,"max_pages":settings.max_pages}}
 
     @app.get("/v1/outgoing/recipients/search",dependencies=[Depends(authenticate)])
-    async def search(q: str = Query(min_length=1,max_length=256),limit: int = Query(default=10,ge=1,le=50)):
-        registry=current_registry()
+    async def search(q: str = Query(min_length=1,max_length=256),limit: int = Query(default=10,ge=1,le=50),x_tenant_id: str | None = Header(default=None)):
+        registry=current_registry(x_tenant_id)
         return {"items":[r.model_dump(mode="json") for r in registry.search(q,limit)],
                 "registry_version":registry.registry_version,"alias_policy_version":registry.alias_policy_version}
 
     @app.post("/v1/outgoing/jobs",status_code=202,dependencies=[Depends(authenticate)])
-    async def create_job(file: UploadFile = File(),metadata: str = Form(),idempotency_key: str | None = Header(default=None)):
+    async def create_job(file: UploadFile = File(),metadata: str = Form(),idempotency_key: str | None = Header(default=None),x_tenant_id: str | None = Header(default=None)):
         if not idempotency_key or len(idempotency_key)>256 or not idempotency_key.strip():
             raise StoreError("invalid_idempotency_key","Idempotency-Key is required and must be at most 256 characters",422)
         if len(metadata)>32768: raise StoreError("invalid_metadata","Metadata exceeds limit",422)
@@ -127,7 +133,7 @@ def create_app(settings=None,provider=None,extractor=None):
             except StoreError: raise
             except Exception as error: raise StoreError("invalid_pdf","PDF could not be parsed",422) from error
         await asyncio.to_thread(check_pdf)
-        created=app.state.store.create(data,parsed,idempotency_key,current_registry())
+        created=app.state.store.create(data,parsed,idempotency_key,current_registry(x_tenant_id))
         return {"job_id":created["job_id"],"status":created["status"]}
 
     @app.get("/v1/outgoing/jobs/{job_id}",response_model=JobEnvelope,dependencies=[Depends(authenticate)])
@@ -136,7 +142,15 @@ def create_app(settings=None,provider=None,extractor=None):
         return {key:job[key] for key in ("job_id","status","result","error")}
 
     @app.post("/v1/outgoing/jobs/{job_id}/feedback",status_code=201,dependencies=[Depends(authenticate)])
-    async def feedback(job_id: str,body: Feedback):
-        return {"feedback_id":app.state.store.feedback(job_id,body,current_registry())}
+    async def feedback(job_id: str,body: Feedback,x_tenant_id: str | None = Header(default=None)):
+        return {"feedback_id":app.state.store.feedback(job_id,body,current_registry(x_tenant_id))}
+
+    @app.post("/v1/sync/lookup",dependencies=[Depends(authenticate)])
+    async def sync_lookup(body: dict,x_tenant_id: str | None = Header(default=None)):
+        tid=normalize_tenant_id(x_tenant_id, settings.default_tenant)
+        try:
+            return await asyncio.to_thread(sync_tenant_lookup, tid, body, settings, tenant_manager)
+        except Exception as error:
+            raise StoreError("sync_failed", f"Lookup sync failed for tenant '{tid}': {error}", 500) from error
 
     return app
