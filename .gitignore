@@ -96,3 +96,9 @@ ehthumbs.db
 Thumbs.db
 Desktop.ini
 $RECYCLE.BIN/
+
+
+resources/tenants/**/lookup.db
+resources/tenants/**/metadata.json
+resources/tenants/**/unit_except_provice.json
+resources/tenants/**/unit_internal_province.json
