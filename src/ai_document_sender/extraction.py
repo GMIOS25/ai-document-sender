@@ -15,11 +15,11 @@ from pypdf import PdfReader
 from pydantic import ValidationError
 from .contracts import Extraction, Mention
 from .mentions import HEADERS, _entries, compact, extract_rule_mentions, normalized, stable_id
-from .article_references import article_number
+from .article_references import reference_target
 from .provider import GeneratedExtraction, ProviderError, PROMPT_VERSION
 from .ocr import ocr_missing_pages
 
-VERSION = "pdf-local-ocr-v4"
+VERSION = "pdf-local-ocr-v6"
 EXTRACTOR_VERSION = VERSION
 
 
@@ -161,9 +161,9 @@ def _ground_model(payload, pages, images):
     for item in payload.mentions:
         body_evidence = [e for e in item.evidence if e.section == "body_reference"]
         # The rules expand these routing links; they are never recipient names.
-        if re.fullmatch(r"(?:Như\s+(?:tại\s+)?)?Điều\s*\d+", normalized(item.raw).strip(" -–—•;."), re.I):
+        if reference_target(normalized(item.raw).strip(" -–—•;.")) is not None:
             continue
-        if not body_evidence and any(e.section == "noi_nhan" and article_number(e.raw.strip(" -–—•")) is not None for e in item.evidence):
+        if not body_evidence and any(e.section == "noi_nhan" and reference_target(e.raw.strip(" -–—•")) is not None for e in item.evidence):
             continue
         if body_evidence:
             candidates = [m for m in linked if item.kind == m.kind

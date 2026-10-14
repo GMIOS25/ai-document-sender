@@ -98,7 +98,7 @@ def _split_recipient(entry, page, section, scope):
             output.append(make_mention(residual, "unknown", page, "luu", entry, organization_scope=scope))
         return output
 
-    if re.search(r"\b(?:mục|điều|khoản)\s+\d", entry, re.I):
+    if re.search(r"\b(?:mục|điều|khoản|điểm)\s+(?:\d+|[ivxlcdm]+\b|[a-zđ]\b)", entry, re.I):
         return [make_mention(entry, "reference", page, section, references=[entry], organization_scope=scope)]
 
     # Expand explicit enumerations but retain the parent phrase as evidence/context.

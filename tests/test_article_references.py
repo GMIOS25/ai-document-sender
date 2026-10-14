@@ -1,4 +1,5 @@
 import asyncio
+import json
 from pathlib import Path
 from unittest.mock import patch
 
@@ -337,3 +338,166 @@ def test_full_page_ocr_preserves_existing_clean_recipient_column(settings):
         result = asyncio.run(extract_document(Path("unused.pdf"), provider, DocumentMetadata(document_id="hybrid-article"), settings))
     assert any(m.raw == "Thuế tỉnh" for m in result.mentions)
     assert not any(m.kind == "reference" for m in result.mentions)
+
+
+def test_3654_actual_ocr_follows_article_one_and_recovers_attached_members():
+    source = json.loads((Path(__file__).parent / "fixtures/3654_vietocr_pages.json").read_text(encoding="utf-8"))
+    mentions, reasons = extract_rule_mentions(source)
+    people = {m.raw: m for m in mentions if m.kind == "person"}
+    expected = {
+        "Phạm Anh Tuấn", "Phạm Thị Tố Hải", "Trần Đình Hiệp", "Đỗ Thị Diệu Hạnh",
+        "Đỗ Việt Hưng", "Nguyễn Hữu Hà", "Nguyễn Hữu Khúc", "Vũ Mạnh Định",
+        "Võ Gia Nghĩa", "Nguyễn Bay", "Lê Đức Phương", "Trần Đức Hải", "Đoàn Đức Tùng",
+        "Nguyễn Thanh Hồng", "Văn Bích Ngọc", "Hồ Thị Liên Hương", "Lê Văn Thảo",
+        "Trần Việt Anh", "Trần Như Long", "Dương Quỳnh Hoa", "Nguyễn Tuấn Anh",
+        "Ngô Hà Khánh Linh", "Nguyễn Thanh Phong", "Nguyễn Thanh Trang",
+        "Đoàn Bảo Sang", "Hoàng Quý Thạch",
+    }
+    assert set(people) == expected
+    for person in people.values():
+        assert person.references == ["Như Điều 3", "Điều 3", "Điều 1", "Danh sách kèm theo"]
+    assert any(e.page == 4 and "Hoàng Quý Thạch" in e.raw for e in people["Hoàng Quý Thạch"].evidence)
+    # One OCR row lost its name; preserve it for review instead of guessing.
+    assert any(m.kind == "reference" and m.raw.startswith("nn Thu nhi") for m in mentions)
+    assert not any(m.raw in {"Điều 1", "Danh sách kèm theo", "Sở Nội vụ"} for m in mentions)
+    assert "unsupported_reference" in reasons
+
+
+def test_nested_section_and_point_references_are_followed():
+    text = """Mục II. Các cá nhân được nêu tại Điểm a cùng tham gia đoàn công tác.
+Điểm a. Ông Nguyễn Văn An chịu trách nhiệm tham gia.
+Mục III. Trách nhiệm thi hành:
+Điều 3. Chánh Văn phòng UBND tỉnh và các cá nhân quy định tại Mục II chịu trách nhiệm thi hành.
+Nơi nhận:
+- Như Điều 3;"""
+    mentions, reasons = extract_rule_mentions(pages(text))
+    assert {m.raw for m in mentions} == {"Chánh Văn phòng UBND tỉnh", "Nguyễn Văn An"}
+    person = next(m for m in mentions if m.kind == "person")
+    assert person.references == ["Như Điều 3", "Điều 3", "Mục II", "Điểm a"]
+    assert not reasons
+
+
+@pytest.mark.parametrize("target, heading", [("Mục II", "Mục II."), ("Điểm a", "Điểm a.")])
+def test_reference_can_start_at_section_or_point(target, heading):
+    text = f"""{heading} Ông Nguyễn Văn An chịu trách nhiệm thực hiện.
+Nơi nhận:
+- Như {target};"""
+    mentions, reasons = extract_rule_mentions(pages(text))
+    assert [(m.raw, m.kind) for m in mentions] == [("Nguyễn Văn An", "person")]
+    assert not reasons
+
+
+def test_cyclic_section_reference_retains_valid_recipient_and_unresolved_link():
+    text = """Mục II. Các cá nhân tại Điểm a chịu trách nhiệm.
+Điểm a. Các cá nhân tại Mục II chịu trách nhiệm.
+Điều 3. Chánh Văn phòng UBND tỉnh và các cá nhân tại Mục II chịu trách nhiệm.
+Nơi nhận:
+- Như Điều 3;"""
+    mentions, reasons = extract_rule_mentions(pages(text))
+    assert any(m.raw == "Chánh Văn phòng UBND tỉnh" for m in mentions)
+    assert any(m.kind == "reference" for m in mentions)
+    assert "unsupported_reference" in reasons
+
+
+def test_nested_numbered_point_uses_clause_and_article_context():
+    text = """Điều 1. Thành phần đoàn công tác:
+1. Thành phần chính thức:
+a) Ông Nguyễn Văn An chịu trách nhiệm tham gia.
+b) Bà Trần Thị Bình chịu trách nhiệm phục vụ.
+Điều 2. Đoàn công tác khác:
+1. Thành phần chính thức:
+a) Ông Lê Văn Cường chịu trách nhiệm tham gia.
+Điều 3. Các cá nhân quy định tại điểm a khoản 1 Điều 1 chịu trách nhiệm thi hành.
+Nơi nhận:
+- Như Điều 3;"""
+    mentions, reasons = extract_rule_mentions(pages(text))
+    assert {m.raw for m in mentions} == {"Nguyễn Văn An"}
+    assert not reasons
+
+
+def test_bare_point_reference_respects_its_containing_clause():
+    text = """Điều 1. Thành phần đoàn công tác:
+1. Các cá nhân tại điểm a cùng tham gia đoàn.
+a) Ông Nguyễn Văn An chịu trách nhiệm tham gia.
+2. Thành phần hỗ trợ:
+a) Bà Trần Thị Bình chịu trách nhiệm phục vụ.
+Điều 3. Các cá nhân tại khoản 1 Điều 1 chịu trách nhiệm thi hành.
+Nơi nhận:
+- Như Điều 3;"""
+    mentions, reasons = extract_rule_mentions(pages(text))
+    assert {m.raw for m in mentions} == {"Nguyễn Văn An"}
+    assert any("Điểm a" in m.references for m in mentions)
+    assert not reasons
+
+
+def test_ambiguous_unqualified_point_is_not_expanded_from_another_article():
+    text = """Điều 1. Thành phần đoàn:
+1. Danh sách:
+a) Ông Nguyễn Văn An chịu trách nhiệm tham gia.
+Điều 2. Thành phần đoàn khác:
+1. Danh sách:
+a) Bà Trần Thị Bình chịu trách nhiệm tham gia.
+Điều 3. Các cá nhân tại điểm a chịu trách nhiệm.
+Nơi nhận:
+- Như Điều 3;"""
+    mentions, reasons = extract_rule_mentions(pages(text))
+    assert all(m.kind == "reference" for m in mentions)
+    assert "unsupported_reference" in reasons
+
+
+@pytest.mark.parametrize("locator", ["điểm a", "điểm a khoản 1"])
+def test_missing_relative_point_does_not_select_unique_point_in_another_article(locator):
+    text = f"""Điều 1. Thành phần đoàn:
+1. Danh sách:
+a) Ông Nguyễn Văn An chịu trách nhiệm tham gia.
+Điều 3. Các cá nhân tại {locator} chịu trách nhiệm.
+Nơi nhận:
+- Như Điều 3;"""
+    mentions, reasons = extract_rule_mentions(pages(text))
+    assert all(m.kind == "reference" for m in mentions)
+    assert "unsupported_reference" in reasons
+
+
+def test_model_member_is_grounded_in_actual_3654_reference_chain(settings):
+    source = json.loads((Path(__file__).parent / "fixtures/3654_vietocr_pages.json").read_text(encoding="utf-8"))
+    provider = FakeProvider({"mentions": [
+        {"raw": "Điều 1", "kind": "unit", "evidence": [{"page": 2, "section": "noi_nhan", "raw": "Như Điều 3"}]},
+        {"raw": "Hoàng Quý Thạch", "kind": "person", "references": ["Như Điều 3"],
+         "evidence": [{"page": 4, "section": "body_reference", "raw": "Ống Hoàng Quý Thạch"}]},
+    ], "status": "complete", "review_reasons": [], "ocr_pages": []})
+    with patch("ai_document_sender.extraction._read_pages", return_value=source):
+        result = asyncio.run(extract_document(Path("unused.pdf"), provider, DocumentMetadata(document_id="3654"), settings))
+    assert not any(m.raw == "Điều 1" for m in result.mentions)
+    assert "ungrounded_model_mention" not in result.review_reasons
+    assert len([m for m in result.mentions if m.kind == "person"]) == 26
+    person = next(m for m in result.mentions if m.raw == "Hoàng Quý Thạch")
+    assert person.references == ["Như Điều 3", "Điều 3", "Điều 1", "Danh sách kèm theo"]
+
+
+@pytest.mark.parametrize("target, body", [
+    ("Điều 1", "Điều 1. Thành phần đoàn:\nKhoản 1. Ông Nguyễn Văn An chịu trách nhiệm tham gia."),
+    ("Mục II", "Mục II. Thành phần đoàn:\nĐiều 1. Thành phần chính thức:\nKhoản 1. Ông Nguyễn Văn An chịu trách nhiệm tham gia.\nMục III. Thi hành:"),
+])
+def test_parent_reference_retains_recipients_in_explicit_child_sections(target, body):
+    text = f"""{body}
+Điều 3. Các cá nhân tại {target} chịu trách nhiệm thi hành.
+Nơi nhận:
+- Như Điều 3;"""
+    mentions, reasons = extract_rule_mentions(pages(text))
+    assert {m.raw for m in mentions} == {"Nguyễn Văn An"}
+    assert not reasons
+
+
+def test_parent_traversal_keeps_each_child_reference_in_its_own_scope():
+    text = """Điều 1. Thành phần đoàn:
+Khoản 1. Các cá nhân tại điểm a cùng tham gia đoàn.
+a) Ông Nguyễn Văn An chịu trách nhiệm tham gia.
+Khoản 2. Các cá nhân tại điểm a cùng tham gia đoàn.
+a) Bà Trần Thị Bình chịu trách nhiệm phục vụ.
+Khoản 3. Thời gian công tác là hai ngày.
+Điều 3. Các cá nhân tại Điều 1 chịu trách nhiệm thi hành.
+Nơi nhận:
+- Như Điều 3;"""
+    mentions, reasons = extract_rule_mentions(pages(text))
+    assert {m.raw for m in mentions} == {"Nguyễn Văn An", "Trần Thị Bình"}
+    assert not reasons
