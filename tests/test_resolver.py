@@ -78,19 +78,58 @@ async def test_staff_codes_use_verified_sign_number_suffix_when_department_absen
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("sign_number", ["12355/UBND-UNKNOWN", "12355/VP-KGVX", "internal_uuid/UBND-KGVX", "12355/UBND-KGVX-extra"])
-async def test_staff_code_unknown_sign_number_context_abstains(settings, sign_number):
+async def test_staff_code_does_not_require_sign_number_context(settings, sign_number):
     result = await resolve_mentions(Extraction(status="complete", mentions=[mention("V5", "staff_code", "luu")]),
         Registry(settings), DocumentMetadata(document_id="doc", sign_number=sign_number), "job", "hash")
-    assert not result.people and result.unresolved and result.needs_review
+    assert [p.recipient_id for p in result.people] == ["internal_341"]
+    assert not result.unresolved
     assert result.audit["resolution_context"] == {"department_code":None, "department_source":"unknown"}
 
 
 @pytest.mark.asyncio
-async def test_explicit_department_is_not_overridden_by_sign_number(settings):
+async def test_explicit_department_does_not_filter_staff_codes(settings):
     result = await resolve_mentions(Extraction(status="complete", mentions=[mention("V5", "staff_code", "luu")]),
         Registry(settings), DocumentMetadata(document_id="doc", sign_number="12355/UBND-KGVX", department_code="XDCT"), "job", "hash")
-    assert not result.people and result.unresolved
+    assert [p.recipient_id for p in result.people] == ["internal_341"]
+    assert not result.unresolved
     assert result.audit["resolution_context"] == {"department_code":"XDCT", "department_source":"metadata"}
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("department", [None, "UBND", "KGVX", "NC"])
+async def test_document_keeps_staff_codes_across_departments(settings, department):
+    from ai_document_sender.mentions import extract_rule_mentions
+
+    # Recipient lines from the 1528ATTr-UBND sample; each code is a separate recipient.
+    text = "Nơi nhận:\n- CT;\n- Lưu: VT, C4, C7, V6, V4."
+    mentions, _ = extract_rule_mentions([{"page": 5, "text": text}])
+    # Even an extraction carrying a single department must retain the other codes.
+    for item in mentions:
+        item.department_context = "NC"
+    result = await resolve_mentions(Extraction(status="complete", mentions=mentions), Registry(settings),
+        DocumentMetadata(document_id="1528ATTr-UBND", sign_number="1528/UBND-KGVX",
+                         department_code=department), "job", "hash")
+
+    assert {p.recipient_id for p in result.people} == {
+        "internal_270", "internal_332", "internal_451", "internal_489", "internal_343"}
+    assert {p.name for p in result.people} == {
+        "Phạm Anh Tuấn", "Văn Kim Thành", "Lê Ngọc Ngân", "Đoàn Thị Minh Hiếu", "Lê Thanh Sơn"}
+    assert all(p.evidence and p.evidence[0].page == 5 for p in result.people)
+    assert [u.raw for u in result.unresolved] == ["VT"]
+
+
+@pytest.mark.asyncio
+async def test_duplicate_staff_code_across_departments_requires_review(settings):
+    import sqlite3
+
+    with sqlite3.connect(settings.lookup_db) as conn:
+        conn.execute("INSERT INTO recipients SELECT 'duplicate_v4', 'duplicate', name, 'Người khác', "
+                     "'Người khác - Chuyên viên V4', '', sphere, recipient_type, 'Phòng Nội chính', "
+                     "priority_score, raw_json FROM recipients WHERE recipient_id='internal_343'")
+    result = await resolve(settings, [mention("V4", "staff_code", "luu")])
+    assert not result.people and result.needs_review
+    assert result.unresolved[0].reason == "ambiguous_registry_identity"
+    assert {p.recipient_id for p in result.unresolved[0].candidates} == {"internal_343", "duplicate_v4"}
 
 
 @pytest.mark.asyncio

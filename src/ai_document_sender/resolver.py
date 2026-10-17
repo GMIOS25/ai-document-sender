@@ -6,6 +6,9 @@ from .contracts import OutgoingResult, Unresolved, Excluded
 from .registry import normalize, words, department_context
 
 
+VERSION = "recipient-directory-wide-staff-v2"
+
+
 def expand_lexical(raw):
     raw = unicodedata.normalize("NFC", raw)
     raw = re.sub(r"\s+", " ", raw).strip()
@@ -87,7 +90,7 @@ async def resolve_mentions(extraction, registry, metadata, job_id, input_sha256,
                 candidates = [item] if item else []
                 method = "verified_alias"
             elif re.fullmatch(r"[A-Za-z]{1,3}\d{1,3}", raw):
-                candidates = registry.staff_code(raw, mention.department_context or metadata.department_code)
+                candidates = registry.staff_code(raw)
                 method = "current_staff_code"
             else:
                 candidates = registry.exact_code(query)

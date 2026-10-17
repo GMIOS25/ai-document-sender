@@ -110,19 +110,15 @@ class Registry:
     def exact_role(self, role):
         return [r for r in self.by_id.values() if r.recipient_type == "INTERNAL_PERSON" and normalize(r.role) == normalize(role)]
 
-    def staff_code(self, code, department=None):
+    def staff_code(self, code):
         if self.policy.get("staff_code", {}).get("verification_status") != "verified":
             return []
         token = code.upper().strip()
         if not re.fullmatch(r"[A-Z]{1,3}\d{1,3}", token):
             return []
-        parent = DEPARTMENTS.get((department or "").upper(), department)
-        # Department context is required; identical codes elsewhere never guessed.
-        if not parent:
-            return []
+        # Search every department; duplicate codes remain ambiguous in the resolver.
         return [r for r in self.by_id.values() if r.recipient_type == "INTERNAL_PERSON"
-                and re.search(r"(?:^|\s)" + re.escape(token) + r"$", r.role or "", re.I)
-                and normalize(r.parent_name) == normalize(parent)]
+                and re.search(r"(?:^|\s)" + re.escape(token) + r"$", r.role or "", re.I)]
 
     def initials(self, query, role=None):
         # Every initial and full final token must match, in order, without fuzzy distance.

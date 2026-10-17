@@ -22,8 +22,9 @@ class StoreError(Exception):
 def processing_version(settings):
     from .extraction import EXTRACTOR_VERSION
     from .provider import PROMPT_VERSION
+    from .resolver import VERSION as RESOLVER_VERSION
     from .ocr import VERSION as OCR_VERSION, model_signature
-    return digest({"extractor":EXTRACTOR_VERSION,"prompt":PROMPT_VERSION,
+    return digest({"extractor":EXTRACTOR_VERSION,"resolver":RESOLVER_VERSION,"prompt":PROMPT_VERSION,
                    "mode":settings.provider_mode,"text_model":settings.openrouter_text_model,
                    "vision_model":settings.openrouter_vision_model,
                    "local_ocr":{"backend":settings.ocr_backend,"device":settings.ocr_device,

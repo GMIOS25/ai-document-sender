@@ -72,9 +72,9 @@ Tạo job trả 202 `{job_id,status}`. Cùng key/cùng tài liệu/context/snaps
 
 ## Directory và policy
 
-DB nguồn `resources/data/lookup.db` chỉ được mở đọc. Người theo role/mã được tìm từ snapshot hiện hành, độc lập ngày tài liệu cũ. V1/V5/V8 được tách đúng token trong chức danh và phòng tương ứng; không khóa tên cán bộ trong lịch sử. PCT/PCVP nhiều người, portfolio PVPQT/PVPVX/PCVP XD chưa verified và VT chưa rõ nghĩa luôn cần rà soát. Không tìm được trong DB không chứng minh đã giải thể/nghỉ việc.
+DB nguồn `resources/data/lookup.db` chỉ được mở đọc. Người theo role/mã được tìm từ snapshot hiện hành, độc lập ngày tài liệu cũ. Mỗi mã cán bộ (ví dụ V4, V6, C4, C7) được đối chiếu đúng token trong chức danh trên toàn danh bạ, qua mọi phòng; không khóa tên cán bộ trong lịch sử. Nếu cùng mã khớp nhiều người thì giữ toàn bộ ứng viên và yêu cầu rà soát, không tự chọn một người. PCT/PCVP nhiều người, portfolio PVPQT/PVPVX/PCVP XD chưa verified và VT chưa rõ nghĩa luôn cần rà soát. Không tìm được trong DB không chứng minh đã giải thể/nghỉ việc.
 
-Nếu `department_code` trống, backend chỉ lấy mã phòng đã xác minh từ số/ký hiệu đúng dạng số nguyên `/UBND-<mã phòng>`, ví dụ `12355/UBND-KGVX`. Metadata phòng được cung cấp luôn ưu tiên; hậu tố chưa biết hoặc UUID không tạo context. Nguồn context nằm trong `audit.resolution_context`; backend không tự suy ra cơ quan phát hành từ ký hiệu này.
+Giao diện không yêu cầu nhập mã phòng. `department_code` vẫn được chấp nhận để tương thích client cũ; mã phòng trong metadata, trong mention hoặc hậu tố số/ký hiệu không lọc kết quả tra mã cán bộ. Vì vậy một văn bản có cả C4/C7 và V4/V6 sẽ trả người ở cả Phòng Nội chính và Phòng Khoa giáo Văn xã. Context phòng chỉ còn phục vụ policy alias có phạm vi cụ thể và ghi nhận trong `audit.resolution_context`; backend không tự suy ra cơ quan phát hành từ ký hiệu này. Phiên bản resolver tham gia phiên bản xử lý để lần phân tích tiếp theo không dùng lại kết quả đã lọc từ bản cũ.
 
 Một đơn vị có thể có nhiều code/sphere. `source_id` của comm record là UUID nguồn lịch sử, không phải ID node giao diện. Client chọn bằng code+sphere rồi kiểm tra chip. Thiếu group membership phải unresolved; không đổi selector nhóm thành group node để che thiếu người.
 

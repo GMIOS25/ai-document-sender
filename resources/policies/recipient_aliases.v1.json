@@ -11,5 +11,5 @@
     {"raw_alias": "PCVPXD", "verification_status": "pending"},
     {"raw_alias": "VT", "verification_status": "pending", "pending_reason": "policy_unknown"}
   ],
-  "staff_code": {"verification_status": "verified", "verified_by": "user", "evidence": "Current staff role suffix within the same department; never historical names"}
+  "staff_code": {"verification_status": "verified", "verified_by": "user", "evidence": "Current staff role suffix across all departments; duplicate codes require review; never historical names"}
 }

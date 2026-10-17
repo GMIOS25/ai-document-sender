@@ -6,17 +6,16 @@ from ai_document_sender.registry import Registry
 def test_readonly_and_current_staff_snapshot(settings):
     before = hashlib.sha256(settings.lookup_db.read_bytes()).hexdigest()
     r = Registry(settings)
-    assert r.staff_code("V5", "KGVX")[0].name == "Lê Thị Kim Yến"
-    assert r.staff_code("V5", "XDCT") == []
-    assert r.staff_code("V50", "KGVX") == []
+    assert r.staff_code("V5")[0].name == "Lê Thị Kim Yến"
+    assert r.staff_code("V50") == []
     assert hashlib.sha256(settings.lookup_db.read_bytes()).hexdigest() == before
     old = r.registry_version
     with sqlite3.connect(settings.lookup_db) as c:
         c.execute("UPDATE recipients SET full_name='Cán bộ mới', display_name='Cán bộ mới - Chuyên viên V5' WHERE recipient_id='internal_341'")
     updated = Registry(settings)
     assert updated.registry_version != old
-    assert updated.staff_code("V5", "KGVX")[0].name == "Cán bộ mới"
-    assert r.staff_code("V5", "KGVX")[0].name == "Lê Thị Kim Yến"  # pinned snapshot
+    assert updated.staff_code("V5")[0].name == "Cán bộ mới"
+    assert r.staff_code("V5")[0].name == "Lê Thị Kim Yến"  # pinned snapshot
 
 
 def test_duplicate_units_and_search(settings):
