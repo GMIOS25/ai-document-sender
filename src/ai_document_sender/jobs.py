@@ -178,9 +178,10 @@ class JobStore:
             if decision.action != "resolve" and decision.recipient_ids:
                 raise StoreError("invalid_review_decision","Only resolve decisions may link recipient IDs",422)
             decisions.add(decision.mention_id)
-        required={x["mention_id"] for x in job["result"]["unresolved"]} | reason_ids
+        # Global warnings stay in the result for reference, without requiring a reply.
+        required={x["mention_id"] for x in job["result"]["unresolved"]}
         if body.confirmed and not required <= decisions:
-            raise StoreError("review_incomplete","Every unresolved mention and review reason must be acknowledged",422)
+            raise StoreError("review_incomplete","Every unresolved mention must have a review decision",422)
         fid=uuid.uuid4().hex
         with self.connection() as conn:
             conn.execute("INSERT INTO feedback VALUES (?,?,?,?)",(fid,job_id,body.model_dump_json(),time.time()))

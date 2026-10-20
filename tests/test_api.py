@@ -77,6 +77,9 @@ def test_create_poll_feedback_smoke_and_source_unchanged(settings):
         accepted=client.post(f"/v1/outgoing/jobs/{jid}/feedback",json=body)
         assert accepted.status_code == 201 and accepted.json()["feedback_id"]
         body["review_decisions"]=[]
+        assert client.post(f"/v1/outgoing/jobs/{jid}/feedback",json=body).status_code == 201
+        # Optional legacy warning decisions still have to be valid when supplied.
+        body["review_decisions"]=[{"mention_id":"reason:extraction_partial","action":"accept_missing","note":""}]
         assert client.post(f"/v1/outgoing/jobs/{jid}/feedback",json=body).status_code == 422
         body["alias_policy_version"]="stale"
         assert client.post(f"/v1/outgoing/jobs/{jid}/feedback",json=body).status_code == 409
@@ -109,8 +112,33 @@ def test_resolve_decision_requires_linked_final_identity(settings):
         result=client.get(f"/v1/outgoing/jobs/{jid}").json()["result"]
         body={"registry_version":result["registry_version"],"alias_policy_version":result["alias_policy_version"],
               "final_recipients":[],"confirmed":True,"review_decisions":[{"mention_id":"pending","action":"resolve"}]}
+        assert client.post(f"/v1/outgoing/jobs/{jid}/feedback",json={**body,"review_decisions":[]}).status_code == 422
         assert client.post(f"/v1/outgoing/jobs/{jid}/feedback",json=body).status_code == 422
         body["review_decisions"][0]["recipient_ids"]=["internal_270"]
         assert client.post(f"/v1/outgoing/jobs/{jid}/feedback",json=body).status_code == 422
         body["final_recipients"]=[{"recipient_id":"internal_270","recipient_type":"INTERNAL_PERSON","sphere":"internal","code":"tuanpa@vpub.gialai.gov.vn"}]
         assert client.post(f"/v1/outgoing/jobs/{jid}/feedback",json=body).status_code == 201
+
+
+def test_group_decision_accepts_multiple_snapshot_identities_without_warning_replies(settings):
+    async def extract(*args):
+        return Extraction(status="partial", mentions=[Mention(mention_id="leaders", raw="CT và PCT UBND tỉnh", kind="role",
+            evidence=[Evidence(page=1, section="noi_nhan", raw="CT và PCT UBND tỉnh")])])
+    app=create_app(settings,extractor=extract)
+    with TestClient(app) as client:
+        jid=submit(client).json()["job_id"]
+        client.portal.call(app.state.worker.run_once)
+        result=client.get(f"/v1/outgoing/jobs/{jid}").json()["result"]
+        assert result["review_reasons"] and result["unresolved"]
+        recipients=[{"recipient_id":rid,"recipient_type":"INTERNAL_PERSON","sphere":"internal","code":code} for rid,code in [
+            ("internal_270","tuanpa@vpub.gialai.gov.vn"), ("internal_276","gianglh@vpub.gialai.gov.vn"),
+            ("internal_278","lichntt@vpub.gialai.gov.vn")]]
+        body={"registry_version":result["registry_version"],"alias_policy_version":result["alias_policy_version"],
+            "final_recipients":recipients,"field_assignments":[{"recipient_id":r["recipient_id"],"field":"save"} for r in recipients],
+            "review_decisions":[{"mention_id":"leaders","action":"resolve","recipient_ids":[r["recipient_id"] for r in recipients]}],
+            "confirmed":True}
+        response=client.post(f"/v1/outgoing/jobs/{jid}/feedback",json=body)
+        assert response.status_code == 201, response.text
+        body["final_recipients"].pop()
+        body["field_assignments"].pop()
+        assert client.post(f"/v1/outgoing/jobs/{jid}/feedback",json=body).status_code == 422

@@ -6,6 +6,7 @@ from io import BytesIO
 import json
 import sqlite3
 from fastapi import FastAPI, Depends, File, Form, Header, Query, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
@@ -71,6 +72,13 @@ def create_app(settings=None,provider=None,extractor=None):
             if close: await close()
 
     app=FastAPI(title="Outgoing recipient backend",version="outgoing.v1",lifespan=lifespan)
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
     app.add_middleware(RequestLimit,max_bytes=settings.max_file_bytes+65536)
 
     async def authenticate(x_api_key: str | None = Header(default=None)):
