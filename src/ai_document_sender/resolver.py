@@ -6,7 +6,7 @@ from .contracts import OutgoingResult, Unresolved, Excluded
 from .registry import normalize, words, department_context
 
 
-VERSION = "recipient-directory-wide-staff-v2"
+VERSION = "recipient-selectable-parent-nodes-v3"
 
 
 def expand_lexical(raw):
@@ -51,6 +51,9 @@ async def resolve_mentions(extraction, registry, metadata, job_id, input_sha256,
             prefix = re.match(r"^(PVPQT|PVPVX|PCVP\s*XD)\b", combined, re.I)
             if prefix:
                 pending = registry.alias(prefix.group(1),metadata)
+        query = pending.get("canonical_role") or pending.get("canonical_name") or combined if pending else combined
+        query = expand_lexical(query)
+        node_candidates = registry.internal_node_candidates(query)
         candidates, reason, method = [], None, ""
         if not mention.evidence:
             reason = "unreadable_region"
@@ -76,19 +79,19 @@ async def resolve_mentions(extraction, registry, metadata, job_id, input_sha256,
             reason = "policy_unknown"
         elif normalize(raw) in {"nhu tren", "nhu kinh gui"} or mention.kind == "reference":
             reason = "unsupported_reference"
-        elif mention.kind == "group" or mention.quantifier in {"all", "plural"} or normalize(raw).startswith(("cac ", "toan bo ", "lanh dao ")):
+        elif not node_candidates and (mention.kind == "group" or mention.quantifier in {"all", "plural"} or normalize(raw).startswith(("cac ", "toan bo ", "lanh dao "))):
             members = registry.group_members(combined)
             if members:
                 candidates, method = members, "verified_group_membership"
             else:
                 reason = "missing_group_membership"
         else:
-            query = pending.get("canonical_role") or pending.get("canonical_name") or combined if pending else combined
-            query = expand_lexical(query)
             if pending and pending.get("recipient_id"):
                 item = registry.by_id.get(pending["recipient_id"])
                 candidates = [item] if item else []
                 method = "verified_alias"
+            elif node_candidates:
+                candidates, method = node_candidates, "exact_internal_node"
             elif re.fullmatch(r"[A-Za-z]{1,3}\d{1,3}", raw):
                 candidates = registry.staff_code(raw)
                 method = "current_staff_code"

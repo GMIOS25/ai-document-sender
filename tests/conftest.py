@@ -16,7 +16,12 @@ def settings(tmp_path):
     db = tmp_path / "lookup.db"
     c = sqlite3.connect(db)
     c.execute('CREATE TABLE recipients (recipient_id TEXT PRIMARY KEY, source_id TEXT, name TEXT, full_name TEXT, display_name TEXT, code TEXT, sphere TEXT, recipient_type TEXT, parent_name TEXT, priority_score INT, raw_json TEXT)')
-    rows = [row("internal_270", "Chủ tịch UBND tỉnh", "Phạm Anh Tuấn", "tuanpa@vpub.gialai.gov.vn"),
+    rows = [row("internal_249", "UBND tỉnh Gia Lai", code="H21", kind="INTERNAL_UNIT", parent=""),
+            row("internal_269", "Lãnh đạo UBND tỉnh", kind="INTERNAL_DEPT", parent="UBND tỉnh Gia Lai"),
+            row("internal_286", "Lãnh đạo Văn phòng UBND tỉnh", kind="INTERNAL_DEPT", parent="UBND tỉnh Gia Lai"),
+            row("internal_338", "Phòng Khoa giáo Văn xã", code="KGVX", kind="INTERNAL_DEPT", parent="UBND tỉnh Gia Lai"),
+            row("internal_1816321", "Trung tâm Phục vụ hành chính công tỉnh Gia Lai", code="H21.21.04", kind="INTERNAL_UNIT", parent="UBND tỉnh Gia Lai"),
+            row("internal_270", "Chủ tịch UBND tỉnh", "Phạm Anh Tuấn", "tuanpa@vpub.gialai.gov.vn"),
             row("internal_278", "Phó Chủ tịch UBND tỉnh", "Nguyễn Thị Thanh Lịch", "lichntt@vpub.gialai.gov.vn"),
             row("internal_276", "Phó Chủ tịch UBND tỉnh", "Lâm Hải Giang", "gianglh@vpub.gialai.gov.vn"),
             row("internal_287", "Chánh Văn phòng UBND tỉnh", "Nguyễn Xuân Vĩnh", "vinhnx@vpub.gialai.gov.vn", parent="Lãnh đạo Văn phòng UBND tỉnh"),

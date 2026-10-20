@@ -41,6 +41,20 @@ def test_health_reports_local_ocr_configuration_and_missing_weights(settings):
     assert health["local_ocr"]["configured"] is False
 
 
+def test_search_returns_parent_nodes_with_idesk_identity(settings):
+    with TestClient(create_app(settings)) as client:
+        for query, rid, source_id, kind in [
+            ("Lãnh đạo Văn phòng UBND tỉnh", "internal_286", "286", "INTERNAL_DEPT"),
+            ("Toàn bộ Phòng Khoa giáo Văn xã", "internal_338", "338", "INTERNAL_DEPT"),
+            ("Toàn bộ UBND tỉnh Gia Lai", "internal_249", "249", "INTERNAL_UNIT"),
+        ]:
+            response = client.get("/v1/outgoing/recipients/search", params={"q": query})
+            assert response.status_code == 200
+            items = response.json()["items"]
+            assert [(r["recipient_id"], r["source_id"], r["recipient_type"], r["sphere"]) for r in items] == [
+                (rid, source_id, kind, "internal")]
+
+
 def test_create_poll_feedback_smoke_and_source_unchanged(settings):
     async def extract(*args):
         return Extraction(status="partial",mentions=[Mention(mention_id="m",raw="Chủ tịch UBND tỉnh",kind="role",evidence=[Evidence(page=1,section="noi_nhan",raw="Chủ tịch UBND tỉnh")])])

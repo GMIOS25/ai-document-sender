@@ -138,6 +138,52 @@ async def test_archive_department_is_not_automatically_a_recipient(settings):
     assert not r.people and not r.units and r.unresolved[0].reason == "policy_unknown"
 
 
+@pytest.mark.parametrize("raw,kind,quantifier,rid,source_id,recipient_type", [
+    ("Lãnh đạo UBND tỉnh", "unit", None, "internal_269", "269", "INTERNAL_DEPT"),
+    ("Lãnh đạo Văn phòng UBND tỉnh", "group", "all", "internal_286", "286", "INTERNAL_DEPT"),
+    ("Phòng Khoa giáo Văn xã", "unit", None, "internal_338", "338", "INTERNAL_DEPT"),
+    ("Toàn bộ Phòng Khoa giáo Văn xã", "group", "all", "internal_338", "338", "INTERNAL_DEPT"),
+    ("Tất cả Phòng Khoa giáo Văn xã", "group", "all", "internal_338", "338", "INTERNAL_DEPT"),
+    ("UBND tỉnh Gia Lai", "unit", None, "internal_249", "249", "INTERNAL_UNIT"),
+    ("Toàn bộ UBND tỉnh Gia Lai", "group", "all", "internal_249", "249", "INTERNAL_UNIT"),
+    ("H21", "unit", None, "internal_249", "249", "INTERNAL_UNIT"),
+    ("Trung tâm Phục vụ hành chính công tỉnh Gia Lai", "group", "all", "internal_1816321", "1816321", "INTERNAL_UNIT"),
+])
+async def test_parent_node_keeps_identity_without_expanding_children(settings, raw, kind, quantifier, rid, source_id, recipient_type):
+    result = await resolve(settings, [mention(raw, kind, quantifier=quantifier)])
+
+    assert not result.people and not result.unresolved and not result.needs_review
+    assert [(r.recipient_id, r.source_id, r.recipient_type, r.sphere) for r in result.units] == [
+        (rid, source_id, recipient_type, "internal")]
+    assert result.units[0].mention_ids == ["m1"]
+    assert result.units[0].evidence[0].raw == raw
+
+
+async def test_collective_without_matching_parent_still_requires_membership(settings):
+    result = await resolve(settings, [mention("Các PCT UBND tỉnh", "group", quantifier="all")])
+    assert not result.people and not result.units
+    assert result.unresolved[0].reason == "missing_group_membership"
+
+
+async def test_parent_node_does_not_hide_duplicate_identity(settings):
+    import sqlite3
+
+    with sqlite3.connect(settings.lookup_db) as conn:
+        conn.execute("INSERT INTO recipients SELECT 'duplicate_dept', 'other', name, full_name, "
+                     "display_name, code, sphere, recipient_type, parent_name, priority_score, raw_json "
+                     "FROM recipients WHERE recipient_id='internal_286'")
+    result = await resolve(settings, [mention("Lãnh đạo Văn phòng UBND tỉnh", "group")])
+    assert not result.people and not result.units and result.needs_review
+    assert result.unresolved[0].reason == "ambiguous_registry_identity"
+    assert {r.recipient_id for r in result.unresolved[0].candidates} == {"internal_286", "duplicate_dept"}
+
+
+async def test_parent_node_does_not_replace_explicit_person_or_role_subset(settings):
+    for raw in ["Trưởng Phòng Khoa giáo Văn xã", "Lãnh đạo Phòng Khoa giáo Văn xã", "Phòng không tồn tại"]:
+        result = await resolve(settings, [mention(raw, "group", quantifier="all")])
+        assert not result.people and not result.units and result.needs_review
+
+
 @pytest.mark.asyncio
 async def test_unit_keeps_issuer_context_without_becoming_child_of_issuer(settings):
     r=await resolve(settings,[mention("Sở Văn hóa, Thể thao và Du lịch - tỉnh Gia Lai","unit",organization_scope="UBND tỉnh Gia Lai")])

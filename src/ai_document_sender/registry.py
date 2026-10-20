@@ -107,6 +107,13 @@ class Registry:
         q = normalize(name)
         return [r for r in self.by_id.values() if normalize(r.name) == q or normalize(r.display_name) == q]
 
+    def internal_node_candidates(self, query):
+        # iDesk expands a selected dept/unit itself. Keep competing identities
+        # so a name shared with another node/sphere still requires review.
+        query = re.sub(r"^(?:toan bo|tat ca)\s+", "", normalize(query))
+        matches = self.exact_code(query) or self.exact_name(query)
+        return matches if any(r.recipient_type in {"INTERNAL_DEPT", "INTERNAL_UNIT"} for r in matches) else []
+
     def exact_role(self, role):
         return [r for r in self.by_id.values() if r.recipient_type == "INTERNAL_PERSON" and normalize(r.role) == normalize(role)]
 
@@ -163,7 +170,7 @@ class Registry:
             return []
         stops = {"so", "tinh", "gia", "lai", "ubnd", "uy", "ban", "nhan", "dan", "van", "phong", "va", "cac", "ong", "ba"}
         meaningful = q - stops
-        exact = self.exact_code(query) or self.exact_name(query) or self.exact_role(query)
+        exact = self.exact_code(query) or self.exact_name(query) or self.exact_role(query) or self.internal_node_candidates(query)
         if exact:
             return exact[:limit]
         ranked = []

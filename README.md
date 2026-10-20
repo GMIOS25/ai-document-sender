@@ -76,7 +76,9 @@ DB nguồn `resources/data/lookup.db` chỉ được mở đọc. Người theo 
 
 Giao diện không yêu cầu nhập mã phòng. `department_code` vẫn được chấp nhận để tương thích client cũ; mã phòng trong metadata, trong mention hoặc hậu tố số/ký hiệu không lọc kết quả tra mã cán bộ. Vì vậy một văn bản có cả C4/C7 và V4/V6 sẽ trả người ở cả Phòng Nội chính và Phòng Khoa giáo Văn xã. Context phòng chỉ còn phục vụ policy alias có phạm vi cụ thể và ghi nhận trong `audit.resolution_context`; backend không tự suy ra cơ quan phát hành từ ký hiệu này. Phiên bản resolver tham gia phiên bản xử lý để lần phân tích tiếp theo không dùng lại kết quả đã lọc từ bản cũ.
 
-Một đơn vị có thể có nhiều code/sphere. `source_id` của comm record là UUID nguồn lịch sử, không phải ID node giao diện. Client chọn bằng code+sphere rồi kiểm tra chip. Thiếu group membership phải unresolved; không đổi selector nhóm thành group node để che thiếu người.
+Lookup nhận cả người (`alias` → `INTERNAL_PERSON`) và node cha trong `person.json`: `dept` → `INTERNAL_DEPT`, `unit` → `INTERNAL_UNIT`. Khi tên/mã khớp node cha, kể cả mention dạng nhóm như “Lãnh đạo Văn phòng UBND tỉnh” hay “Toàn bộ Phòng Khoa giáo Văn xã”, kết quả giữ nguyên node cha trong `units`, cùng `source_id`, `recipient_type`, `sphere`, `code` và bằng chứng; không liệt kê từng người con. Client chọn đúng node cha trên iDesk để iDesk gửi đến toàn bộ cây con. Search thủ công cũng hỗ trợ các node này và tiền tố “toàn bộ”/“tất cả”. Resolver version đổi để lần phân tích mới không dùng lại kết quả đã chặn node cha từ bản cũ.
+
+Một đơn vị có thể có nhiều code/sphere; các identity trùng tên vẫn cần rà soát, không tự chọn top-1. `source_id` của comm record là UUID nguồn lịch sử, không phải ID node giao diện. Client chọn bằng code+sphere rồi kiểm tra chip. Selector tập người không khớp node `dept`/`unit` cụ thể, ví dụ “các PCT”, vẫn phải có membership đã xác nhận; không đổi selector thành một group node hay cả phòng để che thiếu người.
 
 Quản trị viên có thể import overlay **đã xác nhận từ iDesk** qua CLI local; không có API ghi alias:
 
