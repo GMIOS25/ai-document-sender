@@ -2,6 +2,8 @@
 
 Backend cho Script-Idesk ban hành văn bản: đọc tài liệu chính, giữ bằng chứng từng mention, tra danh bạ hiện tại và trả hợp danh sách người/đơn vị. Chưa tự chia xử lý/theo dõi và chưa huấn luyện model. Backend không click gửi chính thức trên iDesk.
 
+> 📖 **Xem tài liệu hướng dẫn toàn diện**: [Hướng dẫn sử dụng toàn bộ dự án từ A-Z](GUIDE.md)
+
 ## Cài đặt và chạy
 
 Python 3.12 trở lên. PowerShell tại repo:
