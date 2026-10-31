@@ -96,6 +96,8 @@ File là JSON list. Mỗi mục có `verification_status="verified"`, `verified_
 
 Policy alias versioned ở `resources/policies/recipient_aliases.v1.json`. Chỉ alias verified đúng scope và còn hiệu lực được áp dụng. Sửa overlay/DB/policy sẽ làm version đổi khi health/job mới đọc, không cần restart. Job cũ giữ snapshot riêng; feedback stale bị 409.
 
+VPUB có thêm policy đã học từ sửa đỏ của văn thư tại `resources/tenants/vpub/recipient_learning.v1.json`, ưu tiên hơn alias chung khi đúng cơ quan/qualifier/section. Các mã lĩnh vực PVPQT/PVPVX/PVPXD/PVPNN/PVPTH đã đối soát có thể resolve ngay; dữ liệu thiếu hoặc trùng identity vẫn cần rà soát. Việc học không thay đổi trọng số LLM. Đồng bộ lookup giữ quy tắc này và xây lại `search_text`/FTS khi từ điển thay đổi. Xem [kết quả đối soát, giới hạn và cách cập nhật](docs/recipient-learning-vpub-2026-10-31.md).
+
 ## Vận hành và kiểm chứng
 
 Một worker dùng SQLite transaction/lease, heartbeat và checkpoint. Restart phục hồi lease hết hạn; poll không tạo job mới. Cache extraction chỉ chia sẻ khi complete, theo file/context/extractor/prompt/model; result được giữ theo idempotency fingerprint có registry+policy và phiên bản xử lý. Runtime nằm trong `var/` đã ignore; bảng job cũ được bổ sung thông tin phiên bản khi khởi động. Bấm Phân tích sau khi nâng phiên bản sẽ tạo job mới thay vì trả kết quả cũ. Khi khởi động, dữ liệu PDF/checkpoint/cache quá `SENDER_RETENTION_DAYS` được dọn nếu không thuộc job còn chạy; result/snapshot/feedback vẫn giữ làm audit. Không dùng đồng thời nhiều process Uvicorn với MVP.

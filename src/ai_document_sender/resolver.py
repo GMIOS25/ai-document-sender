@@ -6,7 +6,7 @@ from .contracts import OutgoingResult, Unresolved, Excluded
 from .registry import normalize, words, department_context
 
 
-VERSION = "recipient-selectable-parent-nodes-v3"
+VERSION = "recipient-reviewed-sheet-aliases-v5"
 
 
 def expand_lexical(raw):
@@ -45,7 +45,9 @@ async def resolve_mentions(extraction, registry, metadata, job_id, input_sha256,
         combined = raw
         if mention.qualifier and not normalize(raw).startswith(normalize(mention.qualifier)):
             combined = mention.qualifier + " " + raw
-        pending = registry.alias(raw, metadata) or registry.alias(combined, metadata)
+        from .learning import learned_alias
+        learned = learned_alias(registry, raw, metadata, mention)
+        pending = learned or registry.alias(raw, metadata) or registry.alias(combined, metadata)
         if pending is None:
             # Jurisdiction suffixes do not make an unverified portfolio alias safe.
             prefix = re.match(r"^(PVPQT|PVPVX|PCVP\s*XD)\b", combined, re.I)
@@ -75,6 +77,12 @@ async def resolve_mentions(extraction, registry, metadata, job_id, input_sha256,
         elif pending and pending.get("action") == "exclude":
             result.excluded.append(Excluded(mention_id=mention.mention_id,raw=mention.raw,evidence=mention.evidence,reason=pending.get("reason","archival_reference")))
             continue
+        elif learned and learned.get('member_ids') and mention.kind != 'reference':
+            candidates = [registry.by_id[rid] for rid in learned['member_ids']]
+            method = 'verified_sheet_alias'
+            result.audit.setdefault('learned_aliases', []).append({
+                'mention_id': mention.mention_id, 'source_rows': learned.get('source_rows', []),
+                'source': learned.get('source')})
         elif all(e.section == "luu" for e in mention.evidence) and not re.fullmatch(r"[A-Za-z]{1,3}\d{1,3}", raw) and not pending:
             reason = "policy_unknown"
         elif normalize(raw) in {"nhu tren", "nhu kinh gui"} or mention.kind == "reference":
@@ -144,7 +152,7 @@ async def resolve_mentions(extraction, registry, metadata, job_id, input_sha256,
             if len(candidates) > 1:
                 reason = "ambiguous_role" if method == "exact_unique_role" else "ambiguous_registry_identity"
             if not candidates and not reason:
-                candidates = [r for r in registry.search(query) if within_jurisdiction(r)]
+                candidates = [r for r in registry.search(query, include_learning=False) if within_jurisdiction(r)]
                 # Generic role/known portfolio never delegates identity guessing to LLM.
                 roleish = mention.kind == "role" or normalize(query).startswith(("chu tich ", "pho chu tich ", "pho chanh ", "chanh van "))
                 if roleish:

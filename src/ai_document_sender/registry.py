@@ -47,6 +47,10 @@ class Registry:
             rows = [dict(r) for r in conn.execute("SELECT * FROM recipients ORDER BY recipient_id")]
             conn.rollback()
         self.policy = json.loads(settings.policy_path.read_text(encoding="utf-8-sig"))
+        from .learning import read_learning
+        learning = read_learning(settings.lookup_db)
+        if learning:
+            self.policy['learning'] = learning
         self.policy_as_of = datetime.now(timezone(timedelta(hours=7))).date().isoformat()
         self.groups = {}
         self.selectable_groups = set()
@@ -78,6 +82,25 @@ class Registry:
                 role=r["name"] if r["recipient_type"] == "INTERNAL_PERSON" else None,
                 display_name=r.get("display_name") or r["name"], sphere=r["sphere"], code=r.get("code") or "",
                 parent_name=r.get("parent_name") or "")
+        self._build_indexes()
+
+    def _build_indexes(self):
+        from .learning import index_learning
+        self._names, self._codes, self._roles, self._local_names = {}, {}, {}, {}
+        self._search_tokens = {}
+        for r in self.by_id.values():
+            for name in {normalize(r.name), normalize(r.display_name)}:
+                self._names.setdefault(name, []).append(r)
+            if r.code:
+                self._codes.setdefault(normalize(r.code), []).append(r)
+            if r.recipient_type == 'INTERNAL_PERSON':
+                self._roles.setdefault(normalize(r.role), []).append(r)
+            else:
+                local_name = re.sub(r'\s+gia lai$', '', normalize(r.name))
+                for name in {local_name, re.sub(r'\s+tinh$', '', local_name)}:
+                    self._local_names.setdefault(name, []).append(r)
+            self._search_tokens[r.recipient_id] = set(words(' '.join([r.name, r.role or '', r.parent_name, r.code])))
+        index_learning(self)
 
     def alias_effective(self, alias):
         today=date.fromisoformat(self.policy_as_of)
@@ -101,11 +124,10 @@ class Registry:
         return matches[0] if matches else None
 
     def exact_code(self, code):
-        return [r for r in self.by_id.values() if r.code and normalize(r.code) == normalize(code)]
+        return list(self._codes.get(normalize(code), []))
 
     def exact_name(self, name):
-        q = normalize(name)
-        return [r for r in self.by_id.values() if normalize(r.name) == q or normalize(r.display_name) == q]
+        return list(self._names.get(normalize(name), []))
 
     def internal_node_candidates(self, query):
         # iDesk expands a selected dept/unit itself. Keep competing identities
@@ -115,7 +137,7 @@ class Registry:
         return matches if any(r.recipient_type in {"INTERNAL_DEPT", "INTERNAL_UNIT"} for r in matches) else []
 
     def exact_role(self, role):
-        return [r for r in self.by_id.values() if r.recipient_type == "INTERNAL_PERSON" and normalize(r.role) == normalize(role)]
+        return list(self._roles.get(normalize(role), []))
 
     def staff_code(self, code):
         if self.policy.get("staff_code", {}).get("verification_status") != "verified":
@@ -146,16 +168,7 @@ class Registry:
     def local_unit_name(self, query, issuer):
         if "gia lai" not in normalize(issuer):
             return []
-        q = normalize(query)
-        matches = []
-        for r in self.by_id.values():
-            if r.recipient_type == "INTERNAL_PERSON":
-                continue
-            name = normalize(r.name)
-            name = re.sub(r"\s+gia lai$", "", name)
-            if name == q or re.sub(r"\s+tinh$", "", name) == q:
-                matches.append(r)
-        return matches
+        return list(self._local_names.get(normalize(query), []))
 
     def group_members(self, selector):
         ids = self.groups.get(normalize(selector))
@@ -163,7 +176,7 @@ class Registry:
             return None
         return [self.by_id[rid] for rid in ids]
 
-    def search(self, query, limit=10):
+    def search(self, query, limit=10, *, include_learning=True):
         # Require meaningful lexical overlap. Missing Ngoại vụ never becomes Nội vụ.
         q = set(words(query))
         if not q:
@@ -173,9 +186,17 @@ class Registry:
         exact = self.exact_code(query) or self.exact_name(query) or self.exact_role(query) or self.internal_node_candidates(query)
         if exact:
             return exact[:limit]
+        from .learning import bind_targets
+        learned = {}
+        for rule in self._learned_aliases.get(normalize(query), []) if include_learning else []:
+            members, reason = bind_targets(rule, self)
+            if not reason:
+                learned.update((r.recipient_id, r) for r in members)
+        if learned:
+            return list(learned.values())[:limit]
         ranked = []
         for r in self.by_id.values():
-            tokens = set(words(" ".join([r.name,r.role or "",r.parent_name,r.code])))
+            tokens = self._search_tokens[r.recipient_id]
             overlap = meaningful & tokens
             if not meaningful or not overlap:
                 continue
@@ -203,4 +224,5 @@ class Registry:
             setattr(registry,key,data[key])
         registry.selectable_groups = set(data["selectable_groups"])
         registry.by_id = {rid:Recipient.model_validate(r) for rid,r in data["recipients"].items()}
+        registry._build_indexes()
         return registry

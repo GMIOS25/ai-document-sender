@@ -1,9 +1,11 @@
 """Smart Sync Diff Engine for updating tenant lookup databases and FTS5 indices."""
 from datetime import datetime, timezone
+from dataclasses import replace
 import hashlib
 import json
 from pathlib import Path
 import sqlite3
+import re
 from typing import Any, Dict, Optional, Tuple
 import unicodedata
 
@@ -36,6 +38,16 @@ ABBREVIATIONS = {
     "KTTH": ["Kinh tế - Tổng hợp", "Kinh te Tong hop"],
     "BoNNMT": ["Bộ Nông nghiệp và Môi trường", "Bo Nong nghiep va Moi truong"],
     "BTCD": ["Ban Tiếp công dân", "Ban Tiep cong dan"],
+    "VHTTDL": ["Văn hóa, Thể thao và Du lịch"],
+    "GDĐT": ["Giáo dục và Đào tạo"],
+    "KH&CN": ["Khoa học và Công nghệ"],
+    "QLDA": ["Quản lý dự án"],
+    "BCHQS": ["Bộ Chỉ huy Quân sự"],
+    "MTTQ": ["Mặt trận Tổ quốc"],
+    "KSND": ["Kiểm sát nhân dân"],
+    "TTCP": ["Thanh tra Chính phủ"],
+    "CVP": ["Chánh Văn phòng"],
+    "PCVP": ["Phó Chánh Văn phòng"],
 }
 
 
@@ -50,10 +62,41 @@ def build_search_tokens(*args) -> str:
                 no_acc = remove_accents(val)
                 if no_acc != val:
                     tokens.append(no_acc)
+                def lexical(text):
+                    return ' '.join(re.findall(r'\w+', remove_accents(text).casefold()))
+                padded = ' ' + lexical(val) + ' '
                 for abbr, full_forms in ABBREVIATIONS.items():
-                    if abbr.lower() in val.lower():
-                        tokens.extend(full_forms)
-    return " ".join(tokens)
+                    if any(' ' + lexical(form) + ' ' in padded for form in [abbr, *full_forms]):
+                        tokens.extend([abbr, *full_forms, *(remove_accents(f) for f in full_forms)])
+    return " ".join(dict.fromkeys(tokens))
+
+
+def refresh_search_index(conn, registry):
+    """Rebuild derived text and FTS together; identity rows stay intact."""
+    from .learning import bind_targets
+    aliases = {}
+    for rule in registry.policy.get('learning', {}).get('rules', []):
+        # Group names belong to the resolver, not every individual member's FTS row.
+        if len(rule.get('targets', [])) != 1:
+            continue
+        members, reason = bind_targets(rule, registry)
+        if not reason:
+            label = ' '.join(filter(None, [rule.get('qualifier'), rule['raw_alias']]))
+            aliases.setdefault(members[0].recipient_id, []).append(label)
+    changed = 0
+    for rid, name, fullname, display, code, parent, raw, old in conn.execute(
+            'SELECT recipient_id,name,full_name,display_name,code,parent_name,raw_json,search_text FROM recipients').fetchall():
+        source = json.loads(raw or '{}')
+        text = build_search_tokens(display, fullname, name, parent, source.get('refUname'),
+                                   source.get('sign'), code, source.get('rank'), *aliases.get(rid, []))
+        if text == old:
+            continue
+        conn.execute('UPDATE recipients SET search_text=? WHERE recipient_id=?', (text, rid))
+        conn.execute('DELETE FROM recipients_fts WHERE recipient_id=?', (rid,))
+        conn.execute('INSERT INTO recipients_fts (recipient_id,display_name,full_name,name,code,parent_name,search_text) VALUES (?,?,?,?,?,?,?)',
+                     (rid, display, fullname or '', name, code, parent, text))
+        changed += 1
+    return changed
 
 
 def compute_json_hash(data: Any) -> str:
@@ -454,6 +497,13 @@ def sync_tenant_lookup(
     tenant_dir = mgr.get_tenant_dir(tid)
     tenant_dir.mkdir(parents=True, exist_ok=True)
     db_path = tenant_dir / "lookup.db"
+    # The default tenant can still be using the legacy DB. Move its policy with it.
+    from .learning import FILENAME, read_learning
+    legacy_learning = settings.lookup_db.parent / FILENAME
+    tenant_learning = tenant_dir / FILENAME
+    if (not db_path.exists() and tid == normalize_tenant_id(settings.default_tenant)
+            and legacy_learning.exists() and not tenant_learning.exists()):
+        tenant_learning.write_bytes(legacy_learning.read_bytes())
 
     person_data = payload.get("person") or {}
     unit_int_data = payload.get("unit_internal") or {}
@@ -467,6 +517,7 @@ def sync_tenant_lookup(
     h_person = compute_json_hash(person_elements)
     h_int = compute_json_hash(unit_int_elements)
     h_ext = compute_json_hash(unit_ext_elements)
+    search_hash = compute_json_hash({'abbreviations': ABBREVIATIONS, 'learning': read_learning(db_path)})
 
     meta_file = tenant_dir / "metadata.json"
     if meta_file.exists() and db_path.exists():
@@ -474,7 +525,8 @@ def sync_tenant_lookup(
             meta = json.loads(meta_file.read_text(encoding="utf-8"))
             if (meta.get("person_hash") == h_person and
                 meta.get("unit_internal_hash") == h_int and
-                meta.get("unit_external_hash") == h_ext):
+                meta.get("unit_external_hash") == h_ext and
+                meta.get('search_policy_hash') == search_hash):
                 # No change detected
                 reg = mgr.get_registry(tid)
                 return {
@@ -496,6 +548,10 @@ def sync_tenant_lookup(
             int_res = _diff_and_sync_comm_units(conn, unit_int_elements, is_internal=True)
             ext_res = _diff_and_sync_comm_units(conn, unit_ext_elements, is_internal=False)
 
+        with conn:
+            from .registry import Registry
+            refreshed = refresh_search_index(conn, Registry(replace(settings, lookup_db=db_path)))
+
         # Flush WAL changes to main database
         conn.execute("PRAGMA wal_checkpoint(TRUNCATE);")
 
@@ -514,6 +570,7 @@ def sync_tenant_lookup(
         "person_hash": h_person,
         "unit_internal_hash": h_int,
         "unit_external_hash": h_ext,
+        "search_policy_hash": search_hash,
         "counts": {
             "recipients": total_recipients,
             "person_elements": len(person_elements),
@@ -536,5 +593,6 @@ def sync_tenant_lookup(
             "unit_external": ext_res
         },
         "total_recipients": total_recipients,
+        "search_rows_refreshed": refreshed,
         "registry_version": reg.registry_version
     }

@@ -1,0 +1,5388 @@
+{
+  "source": {
+    "url": "https://docs.google.com/spreadsheets/d/1FTx3IDxfaOadbXmY6BB9pRkRqCdnCter12poQ1txu9s/edit",
+    "sheet": "Thống kê",
+    "range": "A1:F5140",
+    "snapshot_sha256": "571c4f6adc7478697dad3d33747d32e1fc946d60e45877a8ef4827881ca8b501",
+    "reviewed_on": "2026-10-31",
+    "basis": "User-authorized red clerical corrections; exact current-directory validation"
+  },
+  "counts": {
+    "data_rows": 5138,
+    "documents": 500,
+    "red_rows": 1579,
+    "rules": 350,
+    "rule_statuses": {
+      "learned_target_missing": 118,
+      "ambiguous_learned_alias": 8,
+      "learned_target_ambiguous": 38,
+      "active": 186
+    },
+    "row_statuses": {
+      "learned_target_missing": 320,
+      "ambiguous_learned_alias": 77,
+      "learned_target_ambiguous": 225,
+      "active": 933
+    },
+    "skipped_rows": 24
+  },
+  "pending_targets": 140,
+  "decisions": [
+    {
+      "raw": "Thanh tra tỉnh",
+      "qualifier": null,
+      "rows": [
+        2,
+        15,
+        345,
+        752,
+        850,
+        882,
+        957,
+        983,
+        1108,
+        1250,
+        1357,
+        1381,
+        1387,
+        1454,
+        1487,
+        1513,
+        1553,
+        1719,
+        1870,
+        1888,
+        2094,
+        2144,
+        2246,
+        2401,
+        3251,
+        3459,
+        3528,
+        3561,
+        3716,
+        3896,
+        3933,
+        3984,
+        4158,
+        4165,
+        4278,
+        4639,
+        4813
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Ủy ban nhân dân các xã, phường: Quy Nhơn, Quy Nhơn Đông, Tuy Phước Đông, Cát Tiến, Đề Gi, Phù Mỹ Đông, Phù Mỹ Nam, Chư Sê, Ia Le",
+      "qualifier": null,
+      "rows": [
+        4
+      ],
+      "status": "ambiguous_learned_alias",
+      "recipient_ids": [],
+      "review_reasons": [
+        "enumeration_target_mismatch"
+      ]
+    },
+    {
+      "raw": "TCT Thanh tra Chính phủ",
+      "qualifier": null,
+      "rows": [
+        5,
+        18
+      ],
+      "status": "ambiguous_learned_alias",
+      "recipient_ids": [],
+      "review_reasons": [
+        "inconsistent_targets"
+      ]
+    },
+    {
+      "raw": "Công an tỉnh",
+      "qualifier": null,
+      "rows": [
+        6,
+        20,
+        36,
+        164,
+        266,
+        363,
+        484,
+        599,
+        640,
+        666,
+        888,
+        1009,
+        1031,
+        1052,
+        1095,
+        1157,
+        1305,
+        1316,
+        1430,
+        1497,
+        1549,
+        1626,
+        1649,
+        1702,
+        1711,
+        1842,
+        1909,
+        1920,
+        1938,
+        1967,
+        2009,
+        2048,
+        2087,
+        2195,
+        2272,
+        2289,
+        2306,
+        2322,
+        2341,
+        2353,
+        2383,
+        2422,
+        2454,
+        2627,
+        2638,
+        2807,
+        2851,
+        3071,
+        3114,
+        3171,
+        3277,
+        3288,
+        3329,
+        3447,
+        3611,
+        3667,
+        3922,
+        3958,
+        3996,
+        4292,
+        4476,
+        4491,
+        4609,
+        4706,
+        4839,
+        4895,
+        4911,
+        4916,
+        4932,
+        4939,
+        4950,
+        5122
+      ],
+      "status": "learned_target_ambiguous",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Chủ tịch và các PCT UBND tỉnh",
+      "qualifier": null,
+      "rows": [
+        7,
+        19
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_269"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "CVP và các PCVP (TH, XD, NN)",
+      "qualifier": null,
+      "rows": [
+        8
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_289",
+        "internal_287",
+        "internal_295",
+        "internal_299"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Ban Tiếp công dân tỉnh",
+      "qualifier": null,
+      "rows": [
+        9,
+        22,
+        759,
+        958,
+        1197,
+        1362,
+        1724,
+        1872,
+        1982,
+        2247,
+        3903,
+        3938,
+        3990,
+        4285,
+        4329
+      ],
+      "status": "learned_target_ambiguous",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Long, , HSVV-TD",
+      "qualifier": null,
+      "rows": [
+        13,
+        26,
+        350,
+        762,
+        1729,
+        1877,
+        2152,
+        2417,
+        3906,
+        3994,
+        4289,
+        4333
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_510"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Ủy ban nhân dân phường Quy Nhơn Bắc",
+      "qualifier": null,
+      "rows": [
+        17,
+        2405
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "CVP và các PCVP (TH, NN)",
+      "qualifier": null,
+      "rows": [
+        21,
+        3937
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_289",
+        "internal_287",
+        "internal_299"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Sở Ngoại vụ",
+      "qualifier": null,
+      "rows": [
+        35,
+        45,
+        52,
+        98,
+        127,
+        265,
+        291,
+        317,
+        324,
+        574,
+        660,
+        665,
+        996,
+        1119,
+        1265,
+        1597,
+        1839,
+        1880,
+        1908,
+        1919,
+        2197,
+        2662,
+        2915,
+        3123,
+        3172,
+        3263,
+        3276,
+        3287,
+        3328,
+        3594,
+        3610,
+        3858,
+        3921,
+        4130,
+        4551,
+        4561,
+        4571,
+        4875,
+        4896,
+        4910,
+        4931
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "PVPQT",
+      "qualifier": null,
+      "rows": [
+        41,
+        49,
+        57,
+        66,
+        100,
+        135,
+        144,
+        271,
+        321,
+        326,
+        391,
+        662,
+        673,
+        681,
+        735,
+        747,
+        977,
+        1005,
+        1121,
+        1204,
+        1218,
+        1270,
+        1571,
+        1582,
+        1590,
+        1602,
+        1611,
+        1823,
+        1836,
+        1848,
+        1861,
+        1915,
+        1926,
+        2021,
+        2436,
+        2548,
+        2581,
+        2911,
+        2920,
+        3118,
+        3126,
+        3283,
+        3294,
+        3325,
+        3334,
+        3411,
+        3420,
+        3599,
+        3607,
+        3616,
+        3634,
+        3819,
+        3861,
+        3915,
+        3928,
+        3951,
+        3981,
+        4011,
+        4138,
+        4149,
+        4399,
+        4470,
+        4506,
+        4553,
+        4563,
+        4573,
+        4687,
+        4786,
+        4879,
+        4891,
+        4913,
+        4934
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_297"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "PVPXD",
+      "qualifier": null,
+      "rows": [
+        78,
+        190,
+        203,
+        218,
+        338,
+        401,
+        411,
+        429,
+        440,
+        448,
+        491,
+        498,
+        519,
+        692,
+        712,
+        912,
+        923,
+        934,
+        1004,
+        1173,
+        1187,
+        1196,
+        1261,
+        1281,
+        1345,
+        1418,
+        1439,
+        1450,
+        1483,
+        1562,
+        1667,
+        1675,
+        1685,
+        1695,
+        1762,
+        1973,
+        2122,
+        2182,
+        2256,
+        2314,
+        2471,
+        2510,
+        2521,
+        2556,
+        2570,
+        2593,
+        2658,
+        2677,
+        2688,
+        2699,
+        2710,
+        2721,
+        2732,
+        2742,
+        2753,
+        2764,
+        2771,
+        2870,
+        2971,
+        2979,
+        2986,
+        3077,
+        3089,
+        3097,
+        3108,
+        3159,
+        3186,
+        3239,
+        3260,
+        3345,
+        3355,
+        3363,
+        3392,
+        3400,
+        3543,
+        3662,
+        3683,
+        3692,
+        3760,
+        3769,
+        3784,
+        3795,
+        3804,
+        3867,
+        4042,
+        4060,
+        4205,
+        4220,
+        4266,
+        4306,
+        4317,
+        4352,
+        4364,
+        4378,
+        4390,
+        4531,
+        4543,
+        4581,
+        4591,
+        4664,
+        4733,
+        4753,
+        4871,
+        4923,
+        5005,
+        5056,
+        5069
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_295"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "PVPNN",
+      "qualifier": null,
+      "rows": [
+        79,
+        116,
+        191,
+        202,
+        217,
+        243,
+        412,
+        439,
+        497,
+        526,
+        542,
+        559,
+        653,
+        834,
+        947,
+        1056,
+        1083,
+        1174,
+        1237,
+        1373,
+        1484,
+        1492,
+        1676,
+        1696,
+        1705,
+        1780,
+        1809,
+        2027,
+        2044,
+        2076,
+        2265,
+        2293,
+        2360,
+        2367,
+        2378,
+        2511,
+        2522,
+        2594,
+        2987,
+        3031,
+        3040,
+        3049,
+        3058,
+        3068,
+        3144,
+        3167,
+        3185,
+        3201,
+        3229,
+        3401,
+        3770,
+        3805,
+        4002,
+        4033,
+        4043,
+        4298,
+        4318,
+        4462,
+        4530,
+        4743,
+        4754,
+        4770,
+        4795,
+        4858,
+        4870,
+        5015,
+        5046,
+        5068,
+        5109
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_299"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "PVPTH",
+      "qualifier": null,
+      "rows": [
+        80,
+        124,
+        173,
+        702,
+        1464,
+        1799,
+        2165,
+        2174,
+        2787,
+        2878,
+        2929,
+        3013,
+        3217,
+        3370,
+        3511,
+        4319,
+        4631
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_289"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Ban Thường vụ Đảng ủy Ủy ban nhân dân tỉnh",
+      "qualifier": null,
+      "rows": [
+        83
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f58c2b747b1512793ef51e"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Chủ tịch",
+      "qualifier": null,
+      "rows": [
+        84,
+        279,
+        295,
+        306,
+        378,
+        505,
+        538,
+        601,
+        650,
+        742,
+        775,
+        814,
+        943,
+        965,
+        1370,
+        1377,
+        1638,
+        1856,
+        1900,
+        1958,
+        2072,
+        2620,
+        2993,
+        3226,
+        3244,
+        3451,
+        3631,
+        3843,
+        3923,
+        3962,
+        4123,
+        4168,
+        4179,
+        4240,
+        4272,
+        4407,
+        4416,
+        4425,
+        4434,
+        4443,
+        4457,
+        4635,
+        4767,
+        4900,
+        5012,
+        5106
+      ],
+      "status": "ambiguous_learned_alias",
+      "recipient_ids": [],
+      "review_reasons": [
+        "inconsistent_targets"
+      ]
+    },
+    {
+      "raw": "các PCT UBND tỉnh",
+      "qualifier": null,
+      "rows": [
+        85,
+        97,
+        111,
+        154,
+        171,
+        223,
+        280,
+        307,
+        539,
+        651,
+        700,
+        717,
+        743,
+        776,
+        815,
+        893,
+        944,
+        966,
+        1013,
+        1039,
+        1063,
+        1093,
+        1138,
+        1148,
+        1371,
+        1429,
+        1639,
+        1796,
+        1857,
+        1901,
+        1949,
+        1959,
+        1979,
+        2007,
+        2056,
+        2073,
+        2085,
+        2119,
+        2172,
+        2263,
+        2395,
+        2441,
+        2446,
+        2452,
+        2458,
+        2469,
+        2532,
+        2602,
+        2642,
+        2656,
+        2675,
+        2686,
+        2697,
+        2708,
+        2719,
+        2751,
+        2762,
+        2776,
+        2805,
+        2816,
+        2824,
+        2883,
+        2908,
+        3011,
+        3027,
+        3036,
+        3045,
+        3054,
+        3164,
+        3206,
+        3227,
+        3270,
+        3306,
+        3380,
+        3432,
+        3452,
+        3517,
+        3549,
+        3571,
+        3580,
+        3648,
+        3658,
+        3735,
+        3813,
+        3836,
+        3854,
+        3963,
+        4021,
+        4057,
+        4114,
+        4180,
+        4241,
+        4250,
+        4458,
+        4489,
+        4504,
+        4607,
+        4768,
+        4784,
+        4845,
+        4901,
+        5013,
+        5075,
+        5107
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_284",
+        "internal_276",
+        "internal_280",
+        "internal_278",
+        "internal_274",
+        "internal_272"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Lãnh đạo VP UBND tỉnh",
+      "qualifier": null,
+      "rows": [
+        88,
+        157,
+        1041,
+        1960,
+        3309
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_286"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Vụ Đông Bắc Á – Bộ Ngoại giao",
+      "qualifier": null,
+      "rows": [
+        94
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_6addabcd8ac4b76796a78637"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Vụ Ngoại giao kinh tế - Bộ Ngoại giao",
+      "qualifier": null,
+      "rows": [
+        95
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_6a2bf50be1f83d449e906248"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Ban Quản lý dự án Nông nghiệp và PTNT tỉnh",
+      "qualifier": null,
+      "rows": [
+        106,
+        535,
+        554,
+        940,
+        1775
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f596f6747b1512793f0773"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND các xã, phường: Cát Tiến, Phù Mỹ Đông, Phù Mỹ Bắc, An Hòa, Đề Gi, Ia Tul, Ia Hiao, Ia Rsai, Uar, Ia Ly, Đăk Song, Ia Dreh và Quy Nhơn Đông",
+      "qualifier": null,
+      "rows": [
+        108,
+        537,
+        556,
+        942
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Ban Dân tộc HĐND tỉnh",
+      "qualifier": null,
+      "rows": [
+        114,
+        540
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f399d1a04b3537408b389d"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Các sở, ban, ngành thuộc tỉnh",
+      "qualifier": null,
+      "rows": [
+        119,
+        163,
+        237,
+        1010,
+        1059,
+        1090,
+        1398,
+        1531,
+        1632,
+        1940,
+        2336,
+        2628,
+        2640,
+        3207,
+        3428,
+        3546,
+        3877,
+        4486,
+        4604,
+        5121
+      ],
+      "status": "learned_target_ambiguous",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "PCTTT Nguyễn Tuấn Thanh",
+      "qualifier": null,
+      "rows": [
+        122,
+        1401,
+        1462,
+        2785,
+        2834,
+        2844,
+        2917,
+        2927,
+        3508,
+        3541,
+        4628,
+        4685
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_272"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Kho bạc Nhà nước Khu vực XIV",
+      "qualifier": null,
+      "rows": [
+        142
+      ],
+      "status": "learned_target_ambiguous",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Bộ Văn hóa, Thể thao và Du lịch",
+      "qualifier": null,
+      "rows": [
+        148,
+        1826
+      ],
+      "status": "ambiguous_learned_alias",
+      "recipient_ids": [],
+      "review_reasons": [
+        "inconsistent_targets"
+      ]
+    },
+    {
+      "raw": "Cục Du lịch Quốc gia Việt Nam",
+      "qualifier": null,
+      "rows": [
+        150
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_6942141bfdb61d34c362d362"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Thường trực HĐND tỉnh",
+      "qualifier": null,
+      "rows": [
+        151,
+        209,
+        305,
+        891,
+        1037,
+        1136,
+        1146,
+        1931,
+        2005,
+        2083,
+        3303,
+        3515,
+        3630,
+        3852,
+        3961,
+        4039,
+        4502,
+        4843
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f399d1a04b3537408b389d"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Đoàn ĐBQH tỉnh Gia Lai",
+      "qualifier": null,
+      "rows": [
+        152
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f399d1a04b3537408b389d"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "YT",
+      "qualifier": "Sở",
+      "rows": [
+        155,
+        2345,
+        4023
+      ],
+      "status": "ambiguous_learned_alias",
+      "recipient_ids": [],
+      "review_reasons": [
+        "inconsistent_targets",
+        "qualifier_target_mismatch"
+      ]
+    },
+    {
+      "raw": "Ngân hàng Nhà nước chi nhánh Khu vực 11",
+      "qualifier": null,
+      "rows": [
+        162,
+        4230
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f5a836747b1512793f23a4"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Viện kiểm sát nhân dân tỉnh",
+      "qualifier": null,
+      "rows": [
+        165,
+        1941
+      ],
+      "status": "ambiguous_learned_alias",
+      "recipient_ids": [],
+      "review_reasons": [
+        "inconsistent_targets"
+      ]
+    },
+    {
+      "raw": "UBND các xã, phường",
+      "qualifier": null,
+      "rows": [
+        168,
+        181,
+        485,
+        583,
+        688,
+        813,
+        839,
+        890,
+        963,
+        1014,
+        1035,
+        1145,
+        1172,
+        1482,
+        1543,
+        1633,
+        1859,
+        1945,
+        1977,
+        2054,
+        2082,
+        2355,
+        2512,
+        2643,
+        2737,
+        3210,
+        3429,
+        3547,
+        3564,
+        3577,
+        3676,
+        3838,
+        3878,
+        4054,
+        4232,
+        4660,
+        4985,
+        4993,
+        5010,
+        5105
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "LĐ và CV Văn phòng UBND tỉnh",
+      "qualifier": null,
+      "rows": [
+        182,
+        2011,
+        2091,
+        2811,
+        4850
+      ],
+      "status": "learned_target_ambiguous",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "TC",
+      "qualifier": "Sở",
+      "rows": [
+        187,
+        212,
+        368,
+        437,
+        470,
+        527,
+        1084,
+        1169,
+        1415,
+        1433,
+        1479,
+        1672,
+        1690,
+        1773,
+        2277,
+        2291,
+        2343,
+        2423,
+        2557,
+        2855,
+        2958,
+        2967,
+        2996,
+        3029,
+        3038,
+        3047,
+        3056,
+        3190,
+        3256,
+        3659,
+        3790,
+        3871,
+        4022,
+        4044,
+        4313,
+        4337,
+        4526,
+        4618,
+        4941
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f39cafa04b3537408b3bf5"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Thủ tướng Chính phủ",
+      "qualifier": null,
+      "rows": [
+        206,
+        1421
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f5baeb747b1512793f4455"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Đảng ủy Ủy ban nhân dân tỉnh",
+      "qualifier": null,
+      "rows": [
+        221,
+        3162
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f58c2b747b1512793ef51e"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "LĐVP, CV",
+      "qualifier": null,
+      "rows": [
+        224,
+        1064,
+        1096,
+        4492,
+        4610
+      ],
+      "status": "learned_target_ambiguous",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "VP ĐU UBND tỉnh",
+      "qualifier": null,
+      "rows": [
+        225,
+        1403
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f58c2b747b1512793ef51e"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Bộ CHQS tỉnh",
+      "qualifier": null,
+      "rows": [
+        233,
+        594
+      ],
+      "status": "learned_target_ambiguous",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Ủy ban nhân dân các xã, phường",
+      "qualifier": null,
+      "rows": [
+        238,
+        257,
+        1134,
+        1532,
+        1957,
+        2232,
+        2629,
+        2941,
+        3174,
+        3442,
+        3450,
+        3628,
+        3644,
+        3811,
+        3889,
+        3909,
+        4144,
+        4885,
+        5125
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Đảng ủy UBND tỉnh",
+      "qualifier": null,
+      "rows": [
+        239,
+        278,
+        344,
+        877,
+        1106,
+        1380,
+        1869,
+        1932,
+        2129,
+        2241,
+        2412,
+        3308,
+        3526,
+        3746,
+        3988,
+        4157,
+        4638,
+        4782,
+        4811
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f58c2b747b1512793ef51e"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Công ty TNHH MTV CS Chư Sê",
+      "qualifier": null,
+      "rows": [
+        249
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_69bd68c13bf0995abe1e818c"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "PVP NN",
+      "qualifier": null,
+      "rows": [
+        251,
+        262,
+        369,
+        568,
+        579,
+        720,
+        844,
+        1026,
+        1075,
+        1130,
+        1230,
+        1504,
+        2114,
+        2141,
+        2227,
+        2278,
+        2301,
+        2397,
+        2778,
+        2956,
+        2998,
+        3021,
+        3317,
+        3454,
+        3663,
+        4026,
+        4236,
+        4255,
+        4275,
+        5100,
+        5118,
+        5136
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_299"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Đài Truyền hình Việt Nam",
+      "qualifier": null,
+      "rows": [
+        274
+      ],
+      "status": "learned_target_ambiguous",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Ban Tuyên giáo Tỉnh ủy",
+      "qualifier": null,
+      "rows": [
+        281,
+        1140,
+        4888
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f6323c747b1512793fd806"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Các sở, ngành của tỉnh",
+      "qualifier": null,
+      "rows": [
+        282
+      ],
+      "status": "learned_target_ambiguous",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "CVP, các PVP UBND tỉnh",
+      "qualifier": null,
+      "rows": [
+        283,
+        3271
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_289",
+        "internal_287",
+        "internal_295",
+        "internal_299",
+        "internal_297",
+        "internal_293"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND phường Quy Nhơn Bắc",
+      "qualifier": null,
+      "rows": [
+        294,
+        985,
+        1804,
+        2126,
+        2528,
+        4615
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "đ/c Hoài - PCVP UBND tỉnh",
+      "qualifier": null,
+      "rows": [
+        298,
+        382,
+        4184
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_297"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Các sở, ban, ngành của tỉnh",
+      "qualifier": null,
+      "rows": [
+        303,
+        1040,
+        2940
+      ],
+      "status": "learned_target_ambiguous",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Ủy ban MTTQ Việt Nam tỉnh",
+      "qualifier": null,
+      "rows": [
+        308,
+        1858,
+        2483,
+        3912,
+        3925,
+        4181
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f4e95a747b1512793ebf3a"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Văn phòng Đoàn ĐBQH&HĐND tỉnh",
+      "qualifier": null,
+      "rows": [
+        310
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f399d1a04b3537408b389d"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "CVP, các PCVP UBND tỉnh",
+      "qualifier": null,
+      "rows": [
+        311,
+        2947,
+        3581,
+        3966
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_289",
+        "internal_287",
+        "internal_295",
+        "internal_299",
+        "internal_297",
+        "internal_293"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Chủ tịch và PCT Nguyễn Tự Công Hoàng",
+      "qualifier": null,
+      "rows": [
+        342,
+        1722,
+        1867,
+        3986
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_274",
+        "internal_270"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "CVP và các PCVP (TH, XD)",
+      "qualifier": null,
+      "rows": [
+        346,
+        1723,
+        1871,
+        3989,
+        4284,
+        4328
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_289",
+        "internal_287",
+        "internal_295"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Ban TCD tỉnh",
+      "qualifier": null,
+      "rows": [
+        347,
+        1384,
+        2148,
+        2414,
+        3473,
+        3531,
+        4161,
+        4643
+      ],
+      "status": "learned_target_ambiguous",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Cục ĐC&KS Việt Nam",
+      "qualifier": null,
+      "rows": [
+        359,
+        2268
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_6ac63d39cafd31142a9099ba"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Chi cục ĐCKS miền Trung",
+      "qualifier": null,
+      "rows": [
+        360,
+        2269
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_6ad33a08acd3001e9af2d358"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "PCT UBND tỉnh",
+      "qualifier": null,
+      "rows": [
+        362,
+        468,
+        585,
+        639,
+        825,
+        849,
+        1073,
+        1309,
+        1710,
+        1747,
+        1987,
+        2034,
+        2271,
+        2421,
+        2795,
+        2854,
+        2892,
+        2900,
+        4760,
+        5034
+      ],
+      "status": "ambiguous_learned_alias",
+      "recipient_ids": [],
+      "review_reasons": [
+        "generic_selector_requires_context"
+      ]
+    },
+    {
+      "raw": "UBND phường An Nhơn Nam",
+      "qualifier": null,
+      "rows": [
+        372
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Văn phòng UBND tỉnh",
+      "qualifier": null,
+      "rows": [
+        376,
+        456,
+        697,
+        1541,
+        2430,
+        3668
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Ia O",
+      "qualifier": "UBND xã",
+      "rows": [
+        396
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Thanh tra tỉnh; Thuế tỉnh",
+      "qualifier": null,
+      "rows": [
+        422
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND phường Quy Nhơn Tây",
+      "qualifier": null,
+      "rows": [
+        424,
+        648,
+        3749,
+        3779,
+        5001
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Cục QLN và KTĐN – BTC",
+      "qualifier": null,
+      "rows": [
+        433
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_690ad0e4ef27fa7e011705c0"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Chủ tịch UBND tỉnh (thay b/c)",
+      "qualifier": null,
+      "rows": [
+        444,
+        516,
+        1413,
+        2254,
+        3095,
+        3340,
+        3352,
+        4262,
+        5054
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_270"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Ban QLDA",
+      "qualifier": null,
+      "rows": [
+        446
+      ],
+      "status": "ambiguous_learned_alias",
+      "recipient_ids": [],
+      "review_reasons": [
+        "generic_selector_requires_context"
+      ]
+    },
+    {
+      "raw": "Kho bạc Nhà nước khu vực XV",
+      "qualifier": null,
+      "rows": [
+        457,
+        1460,
+        1600,
+        1609,
+        2434,
+        3003
+      ],
+      "status": "learned_target_ambiguous",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "PCVP VX",
+      "qualifier": null,
+      "rows": [
+        459
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_293"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Trung tâm PVHCC",
+      "qualifier": null,
+      "rows": [
+        460,
+        1017,
+        1394,
+        1725,
+        1873,
+        2635,
+        2646,
+        3474,
+        3651,
+        3939,
+        3991
+      ],
+      "status": "learned_target_ambiguous",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Bộ KH&CN",
+      "qualifier": null,
+      "rows": [
+        464
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f63525747b1512793fdb2d"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Bộ NN&MT",
+      "qualifier": null,
+      "rows": [
+        465
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f5baeb747b1512793f4458"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "KHCN",
+      "qualifier": "Sở",
+      "rows": [
+        469,
+        1434,
+        2424,
+        2856,
+        2968,
+        4940
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f48d8ae4127f708594d292"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "PVP VX",
+      "qualifier": null,
+      "rows": [
+        473,
+        613,
+        1016,
+        1548,
+        1628,
+        2426,
+        2634,
+        2645,
+        2858,
+        2937,
+        3674,
+        4943
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_293"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Các Sở, ban, ngành",
+      "qualifier": null,
+      "rows": [
+        489,
+        961,
+        2736,
+        4053
+      ],
+      "status": "learned_target_ambiguous",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Văn phòng Đăng ký đất đai tỉnh",
+      "qualifier": null,
+      "rows": [
+        504,
+        785,
+        5113
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f5c5c2747b1512793f4b23"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "PCVP NN",
+      "qualifier": null,
+      "rows": [
+        509,
+        604,
+        791,
+        1516,
+        1527,
+        2389,
+        3591,
+        4095,
+        4171,
+        4980
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_299"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND xã Đak Đoa",
+      "qualifier": null,
+      "rows": [
+        515
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "PCTUBND tinh N.H.Quê",
+      "qualifier": null,
+      "rows": [
+        517
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_280"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Khoa học và Công nghệ; Giáo dục và Đào tạo; Công Thương; Nông nghiệp và Môi trường",
+      "qualifier": "Sở",
+      "rows": [
+        545
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f39cafa04b3537408b3bf6",
+        "comm_68f39cafa04b3537408b3bf8",
+        "comm_68f48d8ae4127f708594d292",
+        "comm_68f399d1a04b3537408b389c"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Đ/c Chủ tịch (để b/c)",
+      "qualifier": null,
+      "rows": [
+        546
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_270"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Đ/c CVP, PVPVX",
+      "qualifier": null,
+      "rows": [
+        548
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_287",
+        "internal_293"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Chi cục Kiểm lâm tỉnh",
+      "qualifier": null,
+      "rows": [
+        563
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f8e229ef27fa7e010a931b"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "PVPVX",
+      "qualifier": null,
+      "rows": [
+        587,
+        622,
+        1771,
+        1790,
+        1884,
+        2236,
+        2614,
+        2624,
+        3712,
+        3818,
+        4195
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_293"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Uỷ ban nhân dân xã: Ia Pia, Ia Mơ",
+      "qualifier": null,
+      "rows": [
+        600
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "PVHCC",
+      "qualifier": null,
+      "rows": [
+        616,
+        1551,
+        2238,
+        2617,
+        3679,
+        4198
+      ],
+      "status": "learned_target_ambiguous",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "PVPVX UBND tỉnh",
+      "qualifier": null,
+      "rows": [
+        631,
+        2333,
+        2666,
+        3893,
+        4903,
+        4989,
+        4997
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_293"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND xã Vĩnh Sơn",
+      "qualifier": null,
+      "rows": [
+        637
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND xã Ia Pnôn",
+      "qualifier": null,
+      "rows": [
+        649
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Bộ Công an",
+      "qualifier": null,
+      "rows": [
+        656,
+        1424,
+        1645,
+        2450,
+        3043
+      ],
+      "status": "learned_target_ambiguous",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "TTPVHCC",
+      "qualifier": null,
+      "rows": [
+        705,
+        1749,
+        2859,
+        3584,
+        4762
+      ],
+      "status": "learned_target_ambiguous",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Trung tâm Nước sạch nông thôn",
+      "qualifier": null,
+      "rows": [
+        708
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_690c5babef27fa7e011858f1"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Sở NN và MT (để t/h)",
+      "qualifier": null,
+      "rows": [
+        718
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f399d1a04b3537408b389c"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND xã Tuy Phước Bắc",
+      "qualifier": null,
+      "rows": [
+        727,
+        2577
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND xã Tuy Phước Tây",
+      "qualifier": null,
+      "rows": [
+        728,
+        2544
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Bảo tàng tỉnh",
+      "qualifier": null,
+      "rows": [
+        729,
+        2576
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_6913e731ef27fa7e011c8378"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Tổ công tác của UBND tỉnh",
+      "qualifier": null,
+      "rows": [
+        733
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_1891561"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Báo và PTTH Gia Lai",
+      "qualifier": null,
+      "rows": [
+        745,
+        3815
+      ],
+      "status": "learned_target_ambiguous",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Chủ tịch và PCTTT. UBND tỉnh",
+      "qualifier": null,
+      "rows": [
+        753,
+        2240,
+        3897,
+        4279,
+        4323
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_272",
+        "internal_270"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Đảng ủy UBND tỉnh (b/c)",
+      "qualifier": null,
+      "rows": [
+        756,
+        3900,
+        4282,
+        4326
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f58c2b747b1512793ef51e"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Văn phòng Đoàn ĐBQH&HĐND tỉnh (b/c)",
+      "qualifier": null,
+      "rows": [
+        757,
+        3901,
+        4283,
+        4327
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f399d1a04b3537408b389d"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "CVP và PCVP-TH",
+      "qualifier": null,
+      "rows": [
+        758,
+        2413,
+        3902
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_289",
+        "internal_287"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Chủ tịch, các PCT UBND tỉnh",
+      "qualifier": null,
+      "rows": [
+        769
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_269"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "CVP, các PCVP",
+      "qualifier": null,
+      "rows": [
+        770,
+        777,
+        816,
+        1141,
+        1902,
+        2485
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_289",
+        "internal_287",
+        "internal_295",
+        "internal_299",
+        "internal_297",
+        "internal_293"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND xã Bình An",
+      "qualifier": null,
+      "rows": [
+        771,
+        778,
+        1298,
+        1899
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND phường Hội Phú",
+      "qualifier": null,
+      "rows": [
+        788,
+        3093,
+        4898,
+        5052
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Ban QLDA Giao thông và Dân dụng tỉnh",
+      "qualifier": null,
+      "rows": [
+        797,
+        1297,
+        1996,
+        2492,
+        3375,
+        3656,
+        3698,
+        4083,
+        4707
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f39cafa04b3537408b3bf9"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Ban Quản lý rừng phòng hộ tỉnh",
+      "qualifier": null,
+      "rows": [
+        799
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_6a4eefbabe3b27644cf5662e"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Bí thư Đảng ủy, Chủ tịch UBND các xã: Bình Khê, Bình Phú, Ya Hội, Hra, Đak Pơ",
+      "qualifier": null,
+      "rows": [
+        800
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Cty Điện lực Gia Lai",
+      "qualifier": null,
+      "rows": [
+        804
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f6e46e747b15127940322c"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "PVP XD",
+      "qualifier": null,
+      "rows": [
+        808,
+        989,
+        1247,
+        1292,
+        1302,
+        2001,
+        2059,
+        2798,
+        2839,
+        3498,
+        3704,
+        4107,
+        4722,
+        5036
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_295"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND xã Ia Rsai",
+      "qualifier": null,
+      "rows": [
+        822
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "CVP, PCVPQT",
+      "qualifier": "noi_nhan",
+      "rows": [
+        858
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_287",
+        "internal_297"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Sở Nông nghiệp Môi trường",
+      "qualifier": null,
+      "rows": [
+        862
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f399d1a04b3537408b389c"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "PCVPQT",
+      "qualifier": null,
+      "rows": [
+        868
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_297"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBKT Tỉnh uỷ",
+      "qualifier": null,
+      "rows": [
+        879,
+        1105,
+        2131,
+        3745,
+        4810
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f750d9ef27fa7e0109227e"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Các VP: Tỉnh uỷ, Đoàn ĐBQH và HĐND tỉnh",
+      "qualifier": null,
+      "rows": [
+        880,
+        1107,
+        1891,
+        2097,
+        2132,
+        3719,
+        3747,
+        4676,
+        4812
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Bộ Chỉ huy Quân sự tỉnh",
+      "qualifier": null,
+      "rows": [
+        887,
+        1032,
+        1094,
+        1233,
+        1431,
+        2008,
+        2086,
+        2309,
+        2323,
+        2460,
+        2806,
+        2897,
+        3187,
+        4490,
+        4608,
+        4846,
+        4864,
+        4883,
+        4951,
+        5062
+      ],
+      "status": "learned_target_ambiguous",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Các sở, ban, ngành tỉnh",
+      "qualifier": null,
+      "rows": [
+        889,
+        1030,
+        1133,
+        1144,
+        1976,
+        2004,
+        3514
+      ],
+      "status": "learned_target_ambiguous",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Ban Quản lý KKT tỉnh",
+      "qualifier": null,
+      "rows": [
+        894,
+        1980,
+        2089,
+        2348,
+        3518
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f454d2e4127f708594bab5"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Các Ban QLDA thuộc tỉnh",
+      "qualifier": null,
+      "rows": [
+        896
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f39cafa04b3537408b3bf9",
+        "comm_68f4f2c3747b1512793ec530",
+        "comm_68f596f6747b1512793f0773"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Điện lực Gia Lai",
+      "qualifier": null,
+      "rows": [
+        898,
+        4848
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f6e46e747b15127940322c"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "LĐ và CV VP UBND tỉnh",
+      "qualifier": null,
+      "rows": [
+        900
+      ],
+      "status": "learned_target_ambiguous",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Trung tâm PVHCC tỉnh",
+      "qualifier": null,
+      "rows": [
+        901,
+        3552
+      ],
+      "status": "learned_target_ambiguous",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND các xã, phường1",
+      "qualifier": null,
+      "rows": [
+        919
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Đảng ủy các xã, phường: Cát Tiến, Phù Mỹ Đông, Phù Mỹ Bắc, An Hòa, Đề Gi, Ia Tul, Ia Hiao, Ia Rsai, Uar, Ia Ly, Đăk Song, Ia Dreh và Quy Nhơn Đông",
+      "qualifier": null,
+      "rows": [
+        948
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f5b761747b1512793f3e15",
+        "comm_68f5b761747b1512793f3e47",
+        "comm_68f5b761747b1512793f3e27",
+        "comm_68f5b761747b1512793f3dfc",
+        "comm_68f5b761747b1512793f3e28",
+        "comm_68f5b761747b1512793f3e00",
+        "comm_68f5b761747b1512793f3e0a",
+        "comm_68f5b761747b1512793f3dce",
+        "comm_68f5b761747b1512793f3e01",
+        "comm_68f5b761747b1512793f3df2",
+        "comm_68f5b761747b1512793f3e31",
+        "comm_68f5b761747b1512793f3e2e",
+        "comm_68f5b761747b1512793f3e03"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Cục II - Thanh tra Chính phủ",
+      "qualifier": null,
+      "rows": [
+        953
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Ban QLDA Nông nghiệp và PTNT tỉnh",
+      "qualifier": null,
+      "rows": [
+        984,
+        1287,
+        2090,
+        4717
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f596f6747b1512793f0773"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "BCH QS tỉnh, Công an tỉnh",
+      "qualifier": null,
+      "rows": [
+        1002
+      ],
+      "status": "learned_target_ambiguous",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Cục C12, Bộ Công an (b/c)",
+      "qualifier": null,
+      "rows": [
+        1011
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_69734cf1ba84005ddb1ce4f8"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Ủy ban Mặt trận Tổ quốc Việt Nam tỉnh",
+      "qualifier": null,
+      "rows": [
+        1029,
+        1937,
+        3425,
+        4224
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f4e95a747b1512793ebf3a"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Ủy ban MTTQVN tỉnh",
+      "qualifier": null,
+      "rows": [
+        1051,
+        1139,
+        1149,
+        2825
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f4e95a747b1512793ebf3a"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Sở Dân tộc và Tôn giáo",
+      "qualifier": null,
+      "rows": [
+        1053,
+        1802,
+        3639,
+        4793,
+        5044
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND các xã Tuy Phước Bắc",
+      "qualifier": null,
+      "rows": [
+        1054
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Văn phòng Đảng ủy UBND tỉnh",
+      "qualifier": null,
+      "rows": [
+        1065,
+        1097,
+        4493,
+        4611
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f58c2b747b1512793ef51e"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Công ty TNHH Lâm nghiệp Gia Lai",
+      "qualifier": null,
+      "rows": [
+        1070
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND các xã, phường: Phù Mỹ Bắc, Phù Mỹ Tây, Bình Dương, Tuy Phước Đông, Ngô Mây, Quy Nhơn Đông",
+      "qualifier": null,
+      "rows": [
+        1087
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND phường: Diên Hồng, Hội Phú",
+      "qualifier": null,
+      "rows": [
+        1101
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "CVP và PVP-TH",
+      "qualifier": null,
+      "rows": [
+        1109,
+        1361,
+        2244
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_289",
+        "internal_287"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Ủy ban nhân dân xã Gào",
+      "qualifier": null,
+      "rows": [
+        1125
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND phường An Nhơn",
+      "qualifier": null,
+      "rows": [
+        1182,
+        2281,
+        4539
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND xã Chư Sê",
+      "qualifier": null,
+      "rows": [
+        1192,
+        4261,
+        4738
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND xã Biển Hồ",
+      "qualifier": null,
+      "rows": [
+        1213
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Ủy ban nhân dân xã Ia Le",
+      "qualifier": null,
+      "rows": [
+        1225
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND xã Ia Tul",
+      "qualifier": null,
+      "rows": [
+        1234
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND phường Quy Nhơn Đông, Quy Nhơn Nam",
+      "qualifier": null,
+      "rows": [
+        1256
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f39a7ba04b3537408b3918",
+        "comm_68f39a7ba04b3537408b3917"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Báo và phát thanh, truyền hình Gia Lai",
+      "qualifier": null,
+      "rows": [
+        1266,
+        1943,
+        3975,
+        4884
+      ],
+      "status": "learned_target_ambiguous",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Sở, ban, ngành",
+      "qualifier": null,
+      "rows": [
+        1306,
+        2014
+      ],
+      "status": "learned_target_ambiguous",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND xã, phường",
+      "qualifier": null,
+      "rows": [
+        1307,
+        2015,
+        4316
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Tam Quan",
+      "qualifier": "UBND phường",
+      "rows": [
+        1318
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Hoài Nhơn Tây",
+      "qualifier": "UBND phường",
+      "rows": [
+        1319
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Hoài Nhơn Nam",
+      "qualifier": "UBND phường",
+      "rows": [
+        1321
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Bồng Sơn",
+      "qualifier": "UBND phường",
+      "rows": [
+        1322
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "An Nhơn Bắc",
+      "qualifier": "UBND phường",
+      "rows": [
+        1323
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "An Nhơn",
+      "qualifier": "UBND phường",
+      "rows": [
+        1324
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Bình Định",
+      "qualifier": "UBND phường",
+      "rows": [
+        1325
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "An Nhơn Đông",
+      "qualifier": "UBND phường",
+      "rows": [
+        1326
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "An Nhơn Nam",
+      "qualifier": "UBND phường",
+      "rows": [
+        1327
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Quy Nhơn Bắc",
+      "qualifier": "UBND phường",
+      "rows": [
+        1328,
+        2495,
+        4779
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Bình Dương",
+      "qualifier": "UBND xã",
+      "rows": [
+        1331
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Phù Mỹ",
+      "qualifier": "UBND xã",
+      "rows": [
+        1332
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Phù Mỹ Tây",
+      "qualifier": "UBND xã",
+      "rows": [
+        1333
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Phù Mỹ Nam",
+      "qualifier": "UBND xã",
+      "rows": [
+        1334
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Tuy Phước Tây",
+      "qualifier": "UBND xã",
+      "rows": [
+        1335
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Canh Vinh",
+      "qualifier": "UBND xã",
+      "rows": [
+        1336
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f454d2e4127f708594bab6"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Vân Canh",
+      "qualifier": "UBND xã",
+      "rows": [
+        1337,
+        3870
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Hòa Hội",
+      "qualifier": "UBND xã",
+      "rows": [
+        1338
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Phù Cát",
+      "qualifier": "UBND xã",
+      "rows": [
+        1339
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Ban TĐKTTW",
+      "qualifier": null,
+      "rows": [
+        1350
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_69001d9bef27fa7e010ef355"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Chủ tịch và PCTTT UBND tỉnh",
+      "qualifier": null,
+      "rows": [
+        1360,
+        2406,
+        3936
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_272",
+        "internal_270"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND xã Tây Sơn",
+      "qualifier": null,
+      "rows": [
+        1369,
+        2160,
+        2793,
+        3756,
+        4080
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "PCTTT. UBND tỉnh",
+      "qualifier": null,
+      "rows": [
+        1378
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_272"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "PVP-TH",
+      "qualifier": null,
+      "rows": [
+        1383,
+        1393,
+        2534,
+        2605,
+        3209,
+        3434,
+        3472,
+        3485,
+        3497,
+        3530,
+        3551,
+        3563,
+        3730,
+        3738,
+        4117,
+        4160,
+        4341,
+        4622,
+        4642,
+        4655,
+        4825,
+        4956,
+        5087
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_289"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "HSVV, Vinh",
+      "qualifier": null,
+      "rows": [
+        1386,
+        1397,
+        3478,
+        3534,
+        4645
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_508"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Chủ tịch và PCTTT. UBND tỉnh (b/c)",
+      "qualifier": null,
+      "rows": [
+        1388,
+        3467
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_272",
+        "internal_270"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Ủy ban KT Tỉnh ủy",
+      "qualifier": null,
+      "rows": [
+        1389,
+        3468,
+        3524,
+        4155
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f750d9ef27fa7e0109227e"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "VP. Đoàn ĐBQH&HĐND tỉnh",
+      "qualifier": null,
+      "rows": [
+        1391,
+        3470,
+        3527
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f399d1a04b3537408b389d"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Ban Quản lý các dự án ĐTXD tỉnh",
+      "qualifier": null,
+      "rows": [
+        1408
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f4f2c3747b1512793ec530"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Phú Thiện",
+      "qualifier": "UBND xã",
+      "rows": [
+        1409
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Chư A Thai",
+      "qualifier": "UBND xã",
+      "rows": [
+        1410
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Phú Túc",
+      "qualifier": "UBND xã",
+      "rows": [
+        1411
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Ia Rsai",
+      "qualifier": "UBND xã",
+      "rows": [
+        1412
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Ngoại vụ",
+      "qualifier": "Sở",
+      "rows": [
+        1437,
+        1659
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "PCTTT N.T.Thanh",
+      "qualifier": null,
+      "rows": [
+        1472,
+        2105,
+        2193,
+        2206,
+        2320,
+        4697,
+        4968,
+        5026
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_272"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "CVP, các PVP",
+      "qualifier": null,
+      "rows": [
+        1474,
+        2107,
+        2198,
+        2208,
+        2324,
+        4699,
+        4970,
+        5028
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_289",
+        "internal_287",
+        "internal_295",
+        "internal_299",
+        "internal_297",
+        "internal_293"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND xã Ayun",
+      "qualifier": null,
+      "rows": [
+        1499
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Ủy ban nhân dân xã Kbang",
+      "qualifier": null,
+      "rows": [
+        1508
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Viện KSND tỉnh Gia Lai",
+      "qualifier": null,
+      "rows": [
+        1512
+      ],
+      "status": "learned_target_ambiguous",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Sở NN và MT",
+      "qualifier": null,
+      "rows": [
+        1514
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f399d1a04b3537408b389c"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND xã Ia Hrung",
+      "qualifier": null,
+      "rows": [
+        1522
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Sở Ngoại vụ, Sở Tài chính, Sở Công Thương, Sở Xây dựng, Sở Nông nghiệp và Môi trường, Sở Văn hóa Thể thao và Du lịch, Sở Giáo dục và Đào tạo, Sở Y tế, Sở Khoa học và Công nghệ",
+      "qualifier": null,
+      "rows": [
+        1565
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Công an tỉnh, Bộ Chỉ huy Quân sự tỉnh",
+      "qualifier": null,
+      "rows": [
+        1567,
+        3439
+      ],
+      "status": "learned_target_ambiguous",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Ủy ban nhân dân tỉnh Quảng Ngãi",
+      "qualifier": null,
+      "rows": [
+        1614
+      ],
+      "status": "learned_target_ambiguous",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "PCT TT UBND tỉnh",
+      "qualifier": null,
+      "rows": [
+        1616,
+        1625,
+        3132
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_272"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND phường An Khê",
+      "qualifier": null,
+      "rows": [
+        1619,
+        3522
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Văn phòng Bộ Công an",
+      "qualifier": null,
+      "rows": [
+        1646
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_69049a14ef27fa7e0112e401"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Ủy ban nhân dân các xã biên giới",
+      "qualifier": null,
+      "rows": [
+        1664
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Công ty TNHH KTCT Thủy lợi Bình Định",
+      "qualifier": null,
+      "rows": [
+        1693,
+        4849
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f5bcea747b1512793f46ac"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Công ty TNHH MTV KTCT Thủy lợi Gia Lai",
+      "qualifier": null,
+      "rows": [
+        1694
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f6dbab747b15127940227b"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND xã Canh Vinh",
+      "qualifier": null,
+      "rows": [
+        1715,
+        2717,
+        2760,
+        4084
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f454d2e4127f708594bab6"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "PCT N.T.Thanh",
+      "qualifier": null,
+      "rows": [
+        1735,
+        4273,
+        4596,
+        5098
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_272"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "BQL dịch vụ công Quy Nhơn (p/h)",
+      "qualifier": null,
+      "rows": [
+        1739
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f72a21ef27fa7e0108de21"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Công ty CP Công trình đô thị Gia Lai (p/h)",
+      "qualifier": null,
+      "rows": [
+        1740
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_693921cbfdb61d34c35c9c18"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "ĐSQ Việt Nam tại Pháp (để p/h)",
+      "qualifier": null,
+      "rows": [
+        1767
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_6a90069c91724b2474b3fb43"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Ban Quản lý dự án Đầu tư xây dựng tỉnh",
+      "qualifier": null,
+      "rows": [
+        1776
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f4f2c3747b1512793ec530"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "CVP và PVPTH",
+      "qualifier": null,
+      "rows": [
+        1892,
+        2098,
+        2133,
+        3720,
+        4677
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_289",
+        "internal_287"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND xã Kbang",
+      "qualifier": null,
+      "rows": [
+        1893
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Sở Tư pháp; Sở Tài chính",
+      "qualifier": null,
+      "rows": [
+        1936
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f39cafa04b3537408b3bf5",
+        "comm_68f48d8ae4127f708594d290"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Bộ Chỉ huy Quân sự tỉnh, Ban Chỉ huy BĐBP",
+      "qualifier": null,
+      "rows": [
+        1939
+      ],
+      "status": "learned_target_ambiguous",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Khu quản lý đường bộ III",
+      "qualifier": null,
+      "rows": [
+        1968,
+        4477
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f99effef27fa7e010af0eb"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND các xã, phường: Chư Sê, Ia Hrú, Chư Pưh, Ia Le, Chư A Thai, Phú Thiện và Hội Phú",
+      "qualifier": null,
+      "rows": [
+        1969
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "LĐVP UBND tỉnh",
+      "qualifier": null,
+      "rows": [
+        1981,
+        3519
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_286"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND xã Phù Cát",
+      "qualifier": null,
+      "rows": [
+        2071,
+        4648
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Các cơ quan chuyên môn thuộc UBND tỉnh",
+      "qualifier": null,
+      "rows": [
+        2088,
+        2809
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND phường Hoài Nhơn Nam",
+      "qualifier": null,
+      "rows": [
+        2099
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND phường Thống Nhất",
+      "qualifier": null,
+      "rows": [
+        2103,
+        2991,
+        4749,
+        5091
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "PCT D.M.T ệ",
+      "qualifier": null,
+      "rows": [
+        2112
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_284"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "PCTTT UBND tỉnh – Nguyễn Tuấn Thanh (b/c)",
+      "qualifier": null,
+      "rows": [
+        2128,
+        4675
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_272"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Chủ tịch và PCTTT UBND tỉnh (b/c)",
+      "qualifier": null,
+      "rows": [
+        2146
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_272",
+        "internal_270"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "CVP và các PCVP-TH",
+      "qualifier": null,
+      "rows": [
+        2147
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_289",
+        "internal_287"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "PCTTT Ng. Tuấn Thanh",
+      "qualifier": null,
+      "rows": [
+        2162,
+        2875,
+        3215,
+        3368,
+        4453
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_272"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "PCT Ng. Tự Công Hoàng",
+      "qualifier": null,
+      "rows": [
+        2163
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_274"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Bí thư Đảng ủy, Chủ tịch UBND xã Pờ Tó",
+      "qualifier": null,
+      "rows": [
+        2190
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "PVPNN VP UBND tỉnh",
+      "qualifier": null,
+      "rows": [
+        2217
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_299"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND xã Phù Mỹ Tây",
+      "qualifier": null,
+      "rows": [
+        2239
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "VP Đoàn ĐBQH và HĐND tỉnh",
+      "qualifier": null,
+      "rows": [
+        2243
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f399d1a04b3537408b389d"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND xã Mang Yang",
+      "qualifier": null,
+      "rows": [
+        2253
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "BQL các công trình Giao thông và Dân dụng",
+      "qualifier": null,
+      "rows": [
+        2280
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f39cafa04b3537408b3bf9"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Cục Lâm nghiệp và Kiểm lâm",
+      "qualifier": null,
+      "rows": [
+        2285
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f78265ef27fa7e010955d5"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Báo Nông nghiệp và Môi trường",
+      "qualifier": null,
+      "rows": [
+        2297,
+        4019
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_6ad16e82cafd31142aa2ab65"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Sở Ngoại vụ (th/h)",
+      "qualifier": null,
+      "rows": [
+        2331
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Các Sở Nông nghiệp và Môi trường, Tài chính, Khoa học và Công nghệ",
+      "qualifier": null,
+      "rows": [
+        2363
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f48d8ae4127f708594d292",
+        "comm_68f399d1a04b3537408b389c",
+        "comm_68f39cafa04b3537408b3bf5"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "CC QLCL NLS&TS",
+      "qualifier": null,
+      "rows": [
+        2368
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_6900f4b4ef27fa7e010fd412"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Các Sở Nông nghiệp và Môi trường, Tài chính, Xây dựng, Khoa học và Công nghệ",
+      "qualifier": null,
+      "rows": [
+        2374
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f48d8ae4127f708594d292",
+        "comm_68f399d1a04b3537408b389c",
+        "comm_68f39cafa04b3537408b3bf5",
+        "comm_68f39cafa04b3537408b3bf1"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "BQL Cảng cá Tam Quan",
+      "qualifier": null,
+      "rows": [
+        2379
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f9af69ef27fa7e010b1355"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND các xã, phường ven biển",
+      "qualifier": null,
+      "rows": [
+        2386,
+        3998,
+        4294
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f39a7ba04b3537408b3913",
+        "comm_68f39a7ba04b3537408b3914",
+        "comm_68f39a7ba04b3537408b3912",
+        "comm_68f39a7ba04b3537408b3918",
+        "comm_68f39a7ba04b3537408b3917",
+        "comm_68f39a7ba04b3537408b3916",
+        "comm_68f39a7ba04b3537408b3919",
+        "comm_68f39a7ba04b3537408b391a",
+        "comm_68f39a7ba04b3537408b3920",
+        "comm_68f39a7ba04b3537408b391b",
+        "comm_68f39a7ba04b3537408b391c",
+        "comm_68f39a7ba04b3537408b391d",
+        "comm_68f39a7ba04b3537408b391f",
+        "comm_68f39a7ba04b3537408b391e"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "CT; PCT Dương Mah Tiệp",
+      "qualifier": null,
+      "rows": [
+        2387
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_284",
+        "internal_270"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Hội Luật gia tỉnh",
+      "qualifier": null,
+      "rows": [
+        2404
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_694905e0ba84005ddbfd1a7a"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Tòa Phúc thẩm TAND tối cao tại Đà Nẵng",
+      "qualifier": null,
+      "rows": [
+        2407
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_699da336d69d702689cafba8"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Viện Công tố và Kiểm sát XXPT tại Đà Nẵng",
+      "qualifier": null,
+      "rows": [
+        2408
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_6a682619d08f3e4ea637f0eb"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "TAND tỉnh",
+      "qualifier": null,
+      "rows": [
+        2409
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f73c74ef27fa7e01090022"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Viện KSND tỉnh",
+      "qualifier": null,
+      "rows": [
+        2410
+      ],
+      "status": "learned_target_ambiguous",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Sở NNMT, Tài chính, Ngoại vụ",
+      "qualifier": null,
+      "rows": [
+        2442
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Sở NNMT, Tài chính",
+      "qualifier": null,
+      "rows": [
+        2447,
+        2459
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f399d1a04b3537408b389c",
+        "comm_68f39cafa04b3537408b3bf5"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Nông nghiệp và Môi trường; Tài chính; Xây dựng",
+      "qualifier": "Sở",
+      "rows": [
+        2474
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f399d1a04b3537408b389c",
+        "comm_68f39cafa04b3537408b3bf5",
+        "comm_68f39cafa04b3537408b3bf1"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "CT và các PCT UBND tỉnh",
+      "qualifier": null,
+      "rows": [
+        2482,
+        2944
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_269"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Chi nhánh Ngân hàng Chính sách XH tỉnh",
+      "qualifier": null,
+      "rows": [
+        2484
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f5b996747b1512793f4256"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Tài chính Nông nghiệp và Môi trường",
+      "qualifier": "Sở",
+      "rows": [
+        2491
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f399d1a04b3537408b389c",
+        "comm_68f39cafa04b3537408b3bf5"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "PCTTT UBND tỉnh N.T.Thanh",
+      "qualifier": null,
+      "rows": [
+        2498,
+        3254,
+        5003
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_272"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND phường Bồng Sơn",
+      "qualifier": null,
+      "rows": [
+        2566
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND các xã, phường có liên quan",
+      "qualifier": null,
+      "rows": [
+        2606
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Văn phòng Ủy ban nhân dân tỉnh",
+      "qualifier": null,
+      "rows": [
+        2609,
+        2639,
+        4190
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Sở Văn hóa, Thể thao vào Du lịch",
+      "qualifier": null,
+      "rows": [
+        2610
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f45213e4127f708594b8ba"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "các PCT UBND tỉnh (b/c)",
+      "qualifier": null,
+      "rows": [
+        2612
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_284",
+        "internal_276",
+        "internal_280",
+        "internal_278",
+        "internal_274",
+        "internal_272"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND các xã, phường: Cát Tiến, Ngô Mây, Tuy Phước Đông, Quy Nhơn Đông",
+      "qualifier": null,
+      "rows": [
+        2654
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND xã Bình Phú",
+      "qualifier": null,
+      "rows": [
+        2673,
+        2684
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND xã Vân Canh",
+      "qualifier": null,
+      "rows": [
+        2695,
+        3802
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND xã Bình Hiệp",
+      "qualifier": null,
+      "rows": [
+        2706,
+        2847
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Các sở, ngành thuộc tỉnh",
+      "qualifier": null,
+      "rows": [
+        2782
+      ],
+      "status": "learned_target_ambiguous",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Thuế tỉnh GL",
+      "qualifier": null,
+      "rows": [
+        2796
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f4e654747b1512793ebd4d"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "PCT TT N.T.Thanh",
+      "qualifier": null,
+      "rows": [
+        2867
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_272"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "LĐ và CVVPUBND tỉnh",
+      "qualifier": null,
+      "rows": [
+        2884,
+        3381,
+        5076
+      ],
+      "status": "learned_target_ambiguous",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Văn phòng Chính phủ; để báo cáo",
+      "qualifier": null,
+      "rows": [
+        2942
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f5baeb747b1512793f4455"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "BQL khu Kinh tế tỉnh",
+      "qualifier": null,
+      "rows": [
+        2965
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f454d2e4127f708594bab5"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Liên minh HTX tỉnh",
+      "qualifier": null,
+      "rows": [
+        2978
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f4ec8e747b1512793ec12d"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND xã Ia Le",
+      "qualifier": null,
+      "rows": [
+        3072
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Ban quản lý dự án đường Hồ Chí Minh",
+      "qualifier": null,
+      "rows": [
+        3073
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_6936c8d6fdb61d34c35b1388"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND xã Ia Băng",
+      "qualifier": null,
+      "rows": [
+        3094
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND phường An Nhơn Bắc",
+      "qualifier": null,
+      "rows": [
+        3103,
+        4478
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "BQL Cảng cá",
+      "qualifier": null,
+      "rows": [
+        3145
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68fef49bef27fa7e010e16a6"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Pleiku",
+      "qualifier": "UBND phường",
+      "rows": [
+        3153,
+        4212
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Diên Hồng",
+      "qualifier": "UBND phường",
+      "rows": [
+        3154,
+        4213
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Hội Phú",
+      "qualifier": "UBND phường",
+      "rows": [
+        3155,
+        4214
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND Bình Hiệp",
+      "qualifier": null,
+      "rows": [
+        3191
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND các phường, xã: Quy Nhơn Bắc, Quy Nhơn Đông, Tuy Phước",
+      "qualifier": null,
+      "rows": [
+        3224
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Đảng ủy các phường, xã: Quy Nhơn Bắc, Quy Nhơn Đông, Tuy Phước",
+      "qualifier": null,
+      "rows": [
+        3230
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f5b761747b1512793f3e13",
+        "comm_68f5b761747b1512793f3e15",
+        "comm_68f5b761747b1512793f3e32"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "các Phó Chủ tịch UBND tỉnh",
+      "qualifier": null,
+      "rows": [
+        3245,
+        3844,
+        4124,
+        4408,
+        4417,
+        4426,
+        4435,
+        4444
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_284",
+        "internal_276",
+        "internal_280",
+        "internal_278",
+        "internal_274",
+        "internal_272"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Bộ Chỉ huy Quân sự tỉnh (Ban chỉ huy Bộ đội biên phòng)",
+      "qualifier": null,
+      "rows": [
+        3278
+      ],
+      "status": "learned_target_ambiguous",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBMTTQ Việt Nam tỉnh",
+      "qualifier": null,
+      "rows": [
+        3304
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f4e95a747b1512793ebf3a"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "NN và MT",
+      "qualifier": "Sở",
+      "rows": [
+        3343
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f399d1a04b3537408b389c"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND phường Diên Hồng",
+      "qualifier": null,
+      "rows": [
+        3351
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Ban QLDA Nông nghiệp và PTNT",
+      "qualifier": null,
+      "rows": [
+        3376
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f596f6747b1512793f0773"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Ban QLDA Đầu tư xây dựng tỉnh",
+      "qualifier": null,
+      "rows": [
+        3377
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f4f2c3747b1512793ec530"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND xã Kdang",
+      "qualifier": null,
+      "rows": [
+        3388
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Văn hóa, Thể thao và Du lịch; Tài chính",
+      "qualifier": "Sở",
+      "rows": [
+        3416
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f39cafa04b3537408b3bf5",
+        "comm_68f45213e4127f708594b8ba"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Thuế tỉnh, Bảo hiểm xã hội tỉnh, Chi nhánh Ngân hàng chính sách xã hội tỉnh",
+      "qualifier": null,
+      "rows": [
+        3441
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_690882caef27fa7e011522a0",
+        "comm_68f5b996747b1512793f4256",
+        "comm_68f4e654747b1512793ebd4d"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Trung tâm Phục vụ hành chính công tỉnh",
+      "qualifier": null,
+      "rows": [
+        3460
+      ],
+      "status": "learned_target_ambiguous",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "PCTTT UBND tỉnh Nguyễn Tuấn Thanh",
+      "qualifier": null,
+      "rows": [
+        3462,
+        3743,
+        4808
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_272"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "PCT TT Nguyễn Tuấn Thanh",
+      "qualifier": null,
+      "rows": [
+        3482,
+        3491,
+        3558,
+        3726,
+        4101,
+        4335,
+        4617,
+        4650,
+        4820,
+        4953,
+        5082
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_272"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "CT và PCTTT. UBND tỉnh",
+      "qualifier": null,
+      "rows": [
+        3523,
+        4154
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_272",
+        "internal_270"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND xã Hoài Ân",
+      "qualifier": null,
+      "rows": [
+        3539,
+        4634
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND xã Ia Grai",
+      "qualifier": null,
+      "rows": [
+        3556
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND xã: Chư Prông, Ia Boòng",
+      "qualifier": null,
+      "rows": [
+        3586
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f45213e4127f708594b8bd",
+        "comm_68f45213e4127f708594b8bb"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Bảo hiểm xã hội tỉnh",
+      "qualifier": null,
+      "rows": [
+        3620,
+        3949,
+        4141,
+        4847
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_690882caef27fa7e011522a0"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Bộ Khoa học và Công nghệ (Cục Viễn thông, Quỹ DVVTCI Việt Nam)",
+      "qualifier": null,
+      "rows": [
+        3646
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_6ad18f4bcafd31142aa329c8",
+        "comm_693a893dfdb61d34c35dc1a0"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Lãnh đạo VP",
+      "qualifier": null,
+      "rows": [
+        3650
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_286"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Trung tâm Dữ liệu quốc gia (Bộ Công an)",
+      "qualifier": null,
+      "rows": [
+        3670
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_69734cf1ba84005ddb1ce4f8"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND phường Bình Định",
+      "qualifier": null,
+      "rows": [
+        3699
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND xã An Nhơn Tây",
+      "qualifier": null,
+      "rows": [
+        3700
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "CVP và PVP-TH (b/c)",
+      "qualifier": null,
+      "rows": [
+        3748,
+        4814
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_289",
+        "internal_287"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND xã Vạn Đức",
+      "qualifier": null,
+      "rows": [
+        3766
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Ban QL Khu kinh tế tỉnh",
+      "qualifier": null,
+      "rows": [
+        3793
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f454d2e4127f708594bab5"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Sở CT",
+      "qualifier": null,
+      "rows": [
+        3801
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f39cafa04b3537408b3bf6"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Các đồng chí Phó Chủ tịch UBND tỉnh",
+      "qualifier": null,
+      "rows": [
+        3825
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_284",
+        "internal_276",
+        "internal_280",
+        "internal_278",
+        "internal_274",
+        "internal_272"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Tr - LĐ, CV VP UBND tỉnh",
+      "qualifier": null,
+      "rows": [
+        3840
+      ],
+      "status": "learned_target_ambiguous",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Ân Tường",
+      "qualifier": "UBND xã",
+      "rows": [
+        3868
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Vạn Đức",
+      "qualifier": "UBND xã",
+      "rows": [
+        3869
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "PVPTH VP UBND tỉnh",
+      "qualifier": null,
+      "rows": [
+        3882
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_289"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Chủ tịch; PCT UBND tỉnh N.T.T. Lịch",
+      "qualifier": null,
+      "rows": [
+        3911,
+        4146,
+        4395,
+        4467
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_278",
+        "internal_270"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Các sở, ngành: Văn hóa, Thể thao và Du lịch",
+      "qualifier": null,
+      "rows": [
+        3959
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f45213e4127f708594b8ba"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Ban quản lý dự án các CTGT và dân dụng tỉnh",
+      "qualifier": null,
+      "rows": [
+        3964
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f39cafa04b3537408b3bf9"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND tỉnh Ninh Bình",
+      "qualifier": null,
+      "rows": [
+        3978
+      ],
+      "status": "learned_target_ambiguous",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Ủy ban nhân dân phường Quy Nhơn Tây",
+      "qualifier": null,
+      "rows": [
+        3985
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND xã Ngô Mây",
+      "qualifier": null,
+      "rows": [
+        4069
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "PCVP XD",
+      "qualifier": null,
+      "rows": [
+        4073,
+        4088,
+        4482,
+        4712
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_295"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND phường An Nhơn Đông",
+      "qualifier": null,
+      "rows": [
+        4079
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Các sở, ban thuộc tỉnh",
+      "qualifier": null,
+      "rows": [
+        4189
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "CT và PCT Lâm Hải Giang",
+      "qualifier": null,
+      "rows": [
+        4193
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_276",
+        "internal_270"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND xã Ia Pia",
+      "qualifier": null,
+      "rows": [
+        4200
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f45213e4127f708594b8bc"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Thống Nhất",
+      "qualifier": "UBND phường",
+      "rows": [
+        4215
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Các tổ chức chính trị - xã hội: Hội Nông dân tỉnh, Hội Liên hiệp Phụ nữ tỉnh, Hội Cựu chiến binh tỉnh, Tỉnh đoàn Gia Lai",
+      "qualifier": null,
+      "rows": [
+        4231
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f64e20747b1512793feb42",
+        "comm_68f64e20747b1512793feb41",
+        "comm_68f64e20747b1512793feb43",
+        "comm_68f59d56747b1512793f11d1"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Cơ quan An ninh điều tra - Bộ Công an",
+      "qualifier": null,
+      "rows": [
+        4239
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_69b912e33bf0995abe1ac02d"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "KH và CN",
+      "qualifier": "Sở",
+      "rows": [
+        4252
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f48d8ae4127f708594d292"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Cty TNHH Lâm nghiệp Gia Lai",
+      "qualifier": null,
+      "rows": [
+        4253
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND xã: Phú Túc, Ia Rsai, Hòa Hội",
+      "qualifier": null,
+      "rows": [
+        4270
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "CCQLTT",
+      "qualifier": null,
+      "rows": [
+        4305
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f5a9e7747b1512793f262a"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND xã Xuân An",
+      "qualifier": null,
+      "rows": [
+        4373
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Công ty TNHH MTV Xổ số kiến thiết Gia Lai",
+      "qualifier": null,
+      "rows": [
+        4442
+      ],
+      "status": "learned_target_ambiguous",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Tổng Lãnh sự quán Việt Nam tại Sydney, Australia",
+      "qualifier": null,
+      "rows": [
+        4556
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_6acf39e3cafd31142a9e8a76"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Các Sở Công Thương, Xây dựng, Tài chính, Nông nghiệp và Môi trường",
+      "qualifier": null,
+      "rows": [
+        4585
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f39cafa04b3537408b3bf6",
+        "comm_68f399d1a04b3537408b389c",
+        "comm_68f39cafa04b3537408b3bf5",
+        "comm_68f39cafa04b3537408b3bf1"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND các xã, phường (có danh sách kèm theo)",
+      "qualifier": null,
+      "rows": [
+        4586
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Trung tâm Quan trắc TN&MT",
+      "qualifier": null,
+      "rows": [
+        4600
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_6aacfa3ef6abd65ec2fbd812"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Cục Thống kê",
+      "qualifier": null,
+      "rows": [
+        4626
+      ],
+      "status": "learned_target_ambiguous",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "PCT. Lâm Hải Giang",
+      "qualifier": null,
+      "rows": [
+        4636
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_276"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Các Sở Công Thương, Tài chính, Xây dựng, Nông nghiệp và Môi trường, Khoa học và Công nghệ, Tư pháp",
+      "qualifier": null,
+      "rows": [
+        4658
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f39cafa04b3537408b3bf6",
+        "comm_68f48d8ae4127f708594d292",
+        "comm_68f399d1a04b3537408b389c",
+        "comm_68f39cafa04b3537408b3bf5",
+        "comm_68f48d8ae4127f708594d290",
+        "comm_68f39cafa04b3537408b3bf1"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Bí thư Đảng ủy, Chủ tịch UBND phường An Phú",
+      "qualifier": null,
+      "rows": [
+        4694
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "UBND xã Ia O",
+      "qualifier": null,
+      "rows": [
+        4805,
+        5064
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Ban QLDA Nông nghiệp và Phát triển nông thôn tỉnh",
+      "qualifier": null,
+      "rows": [
+        4842
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f596f6747b1512793f0773"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Mang Yang",
+      "qualifier": "UBND xã",
+      "rows": [
+        4865
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Lơ Pang",
+      "qualifier": "UBND xã",
+      "rows": [
+        4866
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Cục QLXNC, Bộ Công an",
+      "qualifier": null,
+      "rows": [
+        4907,
+        4928
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_69412c79fdb61d34c3622b16"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Trung tâm PTQĐ tỉnh",
+      "qualifier": "Sở",
+      "rows": [
+        4964
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f39cafa04b3537408b3bfa"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Bí thư Đảng ủy, Chủ tịch UBND phường: Pleiku, Diên Hồng",
+      "qualifier": null,
+      "rows": [
+        4965
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Ủy ban nhân dân xã Kon Gang",
+      "qualifier": null,
+      "rows": [
+        4975
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "Công ty TNHH KTCTTL Bình Định",
+      "qualifier": null,
+      "rows": [
+        5016
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "comm_68f5bcea747b1512793f46ac"
+      ],
+      "review_reasons": []
+    },
+    {
+      "raw": "Bí thư Đảng ủy, Chủ tịch UBND các xã: Đak Đoa, Kdang, Ia Băng",
+      "qualifier": null,
+      "rows": [
+        5022
+      ],
+      "status": "learned_target_missing",
+      "recipient_ids": [],
+      "review_reasons": []
+    },
+    {
+      "raw": "PVPQT VP UBND tỉnh",
+      "qualifier": null,
+      "rows": [
+        5128
+      ],
+      "status": "active",
+      "recipient_ids": [
+        "internal_297"
+      ],
+      "review_reasons": []
+    }
+  ],
+  "skipped": [
+    {
+      "row": 351,
+      "raw": "Sở Giáo dục và Đào tạo Sau khi xem xét Tờ trình số 6802/TTr-SGDĐT ngày 07/10/2026 của Sở Giáo dục và Đào tạo về việc đăng ký xây dựng Quyết định bãi bỏ Quyết định số 10/2025/QĐ-UBND ngày 01/7/2025 của UBND tỉnh ban hành Quy định chức năng, nhiệm vụ, quyền hạn và cơ cấu tổ chức của Sở Giáo dục và Đào tạo tỉnh Gia Lai và ý kiến của Sở Tư pháp tại Công văn số 3676/STP-NV1 ngày 17/10/2026 đối với nội dung đề xuất của Sở Giáo dục và Đào tạo tại Tờ trình số 6802/TTr-SGDĐT ngày 07/10/2026; Chủ tịch Ủy ban nhân dân tỉnh có ý kiến như sau:",
+      "status": "extraction_or_missing_raw"
+    },
+    {
+      "row": 352,
+      "raw": "Như trên; CHÁNH VĂN PHÒNG",
+      "status": "reference_requires_document_context"
+    },
+    {
+      "row": 375,
+      "raw": "N",
+      "status": "extraction_or_missing_raw"
+    },
+    {
+      "row": 475,
+      "raw": "N V",
+      "status": "extraction_or_missing_raw"
+    },
+    {
+      "row": 589,
+      "raw": "V2",
+      "status": "staff_code_uses_current_directory"
+    },
+    {
+      "row": 609,
+      "raw": "Bộ Xây dựng Ủy ban nhân dân tỉnh Gia Lai nhận được Công văn số 16580/BXD- TTCNTT ngày 16/10/2026 của Bộ Xây dựng về việc xin ý kiến đối với dự thảo Báo cáo nghiên cứu khả thi dự án “Nâng cấp Hệ thống thông tin giải quyết thủ tục hành chính Bộ Xây dựng”",
+      "status": "extraction_or_missing_raw"
+    },
+    {
+      "row": 645,
+      "raw": "N",
+      "status": "extraction_or_missing_raw"
+    },
+    {
+      "row": 715,
+      "raw": "Ủy ban nhân dân tỉnh Đắk Lắk Ủy ban nhân dân tỉnh Gia Lai nhận được Văn bản số 16556/UBND- NNMT ngày 16/10/2026 của Ủy ban nhân dân tỉnh Đắk Lắk về việc thống nhất tổ chức Hội nghị ký kết Quy chế phối hợp trong quản lý, bảo vệ rừng tại khu vực giáp ranh giữa tỉnh Đắk Lắk với các tỉnh Gia Lai, Lâm Đồng và Khánh Hòa. Qua nghiên cứu nội dung văn bản, Ủy ban nhân dân tỉnh Gia Lai có ý kiến như sau: 1. Thống nhất về thời gian, địa điểm, hình thức tổ chức Hội nghị ký kết Quy chế phối hợp nêu tại Văn bản số 16556/UBND-NNMT ngày 16/10/2026 của Ủy ban nhân dân tỉnh Đắk Lắk",
+      "status": "extraction_or_missing_raw"
+    },
+    {
+      "row": 828,
+      "raw": "N",
+      "status": "extraction_or_missing_raw"
+    },
+    {
+      "row": 854,
+      "raw": "N C",
+      "status": "extraction_or_missing_raw"
+    },
+    {
+      "row": 1060,
+      "raw": "Như trên; CHÁNH VĂN PHÒNG",
+      "status": "reference_requires_document_context"
+    },
+    {
+      "row": 1930,
+      "raw": "Sở Y tế Theo đề nghị của Sở Y tế tại Tờ trình số 331/TTr-SYT ngày 19/10/2026 về việc rút nội dung trình kỳ họp thường lệ cuối năm 2026, Hội đồng nhân dân tỉnh Khóa XIII, nhiệm kỳ 2026 - 2031 và ý kiến của Sở Tư pháp tại Công văn số 3673/STP-NV1 ngày 17/10/2026; Chủ tịch UBND tỉnh có ý kiến như sau: 1. Thống nhất đề xuất của Sở Y tế về việc rút nội dung đăng ký trình dự thảo Nghị quyết quy định nguyên tắc, tiêu chí, định mức phân bổ ngân sách nhà nước và tỷ lệ vốn đối ứng ngân sách địa phương thực hiện Chương trình mục tiêu quốc gia về chăm sóc sức khỏe, dân số và phát triển giai đoạn 2026 - 2030 trên địa bàn tỉnh Gia Lai khỏi Chương trình kỳ họp thường lệ cuối năm 2026 của Hội đồng nhân dân tỉnh khóa XIII, nhiệm kỳ 2026 - 2031",
+      "status": "extraction_or_missing_raw"
+    },
+    {
+      "row": 2039,
+      "raw": "N",
+      "status": "extraction_or_missing_raw"
+    },
+    {
+      "row": 2284,
+      "raw": "N",
+      "status": "extraction_or_missing_raw"
+    },
+    {
+      "row": 2896,
+      "raw": "N 4",
+      "status": "staff_code_uses_current_directory"
+    },
+    {
+      "row": 3129,
+      "raw": "UBND xã Ya Hội Theo đề nghị của Cơ quan Cảnh sát điều tra Công an tỉnh Gia Lai tại Công văn số C5940/CV-VPCQCSĐT(Đ4) ngày 13/10/2026 về việc đề nghị đôn đốc việc định giá tài sản (vụ việc “Hủy hoại tài sản” xảy ra tháng 9/2024, tại thôn An Quý, xã Phú An, huyện Đak Pơ, nay là xã Ya Hội, tỉnh Gia Lai); Chủ tịch UBND tỉnh có ý kiến như sau: Chủ tịch UBND xã Ya Hội khẩn trương chỉ đạo kiểm tra, rà soát và tổ chức",
+      "status": "extraction_or_missing_raw"
+    },
+    {
+      "row": 3466,
+      "raw": "UBND phường Quy Nhơn Đông Ngày 23/9/2026, ông Thái Hùng Vĩ (Địa chỉ: 85/78 đường Hoàng Văn Thụ, phường Quy Nhơn Nam) được bà Nguyễn Thị Hoa ủy quyền, đến Trụ sở Tiếp công dân tỉnh, trình bày và gửi đơn kiến nghị: Xem xét, chỉ đạo UBND phường Quy Nhơn Đông xử phạt vi phạm hành chính trong lĩnh vực đất đai đối với hộ bà Nguyễn Thị Hoa do sử dụng thửa đất số 46, tờ bản đồ số 47 tại khu phố 4, phường Quy nhơn Đông không đúng muc đích theo Văn bản hướng dẫn số 95/VPĐK-TĐCGCN ngày 12/01/2026 của Văn phòng Đăng ký đất đai tỉnh, để hộ bà Nguyễn Thị Hoa có điều kiện thực hiện đăng ký cấp lại Giấy chứng nhận quyền sử dụng đất theo quy định",
+      "status": "extraction_or_missing_raw"
+    },
+    {
+      "row": 4036,
+      "raw": "Bộ Công Thương Phát triển năng lượng tái tạo là một trong những định hướng quan trọng trong chiến lược phát triển năng lượng quốc gia, góp phần bảo đảm an ninh năng lượng, đa dạng hóa nguồn cung điện, giảm phát thải khí nhà kính và thực hiện các mục tiêu về chuyển dịch năng lượng, phát triển xanh và bền vững. Để hiện thực hóa các định hướng này, cùng với việc khai thác hiệu quả tiềm năng các nguồn năng lượng tái tạo, việc hoàn thiện cơ chế, chính sách và sớm ban hành khung giá phát điện phù hợp đối với từng loại hình năng lượng tái tạo có ý nghĩa quan trọng, tạo cơ sở để các nhà đầu tư chủ động triển khai dự án, huy động nguồn vốn và bảo đảm tiến độ đưa các dự án vào vận hành, nhất là các dự án dự kiến phát điện trong giai đoạn 2027 - 2028",
+      "status": "extraction_or_missing_raw"
+    },
+    {
+      "row": 4450,
+      "raw": "Thuế tỉnh Ủy ban nhân dân tỉnh nhận được Văn bản số 5402/GLA-QLDN1 ngày 09/10/2026 của Thuế tỉnh báo cáo tình hình thực hiện nghĩa vụ bảo lãnh của BIDV Chi nhánh Quy Nhơn đối với số thuế nợ của Công ty cổ phần hàng không Tre Việt",
+      "status": "extraction_or_missing_raw"
+    },
+    {
+      "row": 4499,
+      "raw": "Sở Ngoại vụ Tiếp tục triển khai Văn bản số 8558/UBND-KGVX ngày 24/6/2026 của Ủy ban nhân dân tỉnh về việc thống nhất chủ trương về nội dung, kinh phí hợp tác truyền thông với Đài CNN; Chủ tịch Ủy ban nhân dân tỉnh có ý kiến như sau: 1. Giao Sở Văn hóa, Thể thao và Du lịch chủ trì, phối hợp với Sở Tài chính, Sở Ngoại vụ và các sở, ngành có liên quan triển khai các thủ tục về hoạt động truyền thông quảng bá tỉnh Gia Lai trên Đài CNN theo quy định",
+      "status": "extraction_or_missing_raw"
+    },
+    {
+      "row": 4668,
+      "raw": "Chủ tịch UBND phường Hội Phú UBND tỉnh tiếp tục nhận được đơn của bà Phạm Thị Kim Yến",
+      "status": "extraction_or_missing_raw"
+    },
+    {
+      "row": 4789,
+      "raw": "Bộ Dân tộc và Tôn giáo Theo đề nghị của Bộ Dân tộc và Tôn giáo tại Văn bản số 3045/BDTTG-VP ngày 28/9/2026 về việc phối hợp cho ý kiến đối với cá nhân đề nghị tặng Bằng khen của Thủ tướng Chính phủ đối với Thượng tọa Thích Tâm Mãn - Ủy viên Hội đồng Trị sự, Trưởng ban Ban Trị sự Giáo hội Phật giáo Việt Nam tỉnh Gia Lai nhân dịp Đại hội Đại biểu Phật giáo toàn quốc lần thứ X, nhiệm kỳ 2026-2031, Ủy ban nhân dân tỉnh Gia Lai có ý kiến như sau: 1. Về việc khen thưởng đối với Thượng tọa Thích Tâm Mãn Thượng tọa Thích Tâm Mãn (thế danh: Trần Phúc Tri), sinh năm 1970, hiện là chức sắc của Giáo hội Phật giáo Việt Nam; nguyên Ủy viên Hội đồng Trị sự Giáo hội Phật giáo Việt Nam, Phó Trưởng ban Thường trực Ban Trị sự Giáo hội Phật giáo Việt Nam tỉnh Gia Lai (các nhiệm kỳ 2017 - 2022, 2022 - 2027); nguyên Đại biểu Hội đồng nhân dân tỉnh Gia Lai (các nhiệm kỳ 2016 - 2021, 2021 - 2026)",
+      "status": "extraction_or_missing_raw"
+    },
+    {
+      "row": 4853,
+      "raw": "N",
+      "status": "extraction_or_missing_raw"
+    },
+    {
+      "row": 5039,
+      "raw": "N 4",
+      "status": "staff_code_uses_current_directory"
+    }
+  ],
+  "replay": {
+    "method": "Same 5138 sheet rows, reconstructed mentions and recorded qualifier/section; no provider. This is a learning replay, not an independent accuracy test or a PDF/LLM extraction rerun.",
+    "counts": {
+      "red_not_uniquely_bindable": 551,
+      "black_with_identity_note": 2710,
+      "black_identity_before": 2710,
+      "black_identity_after": 2710,
+      "red_evaluable": 1028,
+      "red_exact_before": 0,
+      "red_exact_after": 933
+    },
+    "resolution_seconds": {
+      "baseline": 9.956801200038171,
+      "learned": 6.032316999975592
+    },
+    "black_regressions": [],
+    "red_wrong_nonempty": []
+  }
+}
