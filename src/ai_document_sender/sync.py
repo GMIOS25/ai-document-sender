@@ -167,6 +167,22 @@ def init_tenant_db(conn: sqlite3.Connection):
         raw_json TEXT
     );
     """)
+    columns = {r[1] for r in conn.execute("PRAGMA table_info(recipients)")}
+    for column in ("rank_level", "email", "search_text"):
+        if column not in columns:
+            conn.execute("ALTER TABLE recipients ADD COLUMN " + column + " TEXT")
+    has_observations = conn.execute("SELECT 1 FROM sqlite_master WHERE name='organization_observations'").fetchone()
+    conn.execute("""CREATE TABLE IF NOT EXISTS organization_observations (
+        sphere TEXT NOT NULL, code TEXT NOT NULL, source TEXT NOT NULL,
+        observation_hash TEXT NOT NULL, raw_json TEXT NOT NULL,
+        first_seen_at TEXT NOT NULL, last_seen_at TEXT NOT NULL,
+        PRIMARY KEY (sphere,code,source,observation_hash))""")
+    if not has_observations:
+        now = datetime.now(timezone.utc).isoformat()
+        for sphere, code, raw in conn.execute("SELECT sphere,code,raw_json FROM comm_units"):
+            observation = json.loads(raw or '{}')
+            conn.execute("INSERT OR IGNORE INTO organization_observations VALUES (?,?,?,?,?,?,?)",
+                         (sphere, code, 'history', compute_json_hash(observation), raw or '{}', now, now))
     cur.execute("CREATE INDEX IF NOT EXISTS idx_recip_type ON recipients(recipient_type);")
     cur.execute("CREATE INDEX IF NOT EXISTS idx_recip_sphere ON recipients(sphere);")
     cur.execute("CREATE INDEX IF NOT EXISTS idx_recip_code ON recipients(code);")
@@ -205,132 +221,61 @@ def init_tenant_db(conn: sqlite3.Connection):
     conn.commit()
 
 
-def _diff_and_sync_comm_units(
-    conn: sqlite3.Connection,
-    elements: list,
-    is_internal: bool
-) -> Dict[str, int]:
-    """Smart diff and sync for organizational units."""
+def _diff_and_sync_comm_units(conn, elements, is_internal, source="history"):
+    """Merge partial observations by sphere/code; native UUID is only metadata."""
     sphere = "int_province_comm" if is_internal else "ext_province_comm"
     recipient_type = "INT_PROVINCE_UNIT" if is_internal else "EXT_PROVINCE_UNIT"
-    parent_scope = "Nội tỉnh Gia Lai" if is_internal else "Khối Ngoài tỉnh / Bộ ngành Trung ương"
-
-    # Deduplicate incoming elements by code, choosing highest send_count
-    incoming_by_code: Dict[str, dict] = {}
-    for e in elements:
-        code = str(e.get("code") or "").strip()
-        if not code:
+    parent = "Nội tỉnh Gia Lai" if is_internal else "Khối Ngoài tỉnh / Bộ ngành Trung ương"
+    incoming = {}
+    for element in elements:
+        code = str(element.get("code") or "").strip()
+        name = str(element.get("name") or "").strip()
+        if not code or not name:
             continue
-        count = int(e.get("count") or 0)
-        if code not in incoming_by_code:
-            incoming_by_code[code] = e
-        else:
-            old_count = int(incoming_by_code[code].get("count") or 0)
-            if count > old_count:
-                incoming_by_code[code] = e
-
-    cur = conn.cursor()
-    # Fetch existing records for this sphere
-    cur.execute("SELECT uuid, code, name, send_count, organ_id, username, alias_code, raw_json FROM comm_units WHERE sphere = ?", (sphere,))
-    existing_rows = cur.fetchall()
-    existing_by_code = {row[1]: row for row in existing_rows}
-
-    added = 0
-    updated = 0
-    deleted = 0
-
-    # 1. Identify Deletions
-    incoming_codes = set(incoming_by_code.keys())
-    existing_codes = set(existing_by_code.keys())
-    deleted_codes = existing_codes - incoming_codes
-
-    for code in deleted_codes:
-        row = existing_by_code[code]
-        uuid = row[0]
-        cur.execute("DELETE FROM comm_units WHERE uuid = ?", (uuid,))
-        cur.execute("DELETE FROM recipients WHERE recipient_id = ?", (f"comm_{uuid}",))
-        cur.execute("DELETE FROM recipients_fts WHERE recipient_id = ?", (f"comm_{uuid}",))
-        deleted += 1
-
-    # 2. Identify Inserts and Updates
-    for code, e in incoming_by_code.items():
-        uuid = str(e.get("uuid") or "").strip()
-        name = str(e.get("name") or "").strip()
-        count = int(e.get("count") or 0)
-        organ_id = e.get("organId")
-        uname = e.get("username")
-        alias_code = e.get("aliasCode")
-        raw_json = json.dumps(e, ensure_ascii=False)
-
-        recipient_id = f"comm_{uuid}"
-        search_text = build_search_tokens(name, code, parent_scope)
-
-        if code not in existing_by_code:
-            # INSERT
-            cur.execute("""
-            INSERT OR REPLACE INTO comm_units (
-                uuid, code, name, sphere, send_count, organ_id, username, alias_code, raw_json
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (uuid, code, name, sphere, count, organ_id, uname, alias_code, raw_json))
-
-            cur.execute("""
-            INSERT OR REPLACE INTO recipients (
-                recipient_id, source_id, recipient_type, sphere, name,
-                full_name, display_name, code, parent_name, rank_level,
-                email, priority_score, search_text, raw_json
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (
-                recipient_id, uuid, recipient_type, sphere, name,
-                None, name, code, parent_scope, None,
-                None, count, search_text, raw_json
-            ))
-
-            cur.execute("""
-            INSERT INTO recipients_fts (
-                recipient_id, display_name, full_name, name, code, parent_name, search_text
-            ) VALUES (?, ?, ?, ?, ?, ?, ?)
-            """, (recipient_id, name, "", name, code, parent_scope, search_text))
-            added += 1
-        else:
-            old_row = existing_by_code[code]
-            # Check if updated (name, send_count, organ_id, username, uuid)
-            old_uuid, _, old_name, old_count, old_organ, old_uname, old_alias, _ = old_row
-            if (old_uuid != uuid or old_name != name or old_count != count or
-                old_organ != organ_id or old_uname != uname or old_alias != alias_code):
-                
-                # Delete old recipients row if uuid changed
-                if old_uuid != uuid:
-                    cur.execute("DELETE FROM comm_units WHERE uuid = ?", (old_uuid,))
-                    cur.execute("DELETE FROM recipients WHERE recipient_id = ?", (f"comm_{old_uuid}",))
-                    cur.execute("DELETE FROM recipients_fts WHERE recipient_id = ?", (f"comm_{old_uuid}",))
-
-                cur.execute("""
-                INSERT OR REPLACE INTO comm_units (
-                    uuid, code, name, sphere, send_count, organ_id, username, alias_code, raw_json
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """, (uuid, code, name, sphere, count, organ_id, uname, alias_code, raw_json))
-
-                cur.execute("""
-                INSERT OR REPLACE INTO recipients (
-                    recipient_id, source_id, recipient_type, sphere, name,
-                    full_name, display_name, code, parent_name, rank_level,
-                    email, priority_score, search_text, raw_json
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """, (
-                    recipient_id, uuid, recipient_type, sphere, name,
-                    None, name, code, parent_scope, None,
-                    None, count, search_text, raw_json
-                ))
-
-                cur.execute("DELETE FROM recipients_fts WHERE recipient_id = ?", (recipient_id,))
-                cur.execute("""
-                INSERT INTO recipients_fts (
-                    recipient_id, display_name, full_name, name, code, parent_name, search_text
-                ) VALUES (?, ?, ?, ?, ?, ?, ?)
-                """, (recipient_id, name, "", name, code, parent_scope, search_text))
-                updated += 1
-
-    return {"added": added, "updated": updated, "deleted": deleted}
+        if code not in incoming or int(element.get("count") or 0) > int(incoming[code].get("count") or 0):
+            incoming[code] = element
+    changes = {"added": 0, "updated": 0, "deleted": 0}
+    now = datetime.now(timezone.utc).isoformat()
+    for code, element in incoming.items():
+        raw = json.dumps(element, ensure_ascii=False, sort_keys=True)
+        observation_hash = compute_json_hash(element)
+        conn.execute("""INSERT INTO organization_observations
+            (sphere,code,source,observation_hash,raw_json,first_seen_at,last_seen_at) VALUES (?,?,?,?,?,?,?)
+            ON CONFLICT(sphere,code,source,observation_hash) DO UPDATE SET last_seen_at=excluded.last_seen_at""",
+            (sphere, code, source, observation_hash, raw, now, now))
+        old = conn.execute("SELECT uuid,name,send_count,raw_json FROM comm_units WHERE sphere=? AND code=?", (sphere, code)).fetchone()
+        recipient = conn.execute("SELECT recipient_id,source_id,priority_score FROM recipients WHERE sphere=? AND code=? ORDER BY recipient_id LIMIT 1", (sphere, code)).fetchone()
+        identity = old[0] if old else compute_json_hash([sphere, code])
+        # Keep the historical ID spelling for old sync clients. UUID is never
+        # used to find a matching unit; a collision gets a sphere/code key.
+        if not old and not recipient and source == "history":
+            native = str(element.get("uuid") or "").strip()
+            if (native and not conn.execute("SELECT 1 FROM comm_units WHERE uuid=?", (native,)).fetchone()
+                    and not conn.execute("SELECT 1 FROM recipients WHERE recipient_id=?", ("comm_" + native,)).fetchone()):
+                identity = native
+        rid = recipient[0] if recipient else "comm_" + identity
+        source_id = recipient[1] if recipient else identity
+        # Preserve frequency from history; directory/search counts are not usage.
+        count = old[2] if old else (recipient[2] or 0 if recipient else 0)
+        if source == "history":
+            count = max(count, int(element.get("count") or 0))
+        enriched = conn.execute("SELECT 1 FROM organization_observations WHERE sphere=? AND code=? AND source IN ('directory','search') LIMIT 1", (sphere, code)).fetchone()
+        chosen_raw = old[3] if source == "history" and enriched and old else raw
+        chosen = json.loads(chosen_raw or '{}')
+        name = old[1] if source == "history" and enriched and old else str(element['name']).strip()
+        if old and (old[1], old[2], old[3]) == (name, count, chosen_raw):
+            continue
+        conn.execute("""INSERT OR REPLACE INTO comm_units
+            (uuid,code,name,sphere,send_count,organ_id,username,alias_code,raw_json) VALUES (?,?,?,?,?,?,?,?,?)""",
+            (identity, code, name, sphere, count, chosen.get('organId'), chosen.get('username'), chosen.get('aliasCode'), chosen_raw))
+        text = build_search_tokens(name, code, parent)
+        conn.execute("""INSERT OR REPLACE INTO recipients
+            (recipient_id,source_id,recipient_type,sphere,name,display_name,code,parent_name,priority_score,search_text,raw_json)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?)""", (rid, source_id, recipient_type, sphere, name, name, code, parent, count, text, chosen_raw))
+        conn.execute("DELETE FROM recipients_fts WHERE recipient_id=?", (rid,))
+        conn.execute("INSERT INTO recipients_fts (recipient_id,display_name,full_name,name,code,parent_name,search_text) VALUES (?,?,?,?,?,?,?)", (rid, name, '', name, code, parent, text))
+        changes['updated' if old or recipient else 'added'] += 1
+    return changes
 
 
 def _diff_and_sync_internal_org(
@@ -491,12 +436,14 @@ def sync_tenant_lookup(
     tenant_manager: Optional[TenantManager] = None
 ) -> Dict[str, Any]:
     """Execute complete Smart Sync for a tenant lookup database."""
+    from .contracts import OrganizationBatch
+    directory = OrganizationBatch.model_validate({"source": "directory", "elements": (payload.get("unit_directory") or {}).get("elements", [])})
     tid = normalize_tenant_id(tenant_id, settings.default_tenant)
     mgr = tenant_manager or TenantManager(settings)
 
     tenant_dir = mgr.get_tenant_dir(tid)
     tenant_dir.mkdir(parents=True, exist_ok=True)
-    db_path = tenant_dir / "lookup.db"
+    db_path = mgr.ensure_tenant_initialized(tid)
     # The default tenant can still be using the legacy DB. Move its policy with it.
     from .learning import FILENAME, read_learning
     legacy_learning = settings.lookup_db.parent / FILENAME
@@ -517,6 +464,7 @@ def sync_tenant_lookup(
     h_person = compute_json_hash(person_elements)
     h_int = compute_json_hash(unit_int_elements)
     h_ext = compute_json_hash(unit_ext_elements)
+    h_directory = compute_json_hash(directory.model_dump(mode="json")["elements"])
     search_hash = compute_json_hash({'abbreviations': ABBREVIATIONS, 'learning': read_learning(db_path)})
 
     meta_file = tenant_dir / "metadata.json"
@@ -526,6 +474,7 @@ def sync_tenant_lookup(
             if (meta.get("person_hash") == h_person and
                 meta.get("unit_internal_hash") == h_int and
                 meta.get("unit_external_hash") == h_ext and
+                meta.get("unit_directory_hash") == h_directory and
                 meta.get('search_policy_hash') == search_hash):
                 # No change detected
                 reg = mgr.get_registry(tid)
@@ -533,7 +482,8 @@ def sync_tenant_lookup(
                     "status": "no_change",
                     "tenant_id": tid,
                     "message": "Datasets unchanged; lookup database is up to date.",
-                    "registry_version": reg.registry_version
+                    "registry_version": reg.registry_version,
+                    "alias_policy_version": reg.alias_policy_version
                 }
         except Exception:
             pass
@@ -547,6 +497,7 @@ def sync_tenant_lookup(
             p_res = _diff_and_sync_internal_org(conn, person_elements)
             int_res = _diff_and_sync_comm_units(conn, unit_int_elements, is_internal=True)
             ext_res = _diff_and_sync_comm_units(conn, unit_ext_elements, is_internal=False)
+            directory_res = _merge_organizations(conn, directory)
 
         with conn:
             from .registry import Registry
@@ -570,6 +521,7 @@ def sync_tenant_lookup(
         "person_hash": h_person,
         "unit_internal_hash": h_int,
         "unit_external_hash": h_ext,
+        "unit_directory_hash": h_directory,
         "search_policy_hash": search_hash,
         "counts": {
             "recipients": total_recipients,
@@ -590,9 +542,46 @@ def sync_tenant_lookup(
         "changes": {
             "person": p_res,
             "unit_internal": int_res,
-            "unit_external": ext_res
+            "unit_external": ext_res,
+            "unit_directory": directory_res
         },
         "total_recipients": total_recipients,
         "search_rows_refreshed": refreshed,
-        "registry_version": reg.registry_version
+        "registry_version": reg.registry_version,
+        "alias_policy_version": reg.alias_policy_version
     }
+
+
+def _merge_organizations(conn, batch):
+    changes = {"added": 0, "updated": 0, "deleted": 0}
+    for sphere in ("int_province_comm", "ext_province_comm"):
+        elements = [n.model_dump(mode="json", exclude_none=True) for n in batch.elements if n.sphere == sphere]
+        result = _diff_and_sync_comm_units(conn, elements, sphere == "int_province_comm", batch.source)
+        for key in changes:
+            changes[key] += result[key]
+    return changes
+
+
+def sync_tenant_organizations(tenant_id, batch, settings, tenant_manager=None):
+    """Import validated directory/search observations without changing personnel."""
+    from .contracts import OrganizationBatch
+    batch = OrganizationBatch.model_validate(batch)
+    tid = normalize_tenant_id(tenant_id, settings.default_tenant)
+    mgr = tenant_manager or TenantManager(settings)
+    path = mgr.ensure_tenant_initialized(tid)
+    conn = sqlite3.connect(path)
+    try:
+        init_tenant_db(conn)
+        with conn:
+            changes = _merge_organizations(conn, batch)
+        with conn:
+            from .registry import Registry
+            refresh_search_index(conn, Registry(replace(settings, lookup_db=path)))
+        conn.execute("PRAGMA wal_checkpoint(TRUNCATE)")
+    finally:
+        conn.close()
+    mgr.invalidate_registry(tid)
+    registry = mgr.get_registry(tid)
+    return {"status": "synced" if changes["added"] or changes["updated"] else "no_change",
+            "tenant_id": tid, "registry_version": registry.registry_version,
+            "alias_policy_version": registry.alias_policy_version, "changes": changes}

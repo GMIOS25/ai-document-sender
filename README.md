@@ -70,6 +70,16 @@ Tạo job trả 202 `{job_id,status}`. Cùng key/cùng tài liệu/context/snaps
 
 `GET /v1/outgoing/recipients/search?q=...&limit=10` trả `{items,registry_version,alias_policy_version}` phục vụ thêm người/đơn vị thủ công. Kết quả tra là ứng viên, không tự chọn top-1.
 
+`POST /v1/sync/lookup` vẫn nhận `person`, `unit_internal`, `unit_external` như trước; có thể bổ sung `unit_directory: {"elements": [...]}` từ danh mục iDesk. Danh sách đơn vị lịch sử và danh mục đều là quan sát chưa đầy đủ: mục bị thiếu không bị xóa. Đồng bộ nhân sự giữ cách cập nhật hiện có. Tên từ directory/search được ưu tiên hơn tên lịch sử, tần suất gửi lịch sử được giữ lại. DB tenant lưu nguồn, thời điểm quan sát và JSON gốc; search/FTS và cache danh bạ được cập nhật sau import.
+
+`POST /v1/sync/organizations` nhận `{"source":"directory"|"search","elements":[...]}` để bổ sung kết quả tìm trực tiếp. Mỗi node cần chuỗi `code`, `name` không rỗng và `sphere` là `int_province_comm` hoặc `ext_province_comm`; có thể giữ `uuid`, `identifier`, `parentIdentifier`, `centerCode` cùng các trường gốc khác. Tối đa 10.000 node mỗi batch, lỗi validation trả 422 trước khi ghi bất kỳ node nào. Phản hồi gồm `status` (`synced`/`no_change`), `tenant_id`, `registry_version`, `alias_policy_version`, `changes` (`added`, `updated`, `deleted`). Identity được ghép bằng tenant+sphere+code, UUID chỉ là metadata; thay UUID vẫn giữ recipient ID cũ, cùng UUID ở hai sphere không ghi đè nhau.
+
+`POST /v1/outgoing/jobs/{job_id}/resolutions` không cần body, trả 202 `{job_id,status}`. Endpoint tạo job dùng snapshot danh bạ mới và checkpoint extraction gốc, kể cả partial; không đọc lại PDF, OCR hoặc extraction. Job/kết quả/feedback gốc vẫn giữ nguyên. Retry với cùng source job, snapshot và phiên bản xử lý trả lại cùng job; poll qua endpoint job thông thường. Source phải completed và thuộc tenant hiện tại; thiếu checkpoint hoặc thay đổi phiên bản xử lý trả 409. Sau khi nhận kết quả mới, client phải bỏ xác nhận và quyết định review cũ, gửi feedback với job ID cùng hai version mới. Feedback từ snapshot cũ vẫn trả 409.
+
+Các endpoint này dùng API auth hiện có và `X-Tenant-ID` (mặc định `vpub`); job, key idempotency và extraction cache được tách theo tenant. Backend không nhận cookie/phiên iDesk; userscript giữ thông tin đăng nhập trong trình duyệt.
+
+Job từ runtime cũ chưa lưu tenant vẫn đọc được để đối chiếu audit, nhưng resolution/feedback mới trả 409 `reanalysis_required`: cần upload lại một lần để xác định tenant. Backend không suy đoán chủ sở hữu từ snapshot giống nhau giữa các tenant.
+
 `POST /v1/outgoing/jobs/{job_id}/feedback` nhận `registry_version`, `alias_policy_version`, `final_recipients`, `field_assignments`, `review_decisions`, `edits`, `confirmed`; trả 201 `{feedback_id}`. Identity phải đúng snapshot. Decision `resolve` cần `recipient_ids` không rỗng, trỏ tới một hoặc nhiều ID trong danh sách cuối; không thể đánh dấu đã resolve mà không có người/đơn vị nào. Mọi unresolved phải được quyết định trước confirmed. Các lý do toàn cục trong `review_reasons` chỉ là cảnh báo tham khảo, không cần phản hồi và không chặn confirmed/automation fill. Client cũ vẫn có thể gửi quyết định cảnh báo với `mention_id="reason:<review_reason>"`, action `accept_missing` và note rõ. Feedback append-only, không tự sửa rule hoặc gửi văn bản. Schema chi tiết ở `/docs` và [đặc tả](docs/superpowers/specs/2026-10-07-outgoing-backend-design.md).
 
 ## Directory và policy
@@ -80,7 +90,7 @@ Giao diện không yêu cầu nhập mã phòng. `department_code` vẫn đượ
 
 Lookup nhận cả người (`alias` → `INTERNAL_PERSON`) và node cha trong `person.json`: `dept` → `INTERNAL_DEPT`, `unit` → `INTERNAL_UNIT`. Khi tên/mã khớp node cha, kể cả mention dạng nhóm như “Lãnh đạo Văn phòng UBND tỉnh” hay “Toàn bộ Phòng Khoa giáo Văn xã”, kết quả giữ nguyên node cha trong `units`, cùng `source_id`, `recipient_type`, `sphere`, `code` và bằng chứng; không liệt kê từng người con. Client chọn đúng node cha trên iDesk để iDesk gửi đến toàn bộ cây con. Search thủ công cũng hỗ trợ các node này và tiền tố “toàn bộ”/“tất cả”. Resolver version đổi để lần phân tích mới không dùng lại kết quả đã chặn node cha từ bản cũ.
 
-Một đơn vị có thể có nhiều code/sphere; các identity trùng tên vẫn cần rà soát, không tự chọn top-1. `source_id` của comm record là UUID nguồn lịch sử, không phải ID node giao diện. Client chọn bằng code+sphere rồi kiểm tra chip. Selector tập người không khớp node `dept`/`unit` cụ thể, ví dụ “các PCT”, vẫn phải có membership đã xác nhận; không đổi selector thành một group node hay cả phòng để che thiếu người.
+Một đơn vị có thể có nhiều code/sphere; các identity trùng tên vẫn cần rà soát, không tự chọn top-1. `source_id` của comm record là khóa ổn định (giữ UUID lịch sử khi đã có), không phải ID node giao diện hay UUID mới nhất. Client chọn bằng code+sphere rồi kiểm tra chip. Selector tập người không khớp node `dept`/`unit` cụ thể, ví dụ “các PCT”, vẫn phải có membership đã xác nhận; không đổi selector thành một group node hay cả phòng để che thiếu người.
 
 Quản trị viên có thể import overlay **đã xác nhận từ iDesk** qua CLI local; không có API ghi alias:
 

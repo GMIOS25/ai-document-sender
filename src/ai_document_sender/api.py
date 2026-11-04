@@ -12,11 +12,11 @@ from fastapi.responses import JSONResponse
 from pydantic import ValidationError
 from pypdf import PdfReader
 from .config import Settings
-from .contracts import DocumentMetadata, Feedback, JobEnvelope
+from .contracts import DocumentMetadata, Feedback, JobEnvelope, OrganizationBatch
 from .jobs import JobStore, StoreError, Worker
 from .registry import Registry
 from .tenants import TenantManager, normalize_tenant_id
-from .sync import sync_tenant_lookup
+from .sync import sync_tenant_lookup, sync_tenant_organizations
 
 
 class RequestTooLarge(Exception): pass
@@ -145,19 +145,31 @@ def create_app(settings=None,provider=None,extractor=None):
         return {"job_id":created["job_id"],"status":created["status"]}
 
     @app.get("/v1/outgoing/jobs/{job_id}",response_model=JobEnvelope,dependencies=[Depends(authenticate)])
-    async def read_job(job_id: str):
-        job=app.state.store.get(job_id)
+    async def read_job(job_id: str,x_tenant_id: str | None = Header(default=None)):
+        job=app.state.store.get_for_tenant(job_id,normalize_tenant_id(x_tenant_id, settings.default_tenant),allow_legacy=True)
         return {key:job[key] for key in ("job_id","status","result","error")}
 
     @app.post("/v1/outgoing/jobs/{job_id}/feedback",status_code=201,dependencies=[Depends(authenticate)])
     async def feedback(job_id: str,body: Feedback,x_tenant_id: str | None = Header(default=None)):
         return {"feedback_id":app.state.store.feedback(job_id,body,current_registry(x_tenant_id))}
 
+    @app.post("/v1/outgoing/jobs/{job_id}/resolutions",status_code=202,dependencies=[Depends(authenticate)])
+    async def resolution(job_id: str,x_tenant_id: str | None = Header(default=None)):
+        created=app.state.store.create_resolution(job_id,current_registry(x_tenant_id))
+        return {"job_id":created["job_id"],"status":created["status"]}
+
+    @app.post("/v1/sync/organizations",dependencies=[Depends(authenticate)])
+    async def sync_organizations(body: OrganizationBatch,x_tenant_id: str | None = Header(default=None)):
+        tid=normalize_tenant_id(x_tenant_id, settings.default_tenant)
+        return await asyncio.to_thread(sync_tenant_organizations,tid,body,settings,tenant_manager)
+
     @app.post("/v1/sync/lookup",dependencies=[Depends(authenticate)])
     async def sync_lookup(body: dict,x_tenant_id: str | None = Header(default=None)):
         tid=normalize_tenant_id(x_tenant_id, settings.default_tenant)
         try:
             return await asyncio.to_thread(sync_tenant_lookup, tid, body, settings, tenant_manager)
+        except (ValidationError, TypeError, AttributeError) as error:
+            raise StoreError("invalid_request", "Invalid organization directory batch", 422) from error
         except Exception as error:
             raise StoreError("sync_failed", f"Lookup sync failed for tenant '{tid}': {error}", 500) from error
 

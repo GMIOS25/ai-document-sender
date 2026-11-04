@@ -152,3 +152,42 @@ async def test_worker_failure_safe_message(settings):
     job=s.get(item["job_id"])
     assert job["status"] == "failed"
     assert "SECRET" not in str(job["error"])
+
+@pytest.mark.asyncio
+async def test_cached_upload_checkpoint_can_resolve_again_without_pdf_or_extraction(settings):
+    import sqlite3
+    from pathlib import Path
+
+    store = JobStore(settings)
+    calls = []
+
+    async def extract(*args):
+        calls.append(1)
+        return Extraction(status='complete', mentions=[Mention(
+            mention_id='m', raw='V5', kind='staff_code',
+            evidence=[Evidence(page=1, section='luu', raw='V5')])])
+
+    first = create(store, settings)
+    await Worker(settings, store, extractor=extract).run_once()
+    with sqlite3.connect(settings.lookup_db) as conn:
+        conn.execute("UPDATE recipients SET full_name='Tên snapshot thứ hai' WHERE recipient_id='internal_341'")
+    cached_upload = create(store, settings, key='cached-upload')
+    await Worker(settings, store, extractor=extract).run_once()
+    cached = store.get(cached_upload['job_id'])
+    assert cached['status'] == 'completed'
+    assert calls == [1]
+    Path(cached['file_path']).unlink()
+    with sqlite3.connect(settings.lookup_db) as conn:
+        conn.execute("UPDATE recipients SET full_name='Tên snapshot mới nhất' WHERE recipient_id='internal_341'")
+    resolution = store.create_resolution(cached['job_id'], Registry(settings))
+
+    async def never_extract(*args):
+        raise AssertionError('Resolution must use the cached upload checkpoint')
+
+    await Worker(settings, store, extractor=never_extract).run_once()
+    resolved = store.get(resolution['job_id'])
+    assert resolved['status'] == 'completed'
+    assert resolved['checkpoint'] == store.get(first['job_id'])['checkpoint']
+    assert resolved['result']['people'][0]['name'] == 'Tên snapshot mới nhất'
+    assert store.get(cached['job_id']) == cached
+    assert calls == [1]

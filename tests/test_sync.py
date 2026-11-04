@@ -108,7 +108,7 @@ def test_smart_sync_lifecycle(tmp_path):
     reg_updated = manager.get_registry("snnmt")
     assert any("Trung tâm Khuyến nông" in r.name for r in reg_updated.search("Khuyến nông"))
 
-    # 4. Delete element
+    # 4. History is partial: omitted elements remain available.
     payload_deleted = {
         "person": {"elements": sample_person},
         "unit_internal": {"elements": [sample_internal_updated[0]]},  # removed H21.99
@@ -116,8 +116,8 @@ def test_smart_sync_lifecycle(tmp_path):
     }
     res4 = sync_tenant_lookup("snnmt", payload_deleted, settings, manager)
     assert res4["status"] == "synced"
-    assert res4["changes"]["unit_internal"]["deleted"] == 1
-    assert res4["total_recipients"] == 4
+    assert res4["changes"]["unit_internal"]["deleted"] == 0
+    assert res4["total_recipients"] == 5
 
     reg_after_del = manager.get_registry("snnmt")
-    assert not any("Trung tâm Khuyến nông" in r.name for r in reg_after_del.search("Khuyến nông"))
+    assert any("Trung tâm Khuyến nông" in r.name for r in reg_after_del.search("Khuyến nông"))

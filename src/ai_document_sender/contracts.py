@@ -168,3 +168,20 @@ class JobEnvelope(Model):
     status: Literal["queued", "extracting", "resolving", "completed", "failed"]
     result: OutgoingResult | None = None
     error: JobError | None = None
+
+
+class OrganizationNode(BaseModel):
+    # Native fields vary between iDesk directory and search responses.
+    model_config = ConfigDict(extra="allow", str_strip_whitespace=True)
+    code: str = Field(strict=True, min_length=1, max_length=256)
+    name: str = Field(strict=True, min_length=1, max_length=2048)
+    sphere: Literal["int_province_comm", "ext_province_comm"]
+    uuid: str | None = Field(default=None, max_length=512)
+    identifier: str | None = Field(default=None, max_length=512)
+    parentIdentifier: str | None = Field(default=None, max_length=512)
+    centerCode: str | None = Field(default=None, max_length=512)
+
+
+class OrganizationBatch(Model):
+    source: Literal["directory", "search"]
+    elements: list[OrganizationNode] = Field(max_length=10000)

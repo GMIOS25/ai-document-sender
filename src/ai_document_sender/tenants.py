@@ -86,6 +86,7 @@ class TenantManager:
 
         tenant_settings = replace(self.settings, lookup_db=db_path)
         registry = Registry(tenant_settings)
+        registry.tenant_id = tid
         self._registry_cache[tid] = (cache_key, registry)
         return registry
 

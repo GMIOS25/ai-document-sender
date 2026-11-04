@@ -56,6 +56,8 @@ class JobStore:
             for name in ("request_key", "processing_version"):
                 if name not in columns:
                     conn.execute("ALTER TABLE jobs ADD COLUMN "+name+" TEXT")
+            if "tenant_id" not in columns:
+                conn.execute("ALTER TABLE jobs ADD COLUMN tenant_id TEXT")
             conn.execute("CREATE INDEX IF NOT EXISTS jobs_request_key ON jobs(request_key)")
 
     @contextmanager
@@ -72,17 +74,18 @@ class JobStore:
             conn.close()
 
     def create(self, data, metadata, key, registry):
+        tenant_id=getattr(registry,"tenant_id",self.settings.default_tenant)
         input_hash=hashlib.sha256(data).hexdigest()
         fingerprint=digest({"workflow":"outgoing.v1","input":input_hash,"metadata":metadata.model_dump(mode="json"),
-                           "registry":registry.registry_version,"policy":registry.alias_policy_version})
+                           "registry":registry.registry_version,"policy":registry.alias_policy_version,"tenant":tenant_id})
         version=processing_version(self.settings)
-        stored_key=digest({"request_key":key,"processing_version":version})
+        stored_key=digest({"request_key":key,"processing_version":version,"tenant":tenant_id})
         now=time.time()
         with self.connection() as conn:
             conn.execute("BEGIN IMMEDIATE")
             # Legacy rows keep their original key; new rows retain the client
             # intent separately so upgrades cannot replay a completed old result.
-            previous=conn.execute("SELECT * FROM jobs WHERE request_key=? OR idempotency_key=? ORDER BY created_at DESC",(key,key)).fetchall()
+            previous=conn.execute("SELECT * FROM jobs WHERE tenant_id=? AND (request_key=? OR idempotency_key=?) ORDER BY created_at DESC",(tenant_id,key,key)).fetchall()
             if any(row["fingerprint"] != fingerprint for row in previous):
                 raise StoreError("idempotency_key_conflict","Idempotency key belongs to a different input or snapshot")
             active=next((row for row in previous if row["status"] not in {"completed","failed"}),None)
@@ -98,8 +101,52 @@ class JobStore:
                 temporary.write_bytes(data)
                 os.replace(temporary,file_path)
             job_id=uuid.uuid4().hex
-            conn.execute("INSERT INTO jobs (job_id,idempotency_key,fingerprint,input_sha256,file_path,metadata,snapshot,status,created_at,updated_at,request_key,processing_version) VALUES (?,?,?,?,?,?,?,'queued',?,?,?,?)",
-                         (job_id,stored_key,fingerprint,input_hash,str(file_path),metadata.model_dump_json(),json.dumps(registry.snapshot(),ensure_ascii=False),now,now,key,version))
+            conn.execute("INSERT INTO jobs (job_id,idempotency_key,fingerprint,input_sha256,file_path,metadata,snapshot,status,created_at,updated_at,request_key,processing_version,tenant_id) VALUES (?,?,?,?,?,?,?,'queued',?,?,?,?,?)",
+                         (job_id,stored_key,fingerprint,input_hash,str(file_path),metadata.model_dump_json(),json.dumps(registry.snapshot(),ensure_ascii=False),now,now,key,version,tenant_id))
+            return dict(conn.execute("SELECT * FROM jobs WHERE job_id=?",(job_id,)).fetchone())
+
+    def get_for_tenant(self, job_id, tenant_id, allow_legacy=False):
+        job=self.get(job_id)
+        if job["tenant_id"] is None:
+            if allow_legacy:
+                return job
+            raise StoreError("reanalysis_required","Legacy job ownership is unavailable; upload the document again")
+        if job["tenant_id"] != tenant_id:
+            raise StoreError("job_not_found","Job not found",404)
+        return job
+
+    def create_resolution(self, source_id, registry):
+        tenant_id=getattr(registry,"tenant_id",self.settings.default_tenant)
+        source=self.get_for_tenant(source_id,tenant_id)
+        if source["status"] != "completed":
+            raise StoreError("job_not_completed","Resolution requires a completed source job")
+        version=processing_version(self.settings)
+        if source["processing_version"] != version:
+            raise StoreError("incompatible_processing","Processing changed; submit the document again")
+        try:
+            if source["checkpoint"] is None:
+                raise ValueError("Missing checkpoint")
+            extraction=Extraction.model_validate(source["checkpoint"])
+        except ValueError as error:
+            raise StoreError("extraction_unavailable","Source extraction is unavailable") from error
+        key=digest({"resolution_source":source_id,"tenant":tenant_id,"registry":registry.registry_version,
+                    "policy":registry.alias_policy_version,"processing":version})
+        now=time.time()
+        with self.connection() as conn:
+            conn.execute("BEGIN IMMEDIATE")
+            previous=conn.execute("SELECT * FROM jobs WHERE idempotency_key=?",(key,)).fetchone()
+            if previous:
+                return dict(previous)
+            pending=conn.execute("SELECT COUNT(*) FROM jobs WHERE status NOT IN ('completed','failed')").fetchone()[0]
+            if pending >= self.settings.max_pending_jobs:
+                raise StoreError("queue_full","Job queue is full; retry later",429)
+            job_id=uuid.uuid4().hex
+            conn.execute("""INSERT INTO jobs
+                (job_id,idempotency_key,fingerprint,input_sha256,file_path,metadata,snapshot,status,
+                 checkpoint,created_at,updated_at,processing_version,tenant_id)
+                VALUES (?,?,?,?,?,?,?,'queued',?,?,?,?,?)""",
+                (job_id,key,key,source["input_sha256"],source["file_path"],json.dumps(source["metadata"],ensure_ascii=False),
+                 json.dumps(registry.snapshot(),ensure_ascii=False),extraction.model_dump_json(),now,now,version,tenant_id))
             return dict(conn.execute("SELECT * FROM jobs WHERE job_id=?",(job_id,)).fetchone())
 
     def get(self, job_id):
@@ -142,7 +189,7 @@ class JobStore:
             conn.execute("INSERT OR REPLACE INTO extraction_cache VALUES (?,?,?)",(key,extraction.model_dump_json(),time.time()))
 
     def feedback(self, job_id, body, registry):
-        job=self.get(job_id)
+        job=self.get_for_tenant(job_id,getattr(registry,"tenant_id",self.settings.default_tenant))
         if job["status"] != "completed": raise StoreError("job_not_completed","Feedback requires a completed job")
         snapshot=job["snapshot"]
         if (body.registry_version != snapshot["registry_version"] or body.alias_policy_version != snapshot["alias_policy_version"]
@@ -231,6 +278,7 @@ class Worker:
     def extraction_key(self,job,metadata):
         # Changing implementations/prompts invalidates caches without editing data.
         return digest({"input":job["input_sha256"],"processing":processing_version(self.settings),
+                       "tenant":job["tenant_id"],
                        "context":{k:v for k,v in metadata.model_dump(mode="json").items() if k not in {"document_id","attachment_content_uid","attachment_name"}}})
 
     async def heartbeat(self,job):
@@ -259,7 +307,7 @@ class Worker:
                     return True
                 self.store.cache_put(key,extraction)
             else:
-                if not self.store.update(job["job_id"],job["lease_token"],status="resolving"):
+                if not self.store.update(job["job_id"],job["lease_token"],checkpoint=extraction.model_dump(mode="json"),status="resolving"):
                     return True
             result=await resolve_mentions(extraction,registry,metadata,job["job_id"],job["input_sha256"],self.provider)
             self.store.update(job["job_id"],job["lease_token"],status="completed",result=result.model_dump(mode="json"),lease_until=None)
