@@ -44,3 +44,16 @@ Challenge set phải có scan, text có vùng nhận là ảnh, NFD/khoảng tr�
 Offline không có key: rule extraction luôn partial và giữ bằng chứng; diagnostic giúp kiểm tra coverage, không giả lập LLM complete. Khi đánh giá provider thật, ghi model/prompt/extractor và snapshot version; chỉ chạy khi môi trường cloud/key đã được cấu hình. Không gửi key qua chat hoặc ghi trong báo cáo.
 
 Tham chiếu tới nội dung ngoài Kính gửi/Nơi nhận hiện giữ unresolved/partial: một chuỗi reference do model tự tạo chưa đủ chứng minh người trong nội dung/chữ ký là nơi nhận. OpenRouter adapter tắt context compression tự động để tránh âm thầm cắt mất vùng nhận; lỗi vượt context cần được báo và review.
+
+## Nghiệm thu VPUB theo snapshot
+
+- Với văn bản lịch sử, kiểm tra riêng người nhận nội bộ và danh sách chọn trên iDesk. Mục Thông tin liên thông giúp xác minh mã của các đơn vị giao liên thông. Dòng trong `book.receiver` có thể bị cắt, và có thể gồm đích nghiệp vụ không xuất hiện trong bảng giao liên thông. Đối chiếu nguồn đầy đủ trước khi đánh dấu một văn bản đã rà nhãn.
+- Mỗi văn bản nghiệm thu cần `document_id`, `input_sha256`, `published_date`, `template_family`, `pdf_evidence_source`, `recipient_evidence_source`, hai cờ `annotation_complete` và `gold_reviewed` bằng true, cùng ba danh sách `mentions`, `pdf_recipient_ids` và `recipient_ids`. Bộ phát triển/validation cần bốn trường đầu để kiểm tra trùng mẫu.
+- Dùng đúng snapshot có `recipient_expansions` và `unit_groups`. Prediction từ API mang phiên bản xử lý trong `result.audit.processing_version`. Khi ghi JSONL, gắn `document_id` của yêu cầu vào cả bản ghi job lỗi để giữ chúng trong mẫu số.
+
+```powershell
+.venv\Scripts\python.exe -m tools.lock_recipient_holdout --reviewed reviewed.json --development development.json --snapshot registry-snapshot.json --processing-version <version> --output holdout.json
+.venv\Scripts\python.exe -m tools.evaluate_outgoing --gold holdout.json --predictions predictions.jsonl --snapshot registry-snapshot.json --output score.json
+```
+
+Bộ chấm chỉ báo đạt mốc 95% hoặc 99% khi manifest nguyên vẹn, có ít nhất 500 ca đủ nhãn và kết quả dùng đúng phiên bản đã khóa. Kết quả theo tên trên 500 ca Test 1 phục vụ hồi quy. Dùng `python -m tools.replay_vpub_coverage --help` để xem cách phát lại checkpoint cũ tại máy.

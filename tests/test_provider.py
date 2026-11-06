@@ -49,6 +49,35 @@ def test_schema_error_gets_one_repair_then_safe_failure():
     assert "test-secret" not in str(error.value)
 
 
+def test_routing_parameter_rejection_uses_same_model_and_validates_fenced_json():
+    calls = []
+
+    def handler(request):
+        body = json.loads(request.content)
+        calls.append(body)
+        if "response_format" in body:
+            return httpx.Response(404, json={"error": {"message": "No endpoints found that support the requested parameters."}})
+        return response("```json\n" + json.dumps(valid()) + "\n```")
+
+    assert asyncio.run(provider(handler).extract_mentions([{"page": 1, "text": "Nơi nhận:"}], {})) == valid()
+    assert len(calls) == 2
+    assert calls[0]["model"] == calls[1]["model"]
+    assert "review_reasons" in calls[1]["messages"][0]["content"]
+
+
+def test_unrelated_provider_404_is_not_retried_or_echoed():
+    calls = []
+
+    def handler(request):
+        calls.append(request)
+        return httpx.Response(404, json={"error": {"message": "Private detail test-secret"}})
+
+    with pytest.raises(ProviderError, match="HTTP 404") as error:
+        asyncio.run(provider(handler).extract_mentions([{"page": 1, "text": "Nơi nhận:"}], {}))
+    assert len(calls) == 1
+    assert "test-secret" not in str(error.value)
+
+
 def test_vision_uses_only_configured_vision_model_and_data_url():
     calls = []
     def handler(request):

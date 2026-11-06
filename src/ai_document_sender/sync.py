@@ -177,6 +177,10 @@ def init_tenant_db(conn: sqlite3.Connection):
         observation_hash TEXT NOT NULL, raw_json TEXT NOT NULL,
         first_seen_at TEXT NOT NULL, last_seen_at TEXT NOT NULL,
         PRIMARY KEY (sphere,code,source,observation_hash))""")
+    conn.execute("""CREATE TABLE IF NOT EXISTS unit_groups (
+        sphere TEXT NOT NULL, group_id TEXT NOT NULL, name TEXT NOT NULL,
+        member_codes_json TEXT NOT NULL, complete INTEGER NOT NULL,
+        PRIMARY KEY (sphere, group_id))""")
     if not has_observations:
         now = datetime.now(timezone.utc).isoformat()
         for sphere, code, raw in conn.execute("SELECT sphere,code,raw_json FROM comm_units"):
@@ -436,8 +440,9 @@ def sync_tenant_lookup(
     tenant_manager: Optional[TenantManager] = None
 ) -> Dict[str, Any]:
     """Execute complete Smart Sync for a tenant lookup database."""
-    from .contracts import OrganizationBatch
+    from .contracts import OrganizationBatch, UnitGroupBatch
     directory = OrganizationBatch.model_validate({"source": "directory", "elements": (payload.get("unit_directory") or {}).get("elements", [])})
+    groups = UnitGroupBatch.model_validate(payload["unit_groups"]) if "unit_groups" in payload else None
     tid = normalize_tenant_id(tenant_id, settings.default_tenant)
     mgr = tenant_manager or TenantManager(settings)
 
@@ -465,6 +470,7 @@ def sync_tenant_lookup(
     h_int = compute_json_hash(unit_int_elements)
     h_ext = compute_json_hash(unit_ext_elements)
     h_directory = compute_json_hash(directory.model_dump(mode="json")["elements"])
+    h_groups = compute_json_hash(groups.model_dump(mode="json")) if groups else None
     search_hash = compute_json_hash({'abbreviations': ABBREVIATIONS, 'learning': read_learning(db_path)})
 
     meta_file = tenant_dir / "metadata.json"
@@ -475,6 +481,7 @@ def sync_tenant_lookup(
                 meta.get("unit_internal_hash") == h_int and
                 meta.get("unit_external_hash") == h_ext and
                 meta.get("unit_directory_hash") == h_directory and
+                (groups is None or meta.get("unit_groups_hash") == h_groups) and
                 meta.get('search_policy_hash') == search_hash):
                 # No change detected
                 reg = mgr.get_registry(tid)
@@ -498,6 +505,17 @@ def sync_tenant_lookup(
             int_res = _diff_and_sync_comm_units(conn, unit_int_elements, is_internal=True)
             ext_res = _diff_and_sync_comm_units(conn, unit_ext_elements, is_internal=False)
             directory_res = _merge_organizations(conn, directory)
+            if groups is not None:
+                present = {(g.sphere, g.id) for g in groups.elements}
+                absent = [key for key in conn.execute("SELECT sphere,group_id FROM unit_groups") if key not in present]
+                command = ("DELETE FROM unit_groups WHERE sphere=? AND group_id=?" if groups.complete
+                           else "UPDATE unit_groups SET complete=0 WHERE sphere=? AND group_id=?")
+                conn.executemany(command, absent)
+                conn.executemany("""INSERT INTO unit_groups VALUES (?, ?, ?, ?, ?)
+                    ON CONFLICT(sphere,group_id) DO UPDATE SET name=excluded.name,
+                    member_codes_json=CASE WHEN excluded.complete THEN excluded.member_codes_json ELSE unit_groups.member_codes_json END,
+                    complete=excluded.complete""",
+                    [(g.sphere, g.id, g.name, json.dumps(sorted(g.member_codes)), g.complete) for g in groups.elements])
 
         with conn:
             from .registry import Registry
@@ -522,6 +540,7 @@ def sync_tenant_lookup(
         "unit_internal_hash": h_int,
         "unit_external_hash": h_ext,
         "unit_directory_hash": h_directory,
+        "unit_groups_hash": h_groups,
         "search_policy_hash": search_hash,
         "counts": {
             "recipients": total_recipients,

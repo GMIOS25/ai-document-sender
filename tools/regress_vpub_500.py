@@ -18,7 +18,7 @@ from time import perf_counter
 import httpx
 
 from ai_document_sender.config import Settings
-from ai_document_sender.contracts import DocumentMetadata
+from ai_document_sender.contracts import DocumentMetadata, PublicationContext
 from ai_document_sender.extraction import extract_document
 from ai_document_sender.jobs import processing_version
 from ai_document_sender.learning import bind_targets
@@ -41,7 +41,7 @@ class AuditedProvider(OpenRouterProvider):
             return await super()._request(body, deadline)
         except ProviderError as error:
             self.failures.append({'code': error.code, 'message': str(error),
-                                  'schema': body['response_format']['json_schema']['name']})
+                                  'schema': body.get('response_format', {}).get('json_schema', {}).get('name', 'prompt')})
             raise
 
 
@@ -58,15 +58,22 @@ def read_source(parts):
 def metadata_for(doc):
     path = Path(doc['pdf_path']).parent / 'view.cpx'
     ed = json.loads(path.read_text(encoding='utf-8')).get('ed', {}) if path.exists() else {}
+    publication = None
+    if ed.get("publishedDate") and re.fullmatch(r"\d+", str(ed.get("externalTransfer", ""))):
+        publication = PublicationContext(mode="history",
+            date=datetime.strptime(ed["publishedDate"], "%b %d, %Y, %I:%M:%S %p").date(),
+            external=int(ed["externalTransfer"]) != 0)
     return DocumentMetadata(document_id=str(ed.get('id') or doc['folder_name']),
                             sign_number=ed.get('signNumber') or doc['so_hieu'],
-                            subject=ed.get('subject') or doc['trich_yeu'], issuer='UBND tỉnh Gia Lai')
+                            subject=ed.get('subject') or doc['trich_yeu'], issuer='UBND tỉnh Gia Lai',
+                            publication=publication)
 
 
 async def rerun(args):
     settings = Settings.from_env()
     settings = replace(settings, lookup_db=TenantManager(settings).get_db_path('vpub'))
     registry = Registry(settings)
+    registry.tenant_id = "vpub"
     # Per-run files are isolated; directory/policy and provider settings stay current.
     settings = replace(settings, runtime_dir=args.output / 'runtime')
     version = processing_version(settings)
@@ -109,6 +116,8 @@ async def rerun(args):
     started = perf_counter()
     statuses = Counter()
 
+    prompt_schema_models = set()
+
     async def one(doc, client):
         nonlocal completed
         async with semaphore:
@@ -125,6 +134,7 @@ async def rerun(args):
                 completed += 1
                 return saved
             provider = AuditedProvider(settings, client)
+            provider._prompt_schema_models = prompt_schema_models
             record = {'stt': doc['stt'], 'folder_name': doc['folder_name'], 'pdf_path': str(path),
                       'sign_number': doc['so_hieu'], **pinned}
             begin = perf_counter()
@@ -153,6 +163,22 @@ async def rerun(args):
             return record
 
     async with httpx.AsyncClient(limits=httpx.Limits(max_connections=args.concurrency * 2)) as client:
+        probe = OpenRouterProvider(replace(settings, provider_timeout_seconds=min(60, settings.provider_timeout_seconds),
+                                           provider_max_retries=0), client=client)
+        if settings.provider_mode == "cloud" and any(
+            not (args.output / 'documents' / f'{doc["stt"]:04}.json').exists() for doc in docs[:args.limit]
+        ):
+            if not probe.available:
+                raise SystemExit("Cloud batch stopped: provider configuration is incomplete.")
+            try:
+                await probe.extract_mentions([{"page": 1, "text": "Nơi nhận:\n- Sở Y tế;"}], {})
+                if probe.capabilities()["vision"]:
+                    # Synthetic image. Real PDFs are opened only after both configured routes pass.
+                    image = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aWZ0AAAAASUVORK5CYII="
+                    await probe.extract_mentions([{"page": 1, "text": ""}], {}, [{"page": 1, "data_url": image}])
+            except ProviderError as error:
+                raise SystemExit(f"Cloud batch stopped during synthetic preflight: {error.code}: {error}") from None
+            prompt_schema_models.update(probe._prompt_schema_models)
         records = await asyncio.gather(*(one(doc, client) for doc in docs[:args.limit]))
     summary = {'processed': len(records), 'completed': sum(r['status'] == 'completed' for r in records),
                'failed': sum(r['status'] != 'completed' for r in records),

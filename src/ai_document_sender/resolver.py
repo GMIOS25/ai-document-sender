@@ -4,9 +4,11 @@ import unicodedata
 from time import perf_counter
 from .contracts import OutgoingResult, Unresolved, Excluded
 from .registry import normalize, words, department_context
+from .publication import apply_publication_policy, explicit_service_center
+from .recipient_groups import conflicting_group_scope, local_commune_list, native_group
 
 
-VERSION = "recipient-reviewed-sheet-aliases-v5"
+VERSION = "recipient-reviewed-sheet-aliases-v6"
 
 
 def expand_lexical(raw):
@@ -39,7 +41,7 @@ async def resolve_mentions(extraction, registry, metadata, job_id, input_sha256,
         resolution_as_of=registry.resolution_as_of, extraction_status=extraction.status,
         mentions=extraction.mentions, review_reasons=list(extraction.review_reasons),
         audit={"extraction":extraction.audit,"resolution_context":{"department_code":department,"department_source":department_source}})
-    chosen = {}
+    chosen, group_selections, group_dependencies = {}, {}, {}
     for mention in extraction.mentions:
         raw = unicodedata.normalize("NFC", mention.raw).strip(" ;:-")
         combined = raw
@@ -57,8 +59,35 @@ async def resolve_mentions(extraction, registry, metadata, job_id, input_sha256,
         query = expand_lexical(query)
         node_candidates = registry.internal_node_candidates(query)
         candidates, reason, method = [], None, ""
+        recipient_scope = any(e.section in {"kinh_gui", "noi_nhan", "body_reference"} for e in mention.evidence)
+        # An explicit geographic list or verified selectable group takes
+        # precedence over whole-phrase aliases learned from older snapshots.
+        geography = (local_commune_list(raw, registry) if recipient_scope and mention.kind != "reference" and
+                     "gia lai" in normalize(metadata.issuer) else None)
+        group = (native_group(combined, registry) if recipient_scope and mention.kind in {"group", "unit", "unknown"} and geography is None and
+                 "gia lai" in normalize(metadata.issuer) else None)
+        service_center = explicit_service_center(mention, registry)
         if not mention.evidence:
             reason = "unreadable_region"
+        elif (group is not None or geography is not None or node_candidates) and conflicting_group_scope(mention, combined, extraction):
+            reason = "conflicting_group_scope"
+        elif geography is not None:
+            candidates, method = geography, "explicit_commune_list"
+            if not candidates:
+                reason = "commune_list_unverified"
+        elif group is not None:
+            candidates, selection = group
+            method = "verified_native_group"
+            if selection and candidates:
+                group_dependencies[selection.group_id] = selection.model_dump(mode="json")
+                if len(candidates) == len(selection.member_codes):
+                    group_selections[selection.group_id] = selection
+            elif not candidates:
+                reason = "missing_group_membership"
+        elif service_center is not None:
+            candidates, method = service_center, "explicit_vpub_service_center"
+            if not candidates:
+                reason = "publication_policy_identity_unverified"
         elif pending and pending.get("verification_status") != "verified":
             reason = pending.get("pending_reason", "unverified_business_alias")
             conflicting = {}
@@ -159,7 +188,8 @@ async def resolve_mentions(extraction, registry, metadata, job_id, input_sha256,
                     reason = "ambiguous_role" if candidates else "not_in_registry"
                 elif provider and candidates:
                     try:
-                        selected = await provider.choose_candidate(mention, [r.model_dump(mode="json") for r in candidates], metadata.model_dump(mode="json"))
+                        selected = await provider.choose_candidate(mention, [r.model_dump(mode="json") for r in candidates],
+                                                                   metadata.model_dump(mode="json", exclude={"publication"}))
                         if selected and selected in {r.recipient_id for r in candidates}:
                             candidates = [registry.by_id[selected]]
                             method = "constrained_model"
@@ -190,6 +220,10 @@ async def resolve_mentions(extraction, registry, metadata, job_id, input_sha256,
             recipient.evidence.extend(mention.evidence)
     result.people = [r for r in chosen.values() if r.recipient_type == "INTERNAL_PERSON"]
     result.units = [r for r in chosen.values() if r.recipient_type != "INTERNAL_PERSON"]
+    result.selection_plan = list(group_selections.values())
+    if group_dependencies:
+        result.audit["group_dependencies"] = list(group_dependencies.values())
+    apply_publication_policy(result, registry, metadata)
     result.timings_ms["resolution"] = round((perf_counter()-started)*1000,2)
     # Revalidate after filling lists so needs_review invariant is always enforced.
     return OutgoingResult.model_validate(result.model_dump())

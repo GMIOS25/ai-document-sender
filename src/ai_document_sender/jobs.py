@@ -23,8 +23,9 @@ def processing_version(settings):
     from .extraction import EXTRACTOR_VERSION
     from .provider import PROMPT_VERSION
     from .resolver import VERSION as RESOLVER_VERSION
+    from .publication import VERSION as PUBLICATION_VERSION
     from .ocr import VERSION as OCR_VERSION, model_signature
-    return digest({"extractor":EXTRACTOR_VERSION,"resolver":RESOLVER_VERSION,"prompt":PROMPT_VERSION,
+    return digest({"extractor":EXTRACTOR_VERSION,"resolver":RESOLVER_VERSION,"prompt":PROMPT_VERSION,"publication":PUBLICATION_VERSION,
                    "mode":settings.provider_mode,"text_model":settings.openrouter_text_model,
                    "vision_model":settings.openrouter_vision_model,
                    "local_ocr":{"backend":settings.ocr_backend,"device":settings.ocr_device,
@@ -210,6 +211,12 @@ class JobStore:
             sphere=identities[assignment.recipient_id]["sphere"]
             valid=(assignment.field in {"responsible","save","participants","follow"}) if sphere == "internal" else (assignment.field == "inside_unit" if sphere == "int_province_comm" else assignment.field == "outside_unit")
             if not valid: raise StoreError("invalid_assignment","Field does not match recipient sphere",422)
+        if body.confirmed:
+            publication=job["result"].get("audit", {}).get("publication", {})
+            required_fields={(a["recipient_id"],a["field"]) for a in job["result"].get("field_suggestions", [])}
+            assigned_fields={(a.recipient_id,a.field) for a in body.field_assignments}
+            if publication.get("missing") or not required_fields <= assigned_fields:
+                raise StoreError("publication_review_incomplete","Required publication recipients and fields must be verified",422)
         mention_ids={m["mention_id"] for m in job["result"]["mentions"]}
         reason_ids={"reason:"+reason for reason in job["result"]["review_reasons"]}
         decisions=set()
@@ -279,7 +286,7 @@ class Worker:
         # Changing implementations/prompts invalidates caches without editing data.
         return digest({"input":job["input_sha256"],"processing":processing_version(self.settings),
                        "tenant":job["tenant_id"],
-                       "context":{k:v for k,v in metadata.model_dump(mode="json").items() if k not in {"document_id","attachment_content_uid","attachment_name"}}})
+                       "context":{k:v for k,v in metadata.model_dump(mode="json").items() if k not in {"document_id","attachment_content_uid","attachment_name","publication"}}})
 
     async def heartbeat(self,job):
         while True:
@@ -294,6 +301,7 @@ class Worker:
         try:
             metadata=DocumentMetadata.model_validate(job["metadata"])
             registry=Registry.from_snapshot(self.settings,job["snapshot"])
+            registry.tenant_id = job["tenant_id"]
             key=self.extraction_key(job,metadata)
             extraction=Extraction.model_validate(job["checkpoint"]) if job["checkpoint"] else self.store.cache_get(key)
             if extraction is None:
@@ -310,6 +318,7 @@ class Worker:
                 if not self.store.update(job["job_id"],job["lease_token"],checkpoint=extraction.model_dump(mode="json"),status="resolving"):
                     return True
             result=await resolve_mentions(extraction,registry,metadata,job["job_id"],job["input_sha256"],self.provider)
+            result.audit["processing_version"] = job["processing_version"]
             self.store.update(job["job_id"],job["lease_token"],status="completed",result=result.model_dump(mode="json"),lease_until=None)
         except asyncio.CancelledError:
             self.store.update(job["job_id"],job["lease_token"],status="queued",lease_until=None,lease_token=None)

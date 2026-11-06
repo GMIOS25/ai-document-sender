@@ -8,6 +8,12 @@ class Model(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
 
+class PublicationContext(Model):
+    mode: Literal["history", "confirmed_intent"]
+    date: date
+    external: bool = Field(strict=True)
+
+
 class DocumentMetadata(Model):
     document_id: str = Field(min_length=1, max_length=256)
     sign_number: str | None = None
@@ -17,6 +23,7 @@ class DocumentMetadata(Model):
     department_code: str | None = None
     attachment_content_uid: str | None = None
     attachment_name: str | None = None
+    publication: PublicationContext | None = None
 
 
 class Evidence(Model):
@@ -97,6 +104,18 @@ class Excluded(Model):
     reason: str
 
 
+class FieldAssignment(Model):
+    recipient_id: str
+    field: Literal["responsible", "save", "participants", "follow", "inside_unit", "outside_unit"]
+
+
+class GroupSelection(Model):
+    group_id: str
+    sphere: Literal["int_province_comm"]
+    member_codes: list[str]
+    registry_version: str
+
+
 class OutgoingResult(Model):
     schema_version: Literal["outgoing.v1"] = "outgoing.v1"
     job_id: str
@@ -110,6 +129,8 @@ class OutgoingResult(Model):
     mentions: list[Mention] = Field(default_factory=list)
     people: list[Recipient] = Field(default_factory=list)
     units: list[Recipient] = Field(default_factory=list)
+    selection_plan: list[GroupSelection] = Field(default_factory=list)
+    field_suggestions: list[FieldAssignment] = Field(default_factory=list)
     unresolved: list[Unresolved] = Field(default_factory=list)
     excluded: list[Excluded] = Field(default_factory=list)
     needs_review: bool = False
@@ -133,11 +154,6 @@ class FinalRecipient(Model):
     recipient_type: RecipientType
     sphere: Sphere
     code: str = ""
-
-
-class FieldAssignment(Model):
-    recipient_id: str
-    field: Literal["responsible", "save", "participants", "follow", "inside_unit", "outside_unit"]
 
 
 class ReviewDecision(Model):
@@ -185,3 +201,30 @@ class OrganizationNode(BaseModel):
 class OrganizationBatch(Model):
     source: Literal["directory", "search"]
     elements: list[OrganizationNode] = Field(max_length=10000)
+
+
+class UnitGroup(Model):
+    id: str = Field(min_length=1, max_length=256, pattern=r"^[a-zA-Z0-9_.:-]+$")
+    name: str = Field(min_length=1, max_length=256)
+    sphere: Literal["int_province_comm"]
+    member_codes: list[str] = Field(max_length=2000)
+    complete: bool = Field(strict=True)
+
+    @model_validator(mode="after")
+    def valid_members(self):
+        if (self.complete and not self.member_codes) or any(not c or c != c.strip() or len(c) > 256 for c in self.member_codes):
+            raise ValueError("Invalid group member codes")
+        if len({code.casefold() for code in self.member_codes}) != len(self.member_codes):
+            raise ValueError("Duplicate group member code")
+        return self
+
+
+class UnitGroupBatch(Model):
+    elements: list[UnitGroup] = Field(max_length=250)
+    complete: bool = Field(default=False, strict=True)
+
+    @model_validator(mode="after")
+    def unique_groups(self):
+        if len({(g.sphere, g.id) for g in self.elements}) != len(self.elements):
+            raise ValueError("Duplicate group ID")
+        return self

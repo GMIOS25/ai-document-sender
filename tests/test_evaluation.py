@@ -1,4 +1,7 @@
-from tools.evaluate_outgoing import evaluate
+import pytest
+
+from tools.evaluate_outgoing import evaluate, manifest_checksum
+from tools.lock_recipient_holdout import lock_holdout
 
 
 def test_separate_extraction_and_registry_id_metrics():
@@ -53,3 +56,47 @@ def test_registry_mismatch_invalidates_resolution_but_not_raw_extraction():
     assert report["extraction"]["exact_set_match"] == 1
     assert report["resolution"]["exact_set_match"] == 0
     assert report["counts"]["prediction_version_mismatches"] == 1
+
+
+def test_pinned_parent_projection_and_unknown_membership():
+    snapshot = {
+        "registry_version": "r", "alias_policy_version": "p",
+        "recipients": {
+            "parent": {"recipient_type": "INTERNAL_DEPT", "sphere": "internal"},
+            "unknown": {"recipient_type": "INTERNAL_DEPT", "sphere": "internal"},
+            "one": {"recipient_type": "INTERNAL_PERSON", "sphere": "internal"},
+            "two": {"recipient_type": "INTERNAL_PERSON", "sphere": "internal"},
+        },
+        "recipient_expansions": {"parent": ["one", "two"]},
+    }
+    gold = [{"document_id": "1", "annotation_complete": True, "recipient_ids": ["one", "two"]}]
+    result = {"document_id": "1", "registry_version": "r", "alias_policy_version": "p",
+              "units": [{"recipient_id": "parent", **snapshot["recipients"]["parent"]}],
+              "people": [{"recipient_id": "one", **snapshot["recipients"]["one"]}]}
+    assert evaluate(gold, [result], snapshot)["resolution"]["exact_set_match"] == 1
+    result["units"].append({"recipient_id": "unknown", **snapshot["recipients"]["unknown"]})
+    report = evaluate(gold, [result], snapshot)
+    assert report["resolution"]["exact_set_match"] == 0
+    assert report["documents"][0]["projection_error"] == "unverified_membership"
+    result["units"].pop()
+    result["people"][0]["sphere"] = "ext_province_comm"
+    report = evaluate(gold, [result], snapshot)
+    assert report["resolution"]["exact_set_match"] == 0
+    assert report["documents"][0]["projection_error"] == "snapshot_identity_mismatch"
+
+
+def test_holdout_requires_reviewed_annotations_and_excludes_development_documents():
+    snapshot = {"registry_version": "r", "alias_policy_version": "p",
+                "recipients": {"one": {"recipient_type": "INTERNAL_PERSON"}}}
+    old = {"document_id": "old", "input_sha256": "a" * 64, "published_date": "2026-10-26",
+           "template_family": "family A"}
+    new = {"document_id": "new", "input_sha256": "b" * 64, "published_date": "2026-11-06",
+           "template_family": "family B", "annotation_complete": True, "gold_reviewed": True,
+           "pdf_evidence_source": "PDF page 1", "recipient_evidence_source": "reviewed iDesk history",
+           "mentions": ["name"], "pdf_recipient_ids": ["one"], "recipient_ids": ["one"]}
+    manifest = lock_holdout([new], [old], snapshot, "processing", minimum=1)
+    assert manifest["manifest_sha256"] == manifest_checksum(manifest)
+    with pytest.raises(ValueError, match="reviewed labels"):
+        lock_holdout([{**new, "resolution_annotation_complete": False}], [old], snapshot, "processing", minimum=1)
+    with pytest.raises(ValueError, match="development document"):
+        lock_holdout([{**new, "input_sha256": old["input_sha256"]}], [old], snapshot, "processing", minimum=1)

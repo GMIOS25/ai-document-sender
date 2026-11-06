@@ -6,14 +6,15 @@ import asyncio
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 import json
+import re
 import time
 from typing import Literal
 import httpx
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 from .contracts import Evidence
 
-VERSION = "openrouter-v2"
-PROMPT_VERSION = "recipient-evidence-v4"
+VERSION = "openrouter-v3"
+PROMPT_VERSION = "recipient-evidence-v5"
 
 
 class ProviderError(RuntimeError):
@@ -107,6 +108,7 @@ class OpenRouterProvider:
         self._client = client
         self._sleep = sleep
         self.last_audit = {}
+        self._prompt_schema_models = set()
 
     @property
     def available(self):
@@ -129,7 +131,8 @@ class OpenRouterProvider:
         # and inflating the analysis request with local inference diagnostics.
         input_pages = [{key: value for key, value in page.items()
                         if key not in {"ocr_text", "ocr_lines", "local_ocr_complete"}} for page in pages]
-        payload = {"metadata": _dump(metadata), "pages": input_pages}
+        context = {key: value for key, value in _dump(metadata).items() if key != "publication"}
+        payload = {"metadata": context, "pages": input_pages}
         content = [{"type": "text", "text": json.dumps(payload, ensure_ascii=False)}]
         for image in images or []:
             if not isinstance(image.get("data_url"), str) or not image["data_url"].startswith("data:image/"):
@@ -154,9 +157,23 @@ class OpenRouterProvider:
         deadline = started + max(0.01, self.settings.provider_timeout_seconds)
         body = {"model": model, "messages": messages, "temperature": 0, "provider": {"require_parameters": True, "allow_fallbacks": False}, "plugins": [{"id": "context-compression", "enabled": False}], "response_format": {"type": "json_schema", "json_schema": {"name": schema_name, "strict": True, "schema": _strict_schema(contract.model_json_schema())}}}
         attempts, content = 0, ""
+        prompt_schema = model in self._prompt_schema_models
+        if not prompt_schema:
+            try:
+                raw, attempts = await self._request(body, deadline)
+            except ProviderError as exc:
+                if exc.code != "provider_schema_unsupported":
+                    raise
+                attempts = 1
+                prompt_schema = True
+        if prompt_schema:
+            schema = body.pop("response_format")["json_schema"]["schema"]
+            messages = [{**messages[0], "content": messages[0]["content"] + "\nJSON Schema: " + json.dumps(schema)}, *messages[1:]]
+            body["messages"] = messages
         for repair in range(2):
-            raw, used_attempts = await self._request(body, deadline)
-            attempts += used_attempts
+            if prompt_schema or repair:
+                raw, used_attempts = await self._request(body, deadline)
+                attempts += used_attempts
             try:
                 message = raw["choices"][0]
                 if message.get("finish_reason") == "length":
@@ -164,13 +181,17 @@ class OpenRouterProvider:
                 content = message["message"]["content"]
                 if not isinstance(content, str):
                     raise ValueError("Non-text JSON completion")
-                value = contract.model_validate(json.loads(content)).model_dump(mode="json")
+                content = content.strip()
+                fenced = re.fullmatch(r"```(?:json)?[^\S\r\n]*\r?\n(.*?)\r?\n```", content, flags=re.I | re.S)
+                value = contract.model_validate(json.loads(fenced[1] if fenced else content)).model_dump(mode="json")
             except (KeyError, IndexError, TypeError, ValueError, ValidationError):
                 if repair:
                     raise ProviderError("invalid_model_output", "Provider returned invalid JSON or recipient schema after one repair") from None
                 body["messages"] = messages + [{"role": "assistant", "content": content[:4000] if isinstance(content, str) else "Invalid completion"}, {"role": "user", "content": "The previous output did not validate. Return only the requested JSON schema, with evidence and required fields. Do not add recipient IDs or facts."}]
                 continue
-            self.last_audit = {"provider": "openrouter", "model": model, "provider_version": VERSION, "prompt_version": PROMPT_VERSION, "repair_count": repair, "request_attempts": attempts, "duration_ms": round((time.monotonic()-started)*1000, 2)}
+            if prompt_schema:
+                self._prompt_schema_models.add(model)
+            self.last_audit = {"provider": "openrouter", "model": model, "provider_version": VERSION, "prompt_version": PROMPT_VERSION, "schema_mode": "prompt" if prompt_schema else "response_format", "repair_count": repair, "request_attempts": attempts, "duration_ms": round((time.monotonic()-started)*1000, 2)}
             return value
         raise ProviderError("invalid_model_output")
 
@@ -193,12 +214,23 @@ class OpenRouterProvider:
                 response = await asyncio.wait_for(client.post(url, headers=headers, json=body, timeout=remaining), timeout=remaining)
                 if response.is_success:
                     try:
-                        return response.json(), attempt + 1
+                        payload = response.json()
                     except ValueError:
                         raise ProviderError("invalid_model_output", "Provider envelope is invalid JSON") from None
+                    if isinstance(payload, dict) and payload.get("error"):
+                        raise ProviderError("provider_http_error", "Provider returned an error envelope")
+                    return payload, attempt + 1
                 code = "provider_rate_limited" if response.status_code == 429 else "provider_http_error"
                 retryable = response.status_code == 429 or 500 <= response.status_code < 600
                 if not retryable:
+                    if response.status_code in {400, 404} and "response_format" in body:
+                        try:
+                            message = response.json()["error"]["message"].lower()
+                        except (ValueError, KeyError, TypeError, AttributeError):
+                            message = ""
+                        if (("no endpoints" in message and "parameter" in message)
+                                or ("response_format" in message and ("unsupported" in message or "not support" in message))):
+                            raise ProviderError("provider_schema_unsupported", f"Endpoint rejected the schema parameter (HTTP {response.status_code})")
                     raise ProviderError(code, f"Provider rejected request (HTTP {response.status_code})")
             except (httpx.TimeoutException, TimeoutError):
                 code = "provider_timeout"

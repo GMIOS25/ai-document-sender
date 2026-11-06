@@ -45,6 +45,13 @@ class Registry:
             conn.row_factory = sqlite3.Row
             conn.execute("BEGIN")
             rows = [dict(r) for r in conn.execute("SELECT * FROM recipients ORDER BY recipient_id")]
+            tables = {r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+            self.unit_groups = [{"sphere": sphere, "id": gid, "name": name, "member_codes": json.loads(codes),
+                                 "complete": bool(complete)}
+                                for sphere, gid, name, codes, complete in conn.execute(
+                                    "SELECT sphere,group_id,name,member_codes_json,complete FROM unit_groups ORDER BY sphere,group_id")
+                                ] if "unit_groups" in tables else []
+            internal_edges = list(conn.execute("SELECT id,parent_id FROM internal_nodes ORDER BY id")) if "internal_nodes" in tables else []
             conn.rollback()
         self.policy = json.loads(settings.policy_path.read_text(encoding="utf-8-sig"))
         from .learning import read_learning
@@ -70,7 +77,8 @@ class Registry:
                             self.groups[normalize(record["selector"])] = record.get("member_ids", [])
                         if record.get("selectable_group_id"):
                             self.selectable_groups.add(record["selectable_group_id"])
-        self.registry_version = digest({"rows": sorted(rows, key=lambda r:r["recipient_id"]), "overlay": overlay})
+        self.registry_version = digest({"rows": sorted(rows, key=lambda r:r["recipient_id"]), "overlay": overlay,
+                                        "unit_groups": self.unit_groups, "internal_edges": [tuple(e) for e in internal_edges]})
         effective_aliases = [a for a in self.policy.get("aliases",[]) if self.alias_effective(a)]
         self.alias_policy_version = digest({"policy":self.policy,"effective_aliases":effective_aliases})
         self.resolution_as_of = datetime.now(timezone.utc).isoformat()
@@ -83,6 +91,31 @@ class Registry:
                 display_name=r.get("display_name") or r["name"], sphere=r["sphere"], code=r.get("code") or "",
                 parent_name=r.get("parent_name") or "")
         self._build_indexes()
+        children = {}
+        for node, parent in internal_edges:
+            children.setdefault(str(parent), []).append(str(node))
+        people = {r.source_id: r.recipient_id for r in self.by_id.values() if r.recipient_type == "INTERNAL_PERSON"}
+        self.recipient_expansions = {}
+        for r in self.by_id.values():
+            if r.recipient_type == "INTERNAL_GROUP" and r.recipient_id in self.selectable_groups:
+                member_ids = self.groups.get(normalize(r.name), [])
+                if member_ids and all(rid in self.by_id and self.by_id[rid].recipient_type == "INTERNAL_PERSON" for rid in member_ids):
+                    self.recipient_expansions[r.recipient_id] = sorted(set(member_ids))
+                continue
+            if r.recipient_type not in {"INTERNAL_DEPT", "INTERNAL_UNIT"}:
+                continue
+            seen, members = {r.source_id}, set()
+            stack = list(children.get(r.source_id, []))
+            while stack:
+                node = stack.pop()
+                if node in seen:
+                    continue
+                seen.add(node)
+                if node in people:
+                    members.add(people[node])
+                stack.extend(children.get(node, []))
+            if members:
+                self.recipient_expansions[r.recipient_id] = sorted(members)
 
     def _build_indexes(self):
         from .learning import index_learning
@@ -214,6 +247,7 @@ class Registry:
     def snapshot(self):
         return {"registry_version":self.registry_version,"alias_policy_version":self.alias_policy_version,
                 "resolution_as_of":self.resolution_as_of,"recipients":self.serialize(),"policy":self.policy,
+                "unit_groups": self.unit_groups, "recipient_expansions": self.recipient_expansions,
                 "groups":self.groups,"selectable_groups":sorted(self.selectable_groups),"policy_as_of":self.policy_as_of}
 
     @classmethod
@@ -223,6 +257,8 @@ class Registry:
         for key in ("registry_version","alias_policy_version","resolution_as_of","policy","groups","policy_as_of"):
             setattr(registry,key,data[key])
         registry.selectable_groups = set(data["selectable_groups"])
+        registry.unit_groups = data.get("unit_groups", [])
+        registry.recipient_expansions = data.get("recipient_expansions", {})
         registry.by_id = {rid:Recipient.model_validate(r) for rid,r in data["recipients"].items()}
         registry._build_indexes()
         return registry
