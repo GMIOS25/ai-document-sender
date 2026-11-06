@@ -51,6 +51,16 @@ ABBREVIATIONS = {
 }
 
 
+def _padded_search_words(text: str) -> str:
+    return ' ' + ' '.join(re.findall(r'\w+', remove_accents(text).casefold())) + ' '
+
+
+_ABBREVIATION_PATTERNS = [
+    (tuple(map(_padded_search_words, (abbr, *forms))), (abbr, *forms, *map(remove_accents, forms)))
+    for abbr, forms in ABBREVIATIONS.items()
+]
+
+
 def build_search_tokens(*args) -> str:
     """Construct searchable token string with accents, no-accents, and acronyms."""
     tokens = []
@@ -62,12 +72,10 @@ def build_search_tokens(*args) -> str:
                 no_acc = remove_accents(val)
                 if no_acc != val:
                     tokens.append(no_acc)
-                def lexical(text):
-                    return ' '.join(re.findall(r'\w+', remove_accents(text).casefold()))
-                padded = ' ' + lexical(val) + ' '
-                for abbr, full_forms in ABBREVIATIONS.items():
-                    if any(' ' + lexical(form) + ' ' in padded for form in [abbr, *full_forms]):
-                        tokens.extend([abbr, *full_forms, *(remove_accents(f) for f in full_forms)])
+                padded = _padded_search_words(val)
+                for patterns, expansions in _ABBREVIATION_PATTERNS:
+                    if any(pattern in padded for pattern in patterns):
+                        tokens.extend(expansions)
     return " ".join(dict.fromkeys(tokens))
 
 
@@ -147,6 +155,7 @@ def init_tenant_db(conn: sqlite3.Connection):
     """)
     cur.execute("CREATE INDEX IF NOT EXISTS idx_comm_code ON comm_units(code);")
     cur.execute("CREATE INDEX IF NOT EXISTS idx_comm_sphere ON comm_units(sphere);")
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_comm_sphere_code ON comm_units(sphere, code);")
     cur.execute("CREATE INDEX IF NOT EXISTS idx_comm_count ON comm_units(send_count DESC);")
 
     cur.execute("""
@@ -272,11 +281,12 @@ def _diff_and_sync_comm_units(conn, elements, is_internal, source="history"):
         conn.execute("""INSERT OR REPLACE INTO comm_units
             (uuid,code,name,sphere,send_count,organ_id,username,alias_code,raw_json) VALUES (?,?,?,?,?,?,?,?,?)""",
             (identity, code, name, sphere, count, chosen.get('organId'), chosen.get('username'), chosen.get('aliasCode'), chosen_raw))
-        text = build_search_tokens(name, code, parent)
+        text = build_search_tokens(name, parent, chosen.get('refUname'), chosen.get('sign'), code, chosen.get('rank'))
         conn.execute("""INSERT OR REPLACE INTO recipients
             (recipient_id,source_id,recipient_type,sphere,name,display_name,code,parent_name,priority_score,search_text,raw_json)
             VALUES (?,?,?,?,?,?,?,?,?,?,?)""", (rid, source_id, recipient_type, sphere, name, name, code, parent, count, text, chosen_raw))
-        conn.execute("DELETE FROM recipients_fts WHERE recipient_id=?", (rid,))
+        if old or recipient:
+            conn.execute("DELETE FROM recipients_fts WHERE recipient_id=?", (rid,))
         conn.execute("INSERT INTO recipients_fts (recipient_id,display_name,full_name,name,code,parent_name,search_text) VALUES (?,?,?,?,?,?,?)", (rid, name, '', name, code, parent, text))
         changes['updated' if old or recipient else 'added'] += 1
     return changes
@@ -440,8 +450,8 @@ def sync_tenant_lookup(
     tenant_manager: Optional[TenantManager] = None
 ) -> Dict[str, Any]:
     """Execute complete Smart Sync for a tenant lookup database."""
-    from .contracts import OrganizationBatch, UnitGroupBatch
-    directory = OrganizationBatch.model_validate({"source": "directory", "elements": (payload.get("unit_directory") or {}).get("elements", [])})
+    from .contracts import LookupDirectoryBatch, UnitGroupBatch
+    directory = LookupDirectoryBatch.model_validate({"source": "directory", "elements": (payload.get("unit_directory") or {}).get("elements", [])})
     groups = UnitGroupBatch.model_validate(payload["unit_groups"]) if "unit_groups" in payload else None
     tid = normalize_tenant_id(tenant_id, settings.default_tenant)
     mgr = tenant_manager or TenantManager(settings)

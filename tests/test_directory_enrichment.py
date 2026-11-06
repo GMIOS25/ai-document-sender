@@ -72,12 +72,25 @@ def test_organization_import_is_atomic_bounded_authenticated_and_sphere_isolated
         assert len(other['items']) == 1
 
 
+def test_lookup_accepts_directory_larger_than_an_incremental_batch(settings):
+    with TestClient(create_app(settings)) as client:
+        elements = [node()] * 10000 + [node(code='H21.98')]
+        response = client.post('/v1/sync/lookup', json={'unit_directory': {'elements': elements}})
+        assert response.status_code == 200, response.text
+        assert response.json()['changes']['unit_directory']['added'] == 2
+
+
 def test_lookup_invalid_directory_batch_leaves_person_and_units_untouched(settings):
     with TestClient(create_app(settings)) as client:
         headers = {'X-Tenant-ID': 'atomic'}
         payload = {'person': {'elements': [{'id': 1, 'type': 'dept', 'name': 'Must not appear'}]},
                    'unit_directory': {'elements': [node(), node(name=' ')]}}
-        assert client.post('/v1/sync/lookup', json=payload, headers=headers).status_code == 422
+        response = client.post('/v1/sync/lookup', json=payload, headers=headers)
+        assert response.status_code == 422
+        assert response.json()['error'] == {
+            'code': 'invalid_request',
+            'message': 'Invalid lookup data at unit_directory.elements.1.name (string_too_short)',
+        }
         assert client.get('/v1/outgoing/recipients/search?q=appear', headers=headers).json()['items'] == []
 
 

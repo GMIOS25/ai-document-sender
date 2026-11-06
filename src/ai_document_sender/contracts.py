@@ -203,6 +203,11 @@ class OrganizationBatch(Model):
     elements: list[OrganizationNode] = Field(max_length=10000)
 
 
+class LookupDirectoryBatch(OrganizationBatch):
+    # A full lookup combines category results from both communication spheres.
+    elements: list[OrganizationNode] = Field(max_length=65_536)
+
+
 class UnitGroup(Model):
     id: str = Field(min_length=1, max_length=256, pattern=r"^[a-zA-Z0-9_.:-]+$")
     name: str = Field(min_length=1, max_length=256)

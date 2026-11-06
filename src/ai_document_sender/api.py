@@ -168,7 +168,17 @@ def create_app(settings=None,provider=None,extractor=None):
         tid=normalize_tenant_id(x_tenant_id, settings.default_tenant)
         try:
             return await asyncio.to_thread(sync_tenant_lookup, tid, body, settings, tenant_manager)
-        except (ValidationError, TypeError, AttributeError) as error:
+        except ValidationError as error:
+            section = {"LookupDirectoryBatch": "unit_directory", "UnitGroupBatch": "unit_groups"}.get(error.title)
+            if section is not None:
+                issue = error.errors(include_input=False, include_context=False, include_url=False)[0]
+                location = issue["loc"]
+                if issue["type"] == "extra_forbidden":
+                    location = location[:-1]  # The extra key comes from the request.
+                path = ".".join(map(str, (section, *location)))
+                raise StoreError("invalid_request", f"Invalid lookup data at {path} ({issue['type']})", 422) from error
+            raise StoreError("invalid_request", "Invalid organization directory batch", 422) from error
+        except (TypeError, AttributeError) as error:
             raise StoreError("invalid_request", "Invalid organization directory batch", 422) from error
         except Exception as error:
             raise StoreError("sync_failed", f"Lookup sync failed for tenant '{tid}': {error}", 500) from error
