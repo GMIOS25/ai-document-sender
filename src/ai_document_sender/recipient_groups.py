@@ -64,8 +64,8 @@ def native_group(raw, registry):
         return [], None
     group = groups[0]
     codes = group["member_codes"]
-    if not codes or (whole_province and len(codes) != 135):
-        return [], None
+    if not codes or (whole_province and len(codes) != 135) or len(codes) <= 1:
+        return None
     members = []
     for code in codes:
         matches = [r for r in registry.exact_code(code) if r.sphere == group["sphere"]]
@@ -110,7 +110,7 @@ def conflicting_group_scope(mention, combined, extraction):
             for hit in pattern.finditer(witness):
                 suffix = witness[hit.end():].lstrip()
                 prefix = witness[:hit.start()].rstrip()
-                if (suffix and not re.match(r"^(?:;|\.(?!\.))", suffix)
-                        or re.search(r"\b(?:không\s+gửi|trừ|ngoại\s+lệ)$", prefix)):
+                if (re.search(r"^\s*\(?\s*(?:trừ|ngoại\s+trừ|ngoài\s+trừ|không\s+kể|không\s+gồm|không\s+bao\s+gồm|không\s+gửi|riêng)\b", suffix, re.I)
+                        or re.search(r"\b(?:không\s+gửi|trừ|ngoại\s+lệ|loại\s+trừ)\s*$", prefix, re.I)):
                     return True
     return False

@@ -22072,6 +22072,44 @@
       ],
       "verification_status": "verified",
       "native_group": "các sở"
+    },
+    {
+      "raw_alias": "Sở Ngoại vụ TP HCM",
+      "verification_status": "verified",
+      "targets": [
+        {
+          "recipient_id": "comm_6900e030ef27fa7e010fcd74",
+          "name": "Sở Ngoại vụ Thành phố Hồ Chí Minh",
+          "code": "G08.023",
+          "sphere": "ext_province_comm",
+          "recipient_type": "EXT_PROVINCE_UNIT"
+        }
+      ],
+      "source_rows": [],
+      "sections": [
+        "noi_nhan",
+        "kinh_gui",
+        "body_reference"
+      ]
+    },
+    {
+      "raw_alias": "Sở Ngoại vụ TP.HCM",
+      "verification_status": "verified",
+      "targets": [
+        {
+          "recipient_id": "comm_6900e030ef27fa7e010fcd74",
+          "name": "Sở Ngoại vụ Thành phố Hồ Chí Minh",
+          "code": "G08.023",
+          "sphere": "ext_province_comm",
+          "recipient_type": "EXT_PROVINCE_UNIT"
+        }
+      ],
+      "source_rows": [],
+      "sections": [
+        "noi_nhan",
+        "kinh_gui",
+        "body_reference"
+      ]
     }
   ],
   "source": {

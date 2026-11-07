@@ -129,9 +129,27 @@ class Registry:
             if r.recipient_type == 'INTERNAL_PERSON':
                 self._roles.setdefault(normalize(r.role), []).append(r)
             else:
-                local_name = re.sub(r'\s+gia lai$', '', normalize(r.name))
-                for name in {local_name, re.sub(r'\s+tinh$', '', local_name)}:
-                    self._local_names.setdefault(name, []).append(r)
+                is_local = (r.sphere in {'internal', 'int_province_comm'} or
+                            r.code.startswith(('H21', 'A21', 'K21')) or
+                            'gia lai' in normalize(r.name))
+                if is_local:
+                    norm_r = normalize(r.name)
+                    norm_disp = normalize(r.display_name or '')
+                    names_to_index = {norm_r, norm_disp} if norm_disp else {norm_r}
+                    for base in names_to_index:
+                        if not base:
+                            continue
+                        variants = {base}
+                        c_gl = re.sub(r'\s+gia\s+lai$', '', base)
+                        variants.add(c_gl)
+                        c_tinh = re.sub(r'\s+tinh$', '', c_gl)
+                        variants.add(c_tinh)
+                        for v in list(variants):
+                            if v.startswith('so '):
+                                variants.add(v[3:].strip())
+                        for v in variants:
+                            if v:
+                                self._local_names.setdefault(v, []).append(r)
             self._search_tokens[r.recipient_id] = set(words(' '.join([r.name, r.role or '', r.parent_name, r.code])))
         index_learning(self)
 

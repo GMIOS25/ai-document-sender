@@ -25,6 +25,11 @@ def expand_lexical(raw):
         (r"^Sở\s+NN\s*[&,. -]*\s*MT\b", "Sở Nông nghiệp và Môi trường"),
         (r"^Sở\s+NNMT\b", "Sở Nông nghiệp và Môi trường"), (r"^Sở\s+XD\b", "Sở Xây dựng"),
         (r"^Sở\s+GD\s*[&,. -]*\s*ĐT\b", "Sở Giáo dục và Đào tạo"),
+        (r"\bTP\.?\s*H(?:ồ\s*Chí\s*Minh|CM)\b", "Thành phố Hồ Chí Minh"),
+        (r"\bTP\.?\s*Hà\s*Nội\b", "Thành phố Hà Nội"),
+        (r"\bTP\.?\s*Đà\s*Nẵng\b", "Thành phố Đà Nẵng"),
+        (r"\bTP\.?\s*Cần\s*Thơ\b", "Thành phố Cần Thơ"),
+        (r"\bTP\.?\s*Hải\s*Phòng\b", "Thành phố Hải Phòng"),
     ]
     for pattern, full in expansions:
         raw = re.sub(pattern, full, raw, flags=re.I)
@@ -69,7 +74,7 @@ async def resolve_mentions(extraction, registry, metadata, job_id, input_sha256,
         service_center = explicit_service_center(mention, registry)
         if not mention.evidence:
             reason = "unreadable_region"
-        elif (group is not None or geography is not None or node_candidates) and conflicting_group_scope(mention, combined, extraction):
+        elif (group is not None or geography is not None) and conflicting_group_scope(mention, combined, extraction):
             reason = "conflicting_group_scope"
         elif geography is not None:
             candidates, method = geography, "explicit_commune_list"
@@ -135,6 +140,10 @@ async def resolve_mentions(extraction, registry, metadata, job_id, input_sha256,
             else:
                 candidates = registry.exact_code(query)
                 method = "exact_code"
+                if not candidates and metadata.issuer and "gia lai" in normalize(metadata.issuer):
+                    candidates = registry.local_unit_name(query, metadata.issuer)
+                    if candidates:
+                        method = "exact_local_unit"
                 if not candidates:
                     candidates = registry.exact_name(query)
                     method = "exact_name"
@@ -178,6 +187,7 @@ async def resolve_mentions(extraction, registry, metadata, job_id, input_sha256,
                 return (not local_province or item.sphere == "internal" or "gia lai" in normalize(item.name)
                         or item.code.startswith(("H21", "A21", "K21")))
             candidates = [r for r in candidates if within_jurisdiction(r)]
+
             if len(candidates) > 1:
                 reason = "ambiguous_role" if method == "exact_unique_role" else "ambiguous_registry_identity"
             if not candidates and not reason:
