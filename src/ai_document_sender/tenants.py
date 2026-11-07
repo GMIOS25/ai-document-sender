@@ -40,11 +40,15 @@ class TenantManager:
         if not db_path.exists() and tid == normalize_tenant_id(self.settings.default_tenant):
             if self.settings.lookup_db.exists():
                 shutil.copy2(self.settings.lookup_db, db_path)
-                from .learning import FILENAME
+                from .learning import FILENAME, REVIEW_FILENAME
                 legacy_learning = self.settings.lookup_db.parent / FILENAME
                 tenant_learning = tenant_dir / FILENAME
                 if legacy_learning.exists() and not tenant_learning.exists():
                     shutil.copy2(legacy_learning, tenant_learning)
+                legacy_review = self.settings.lookup_db.parent / REVIEW_FILENAME
+                tenant_review = tenant_dir / REVIEW_FILENAME
+                if legacy_review.exists() and not tenant_review.exists():
+                    shutil.copy2(legacy_review, tenant_review)
 
         return db_path
 
@@ -75,10 +79,12 @@ class TenantManager:
         db_path = self.get_db_path(tid)
         db_mtime = db_path.stat().st_mtime if db_path.exists() else 0
         policy_mtime = self.settings.policy_path.stat().st_mtime if self.settings.policy_path.exists() else 0
-        from .learning import FILENAME
+        from .learning import FILENAME, REVIEW_FILENAME
         learning_path = db_path.parent / FILENAME
         learning_stamp = (learning_path.stat().st_mtime_ns, learning_path.stat().st_size) if learning_path.exists() else None
-        cache_key = (db_mtime, policy_mtime, learning_stamp)
+        review_path = db_path.parent / REVIEW_FILENAME
+        review_stamp = (review_path.stat().st_mtime_ns, review_path.stat().st_size) if review_path.exists() else None
+        cache_key = (db_mtime, policy_mtime, learning_stamp, review_stamp)
 
         cached = self._registry_cache.get(tid)
         if cached and cached[0] == cache_key:

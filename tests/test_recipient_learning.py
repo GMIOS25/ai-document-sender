@@ -144,11 +144,11 @@ def test_search_learning_survives_unchanged_sync_and_is_idempotent(settings):
     from ai_document_sender.sync import sync_tenant_lookup
     manager = TenantManager(settings)
     payload = {'person': {'elements': []}, 'unit_internal': {'elements': [
-        {'uuid': 'health', 'code': 'H21.YT', 'name': 'Sở Y tế - tỉnh Gia Lai', 'count': 1}]}}
+        {'uuid': 'health', 'code': 'H21.YT', 'name': 'Sở Văn hóa, Thể thao và Du lịch - tỉnh Gia Lai', 'count': 1}]}}
     sync_tenant_lookup('newtenant', payload, settings, manager)
     db = manager.get_db_path('newtenant')
     local = replace(settings, lookup_db=db)
-    path = learning_file(local, [{'raw_alias': 'Sở YT', 'targets': [target('Sở Y tế - tỉnh Gia Lai')],
+    path = learning_file(local, [{'raw_alias': 'Sở YT', 'targets': [target('Sở Văn hóa, Thể thao và Du lịch - tỉnh Gia Lai')],
                                   'verification_status': 'verified'}])
     sync_tenant_lookup('newtenant', payload, settings, manager)
     with sqlite3.connect(db) as conn:
@@ -167,7 +167,7 @@ def test_search_learning_survives_unchanged_sync_and_is_idempotent(settings):
 @pytest.mark.parametrize('initialize_first', [False, True])
 def test_default_tenant_migration_keeps_legacy_learning(settings, initialize_first):
     from ai_document_sender.sync import sync_tenant_lookup
-    learning_file(settings, [{'raw_alias': 'Sở YT', 'targets': [target('Sở Y tế - tỉnh Gia Lai')],
+    learning_file(settings, [{'raw_alias': 'Sở YT', 'targets': [target('Sở Văn hóa, Thể thao và Du lịch - tỉnh Gia Lai')],
                               'verification_status': 'verified'}])
     manager = TenantManager(settings)
     if initialize_first:
@@ -178,7 +178,7 @@ def test_default_tenant_migration_keeps_legacy_learning(settings, initialize_fir
             conn.execute('ALTER TABLE recipients ADD COLUMN search_text TEXT')
         manager.ensure_tenant_initialized('vpub')
     sync_tenant_lookup('vpub', {'unit_internal': {'elements': [
-        {'uuid': 'health', 'code': 'H21.YT', 'name': 'Sở Y tế - tỉnh Gia Lai'}]}}, settings, manager)
+        {'uuid': 'health', 'code': 'H21.YT', 'name': 'Sở Văn hóa, Thể thao và Du lịch - tỉnh Gia Lai'}]}}, settings, manager)
     registry = manager.get_registry('vpub')
     assert registry.policy.get('learning', {}).get('rules')
     assert registry.search('Sở YT')[0].recipient_id == 'comm_health'
@@ -207,3 +207,41 @@ def test_search_refresh_preserves_staff_sign_rank_and_email(settings):
         text = conn.execute('SELECT search_text FROM recipients').fetchone()[0]
         assert all(token in text for token in ('V5', 'specialist', 'kiemnv@example.vn'))
         assert conn.execute("SELECT count(*) FROM recipients_fts WHERE recipients_fts MATCH 'V5'").fetchone()[0] == 1
+
+
+async def test_document_scoped_learning_and_review_candidates(settings):
+    from ai_document_sender.learning import REVIEW_FILENAME, get_review_candidate
+    learning_file(settings, [
+        {'raw_alias': 'Ban Chỉ đạo', 'targets': [target('Sở Nội vụ - tỉnh Gia Lai')],
+         'document_context': {'sign_number': '123/UBND-NC'}, 'verification_status': 'verified'},
+        {'raw_alias': 'Ban Chỉ đạo', 'targets': [target('Sở Văn hóa, Thể thao và Du lịch - tỉnh Gia Lai')],
+         'document_context': {'sign_number': '456/UBND-VX'}, 'verification_status': 'verified'},
+    ])
+    review_path = settings.lookup_db.parent / REVIEW_FILENAME
+    review_path.write_text(json.dumps({
+        'version': 1, 'organization_scope': 'UBND tỉnh Gia Lai',
+        'rules': [{'raw_alias': 'Dự án điện gió', 'targets': [target('Sở Văn hóa, Thể thao và Du lịch - tỉnh Gia Lai')],
+                  'verification_status': 'review_required', 'review_reasons': ['source_marked_prediction']}]
+    }, ensure_ascii=False), encoding='utf-8')
+
+    registry = Registry(settings)
+    mention = make_mention('Ban Chỉ đạo', 'group', 1, 'noi_nhan', organization_scope='UBND tỉnh Gia Lai')
+    res_123 = await resolve_mentions(Extraction(mentions=[mention], status='complete'), registry,
+                                     DocumentMetadata(document_id='d1', sign_number='123/UBND-NC', issuer='UBND tỉnh Gia Lai'), 'j', 's')
+    assert [u.name for u in res_123.units] == ['Sở Nội vụ - tỉnh Gia Lai']
+
+    res_456 = await resolve_mentions(Extraction(mentions=[mention], status='complete'), registry,
+                                     DocumentMetadata(document_id='d2', sign_number='456/UBND-VX', issuer='UBND tỉnh Gia Lai'), 'j', 's')
+    assert [u.name for u in res_456.units] == ['Sở Văn hóa, Thể thao và Du lịch - tỉnh Gia Lai']
+
+    # Review candidates should not resolve automatically into units/people
+    m_rev = make_mention('Dự án điện gió', 'unit', 1, 'noi_nhan', organization_scope='UBND tỉnh Gia Lai')
+    res_rev = await resolve_mentions(Extraction(mentions=[m_rev], status='complete'), registry,
+                                     DocumentMetadata(document_id='d3', issuer='UBND tỉnh Gia Lai'), 'j', 's')
+    assert not res_rev.units and not res_rev.people
+
+    # But review helper retrieves candidates for audit/review
+    cand = get_review_candidate(registry, 'Dự án điện gió', DocumentMetadata(document_id='d3', issuer='UBND tỉnh Gia Lai'), m_rev)
+    assert cand is not None
+    assert cand['verification_status'] == 'review_required'
+    assert cand['rule']['targets'][0]['name'] == 'Sở Văn hóa, Thể thao và Du lịch - tỉnh Gia Lai'
