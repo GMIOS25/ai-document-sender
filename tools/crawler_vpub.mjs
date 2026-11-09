@@ -320,6 +320,9 @@ async function processDocument(item) {
           filename = docNum ? `${docNum}cv_0001.pdf` : (mainAtt.name || 'document.pdf');
         }
         filename = sanitizeFilename(filename);
+        if (!filename.toLowerCase().endsWith('.pdf')) {
+          filename += '.pdf';
+        }
         const buffer = Buffer.from(await dlRes.arrayBuffer());
         fs.writeFileSync(path.join(targetDir, filename), buffer);
         downloadedContentUids.add(mainAtt.contentUid);
