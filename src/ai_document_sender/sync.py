@@ -342,19 +342,8 @@ def _diff_and_sync_internal_org(
         recipient_id = f"internal_{eid}"
         code = uname or comm_code or sign or ""
 
-        # Priority calculation
-        if rank == "org_leader":
-            priority = 50000 - order_num * 10
-        elif rank == "unit_leader":
-            priority = 40000 - order_num * 10
-        elif rank == "leader":
-            priority = 30000 - order_num * 10
-        elif rank == "specialist":
-            priority = 10000 - order_num * 10
-        elif etype in ["dept", "group"]:
-            priority = 20000 - order_num * 10
-        else:
-            priority = 5000
+        # Priority score removed to avoid internal bias
+        priority = 0
 
         # Type and display_name
         if etype == "alias":

@@ -1,3 +1,4 @@
+import re
 """
 Lookup Service: Module cung cấp API và CLI tra cứu Nơi nhận / Người nhận văn bản.
 Sử dụng SQLite database (resources/data/lookup.db) kết hợp FTS5 & Ranking.
@@ -83,15 +84,58 @@ class RecipientLookupService:
             conn.close()
             return [dict(row) for row in exact_rows[:limit]]
 
-        # 2. Tìm kiếm qua Full-Text Search (FTS5) & LIKE dự phòng
-        # Chuẩn bị query cho FTS5: tách các từ, escape các ký tự đặc biệt
+        # 1b. Khớp chính xác tên cơ quan / display_name (ưu tiên địa bàn Gia Lai)
+        name_variants = []
+        clean_q = re.sub(r'\s*[-–—:]*\s*(?:tinh\s+)?gia\s+lai$', '', query, flags=re.I).strip()
+        if not query.lower().startswith("sở "):
+            name_variants.append(f"Sở {query} - tỉnh Gia Lai")
+            name_variants.append(f"Sở {query}")
+        if query.lower() in ("bhxh tỉnh", "bhxh tinh", "bảo hiểm xã hội tỉnh"):
+            name_variants.append("BHXH Gia Lai - Bảo hiểm xã hội Việt Nam")
+        if query.lower().startswith("ubnd xã "):
+            name_variants.append(f"Xã {query[8:].strip()} - tỉnh Gia Lai")
+            name_variants.append(f"Xã {query[8:].strip()}")
+        elif query.lower().startswith("ubnd "):
+            name_variants.append(f"{query[5:].strip()} - tỉnh Gia Lai")
+            name_variants.append(query[5:].strip())
+        name_variants.append(f"{query} - tỉnh Gia Lai")
+        name_variants.append(query)
+        if clean_q and clean_q != query:
+            name_variants.append(clean_q)
+
+        for nv in name_variants:
+            nv_no_acc = remove_accents(nv)
+            exact_name_sql = """
+            SELECT * FROM recipients 
+            WHERE (LOWER(name) = LOWER(?) OR LOWER(display_name) = LOWER(?)
+                   OR LOWER(name) = LOWER(?) OR LOWER(display_name) = LOWER(?))
+            """
+            np = [nv, nv, nv_no_acc, nv_no_acc]
+            if sphere:
+                exact_name_sql += " AND sphere = ?"
+                np.append(sphere)
+            if recipient_type:
+                exact_name_sql += " AND recipient_type = ?"
+                np.append(recipient_type)
+            cur.execute(exact_name_sql, np)
+            exact_name_rows = cur.fetchall()
+            if exact_name_rows:
+                # Nếu có nhiều kết quả, ưu tiên đơn vị tỉnh Gia Lai hoặc cơ quan ngoài nội bộ
+                sorted_cands = sorted(exact_name_rows, key=lambda r: (
+                    0 if ((r['code'] or '').startswith(('H21', 'A21', 'K21')) or 'gia lai' in (r['display_name'] or '').lower()) else 1,
+                    0 if r['recipient_type'] not in ('INTERNAL_PERSON', 'INTERNAL_GROUP') else 1,
+                    0 if 'sở' in (r['display_name'] or '').lower() else 1
+                ))
+                conn.close()
+                return [dict(row) for row in sorted_cands[:limit]]
+
+        # 2. Tìm kiếm qua Full-Text Search (FTS5) - Sắp xếp theo FTS Rank thuần túy
         clean_words = [w for w in query.replace('"', '').replace("'", '').split() if w]
         fts_terms = " ".join([f'"{w}"*' for w in clean_words])
 
         results = []
         seen_ids = set()
 
-        # Truy vấn FTS5 kết hợp join với recipients để lấy điểm ưu tiên priority_score
         try:
             fts_sql = f"""
             SELECT r.*, fts.rank AS fts_rank
@@ -108,8 +152,8 @@ class RecipientLookupService:
                 fts_sql += " AND r.recipient_type = ?"
                 fts_params.append(recipient_type)
 
-            # Ưu tiên theo điểm tần suất priority_score và độ khớp FTS
-            fts_sql += " ORDER BY r.priority_score DESC, fts_rank LIMIT ?"
+            # Sắp xếp theo fts_rank (độ khớp tốt nhất lên đầu), không phụ thuộc priority_score
+            fts_sql += " ORDER BY fts_rank LIMIT ?"
             fts_params.append(limit * 2)
 
             cur.execute(fts_sql, fts_params)
@@ -120,10 +164,9 @@ class RecipientLookupService:
                     seen_ids.add(d["recipient_id"])
                     results.append(d)
         except Exception:
-            # Fallback nếu FTS cú pháp từ khóa có ký tự lạ
             pass
 
-        # 3. Nếu FTS không đủ kết quả, dùng LIKE mở rộng trên cả có dấu và không dấu
+        # 3. Nếu FTS không đủ kết quả, dùng LIKE mở rộng sắp xếp theo độ ngắn display_name
         if len(results) < limit:
             like_sql = """
             SELECT * FROM recipients
@@ -138,7 +181,7 @@ class RecipientLookupService:
                 like_sql += " AND recipient_type = ?"
                 like_params.append(recipient_type)
 
-            like_sql += " ORDER BY priority_score DESC LIMIT ?"
+            like_sql += " ORDER BY LENGTH(display_name) ASC LIMIT ?"
             like_params.append(limit)
 
             cur.execute(like_sql, like_params)
@@ -224,8 +267,7 @@ def print_search_results(results: List[Dict[str, Any]]):
         print(f"  {idx}. {scope_tag} {r.get('display_name')}")
         code_str = f"Mã: {r.get('code')}" if r.get('code') else ""
         parent_str = f"Đơn vị: {r.get('parent_name')}" if r.get('parent_name') else ""
-        priority = f"Điểm ưu tiên: {r.get('priority_score')}"
-        info = " | ".join(filter(None, [code_str, parent_str, priority]))
+        info = " | ".join(filter(None, [code_str, parent_str]))
         print(f"     -> {info}")
     print("-" * 80)
 

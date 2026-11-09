@@ -25,6 +25,7 @@ def expand_lexical(raw):
         (r"^Sở\s+NN\s*[&,. -]*\s*MT\b", "Sở Nông nghiệp và Môi trường"),
         (r"^Sở\s+NNMT\b", "Sở Nông nghiệp và Môi trường"), (r"^Sở\s+XD\b", "Sở Xây dựng"),
         (r"^Sở\s+GD\s*[&,. -]*\s*ĐT\b", "Sở Giáo dục và Đào tạo"),
+        (r"ĐC\s*&\s*KS", "Địa chất và Khoáng sản"),
         (r"\bTP\.?\s*H(?:ồ\s*Chí\s*Minh|CM)\b", "Thành phố Hồ Chí Minh"),
         (r"\bTP\.?\s*Hà\s*Nội\b", "Thành phố Hà Nội"),
         (r"\bTP\.?\s*Đà\s*Nẵng\b", "Thành phố Đà Nẵng"),
@@ -67,10 +68,11 @@ async def resolve_mentions(extraction, registry, metadata, job_id, input_sha256,
         recipient_scope = any(e.section in {"kinh_gui", "noi_nhan", "body_reference"} for e in mention.evidence)
         # An explicit geographic list or verified selectable group takes
         # precedence over whole-phrase aliases learned from older snapshots.
+        is_gl_context = bool("gia lai" in normalize(metadata.issuer) if metadata.issuer else getattr(registry, "tenant_id", "") == "vpub")
         geography = (local_commune_list(raw, registry) if recipient_scope and mention.kind != "reference" and
-                     "gia lai" in normalize(metadata.issuer) else None)
+                     is_gl_context else None)
         group = (native_group(combined, registry) if recipient_scope and mention.kind in {"group", "unit", "unknown"} and geography is None and
-                 "gia lai" in normalize(metadata.issuer) else None)
+                 is_gl_context else None)
         service_center = explicit_service_center(mention, registry)
         if not mention.evidence:
             reason = "unreadable_region"
@@ -140,8 +142,8 @@ async def resolve_mentions(extraction, registry, metadata, job_id, input_sha256,
             else:
                 candidates = registry.exact_code(query)
                 method = "exact_code"
-                if not candidates and metadata.issuer and "gia lai" in normalize(metadata.issuer):
-                    candidates = registry.local_unit_name(query, metadata.issuer)
+                if not candidates and is_gl_context:
+                    candidates = registry.local_unit_name(query, metadata.issuer or "Gia Lai")
                     if candidates:
                         method = "exact_local_unit"
                 if not candidates:
@@ -151,8 +153,18 @@ async def resolve_mentions(extraction, registry, metadata, job_id, input_sha256,
                     candidates = registry.exact_role(query)
                     method = "exact_unique_role"
                 if not candidates:
-                    candidates = registry.local_unit_name(query, mention.organization_scope or metadata.issuer)
-                    method = "exact_local_unit"
+                    candidates = registry.local_unit_name(query, mention.organization_scope or metadata.issuer or "Gia Lai")
+                    if candidates:
+                        method = "exact_local_unit"
+                if not candidates and is_gl_context:
+                    prefix_match = re.match(r"^(?:Truong|Giam doc|Chanh|Thu truong|Chu tich)\s+(.+)$", query, re.I)
+                    if prefix_match:
+                        stripped_query = prefix_match.group(1).strip()
+                        candidates = registry.local_unit_name(stripped_query, metadata.issuer or "Gia Lai")
+                        if not candidates:
+                            candidates = registry.exact_name(stripped_query)
+                        if candidates:
+                            method = "exact_local_unit"
                 if not candidates:
                     # Initials after a role prefix must respect that exact role.
                     role, name = None, query
@@ -181,7 +193,7 @@ async def resolve_mentions(extraction, registry, metadata, job_id, input_sha256,
                               or normalize(mention.organization_scope) in normalize(r.parent_name + " " + r.name)
                               or (r.sphere == "internal" and normalize(mention.organization_scope) == normalize(metadata.issuer))]
             local_province = "gia lai" in normalize(query) or (
-                re.search(r"(?:^| )tinh$", normalize(query)) and "gia lai" in normalize(metadata.issuer))
+                re.search(r"(?:^| )tinh$", normalize(query)) and is_gl_context)
             def within_jurisdiction(item):
                 # A generic "... tỉnh" cannot point at a different provincial directory.
                 return (not local_province or item.sphere == "internal" or "gia lai" in normalize(item.name)
@@ -189,7 +201,16 @@ async def resolve_mentions(extraction, registry, metadata, job_id, input_sha256,
             candidates = [r for r in candidates if within_jurisdiction(r)]
 
             if len(candidates) > 1:
-                reason = "ambiguous_role" if method == "exact_unique_role" else "ambiguous_registry_identity"
+                names = {normalize(c.name) for c in candidates}
+                spheres = {c.sphere for c in candidates}
+                types = {c.recipient_type for c in candidates}
+                same_identity = len(names) == 1 and len(spheres) == 1 and len(types) == 1
+                if same_identity and types != {"INTERNAL_PERSON"} and method != "exact_internal_node":
+                    candidates = [candidates[0]]
+                elif method == "exact_unique_role" or mention.kind == "role":
+                    reason = "ambiguous_role"
+                else:
+                    reason = "ambiguous_registry_identity"
             if not candidates and not reason:
                 candidates = [r for r in registry.search(query, include_learning=False) if within_jurisdiction(r)]
                 # Generic role/known portfolio never delegates identity guessing to LLM.
@@ -208,7 +229,7 @@ async def resolve_mentions(extraction, registry, metadata, job_id, input_sha256,
                         else:
                             reason = "invalid_model_output" if selected else "not_in_registry"
                     except Exception as error:
-                        reason = "invalid_model_output" if getattr(error,"code",None) == "invalid_model_output" else "provider_unavailable"
+                        reason = "invalid_model_output" if getattr(error, "code", None) == "invalid_model_output" else "provider_unavailable"
                 else:
                     reason = "not_in_registry"
         if not candidates and not reason:

@@ -139,14 +139,23 @@ class Registry:
                     for base in names_to_index:
                         if not base:
                             continue
-                        variants = {base}
-                        c_gl = re.sub(r'\s+gia\s+lai$', '', base)
-                        variants.add(c_gl)
-                        c_tinh = re.sub(r'\s+tinh$', '', c_gl)
-                        variants.add(c_tinh)
+                        cleaned = re.sub(r'\s*[-–—:]*\s*(?:tinh\s+)?gia\s+lai$', '', base).strip()
+                        cleaned = re.sub(r'\s*[-–—:]*\s*tinh$', '', cleaned).strip()
+                        variants = {base, cleaned}
                         for v in list(variants):
                             if v.startswith('so '):
                                 variants.add(v[3:].strip())
+                            if v.startswith('ubnd '):
+                                variants.add(v[5:].strip())
+                            else:
+                                variants.add(f"ubnd {v}".strip())
+                        clean_commune = re.sub(r'\s*(?:-|ubnd\s+huyen|huyen|thi\s+xa|thanh\s+pho|tp)\s+[a-z0-9\s]+tinh\s+gia\s+lai$', '', base).strip()
+                        if clean_commune and clean_commune != base:
+                            variants.add(clean_commune)
+                            if clean_commune.startswith('ubnd '):
+                                variants.add(clean_commune[5:].strip())
+                            else:
+                                variants.add(f"ubnd {clean_commune}".strip())
                         for v in variants:
                             if v:
                                 self._local_names.setdefault(v, []).append(r)
@@ -216,10 +225,11 @@ class Registry:
             return []
         return [r for r in self.exact_role(role) if len(parts)<=len(words(r.name)) and words(r.name)[-len(parts):] == parts]
 
-    def local_unit_name(self, query, issuer):
-        if "gia lai" not in normalize(issuer):
-            return []
-        return list(self._local_names.get(normalize(query), []))
+    def local_unit_name(self, query, issuer=None):
+        issuer_norm = normalize(issuer)
+        if "gia lai" in issuer_norm or getattr(self, "tenant_id", "vpub") == "vpub":
+            return list(self._local_names.get(normalize(query), []))
+        return []
 
     def group_members(self, selector):
         ids = self.groups.get(normalize(selector))
@@ -256,7 +266,7 @@ class Registry:
             if substantial and not substantial <= tokens:
                 continue
             ranked.append((len(overlap) / len(meaningful), r))
-        ranked.sort(key=lambda x:(-x[0],x[1].recipient_id))
+        ranked.sort(key=lambda x:(-x[0], x[1].recipient_id))
         return [r for _,r in ranked[:limit]]
 
     def serialize(self):

@@ -1,3 +1,4 @@
+import re
 """
 Script tạo và chuẩn hóa Cơ sở dữ liệu Lookup từ 3 file JSON:
 - person.json (Cơ cấu tổ chức & Cán bộ nội bộ UBND tỉnh Gia Lai)
@@ -223,19 +224,8 @@ def populate_internal_org(conn: sqlite3.Connection, person_json_path: Path):
         sign = e.get("sign", "")
         code = uname or e.get("commCode") or sign or ""
 
-        # Tính điểm ưu tiên ranking
-        if rank == "org_leader":
-            priority = 50000 - e.get("order", 0) * 10
-        elif rank == "unit_leader":
-            priority = 40000 - e.get("order", 0) * 10
-        elif rank == "leader":
-            priority = 30000 - e.get("order", 0) * 10
-        elif rank == "specialist":
-            priority = 10000 - e.get("order", 0) * 10
-        elif etype in ["dept", "group"]:
-            priority = 20000 - e.get("order", 0) * 10
-        else:
-            priority = 5000
+        # Không sử dụng điểm ưu tiên cứng (tránh sai lệch thứ tự tìm kiếm)
+        priority = 0
 
         # Phân loại recipient_type và định dạng display_name
         if etype == "alias":
@@ -338,14 +328,14 @@ def populate_comm_units(conn: sqlite3.Connection, json_path: Path, is_internal: 
             uuid, code, name, sphere, send_count, organ_id, username, alias_code, raw_json
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
-            uuid, code, name, sphere, count, organ_id, uname, alias_code,
+            uuid, code, name, sphere, 0, organ_id, uname, alias_code,
             json.dumps(e, ensure_ascii=False)
         ))
 
         # 2. Lưu vào bảng tra cứu thống nhất recipients
         recipient_id = f"comm_{uuid}"
         display_name = name
-        search_text = build_search_tokens(name, code, parent_scope)
+        search_text = build_search_tokens(name, code)
 
         cur.execute("""
         INSERT OR REPLACE INTO recipients (
@@ -365,7 +355,7 @@ def populate_comm_units(conn: sqlite3.Connection, json_path: Path, is_internal: 
             parent_scope,
             None,
             None,
-            count,
+            0,
             search_text,
             json.dumps(e, ensure_ascii=False)
         ))
@@ -379,6 +369,54 @@ def populate_comm_units(conn: sqlite3.Connection, json_path: Path, is_internal: 
             recipient_id, display_name, "", name, code, parent_scope, search_text
         ))
         inserted_count += 1
+
+    # Tổng hợp các đơn vị xã/phường cấp cha (H21.xxx) nếu bị thiếu trong file gốc
+    if is_internal:
+        parent_map = {}
+        for code, e in elements_by_code.items():
+            name = e.get("name", "").strip()
+            parts = code.split('.')
+            if len(parts) >= 3 and parts[0] == 'H21':
+                parent_code = '.'.join(parts[:2])
+                if parent_code not in elements_by_code and parent_code not in parent_map:
+                    m = re.search(r'[-–—]\s*(?:Xã\s+hội\s*[-–—]\s*|Hạ\s+tầng\s*[-–—]\s*)?((?:Xã|Phường|Thị trấn)\s+[^–—:-]+)', name, re.I)
+                    if m:
+                        raw_cname = m.group(1).strip()
+                        clean_cname = re.sub(r'\s*[-–—:]*\s*(?:Tỉnh\s+)?(?:Gia\s+Lai|Bình\s+Định)$', '', raw_cname, flags=re.I).strip()
+                        parent_map[parent_code] = f"{clean_cname} - tỉnh Gia Lai"
+
+        for p_code, p_name in parent_map.items():
+            p_uuid = f"synth_{p_code}"
+            p_e = {"code": p_code, "name": p_name, "sphere": sphere, "uuid": p_uuid}
+            cur.execute("""
+            INSERT OR REPLACE INTO comm_units (
+                uuid, code, name, sphere, send_count, organ_id, username, alias_code, raw_json
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                p_uuid, p_code, p_name, sphere, 0, "H21", None, None,
+                json.dumps(p_e, ensure_ascii=False)
+            ))
+            recipient_id = f"comm_{p_code}"
+            search_text = build_search_tokens(p_name, p_code)
+            cur.execute("""
+            INSERT OR REPLACE INTO recipients (
+                recipient_id, source_id, recipient_type, sphere,
+                name, full_name, display_name, code, parent_name,
+                rank_level, email, priority_score, search_text, raw_json
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                recipient_id, p_code, recipient_type, sphere,
+                p_name, None, p_name, p_code, parent_scope,
+                None, None, 0, search_text, json.dumps(p_e, ensure_ascii=False)
+            ))
+            cur.execute("""
+            INSERT INTO recipients_fts (
+                recipient_id, display_name, full_name, name, code, parent_name, search_text
+            ) VALUES (?, ?, ?, ?, ?, ?, ?)
+            """, (
+                recipient_id, p_name, "", p_name, p_code, parent_scope, search_text
+            ))
+            inserted_count += 1
 
     conn.commit()
     print(f"  [+] Đã nạp {inserted_count} đơn vị liên thông vào recipients & FTS")
@@ -427,9 +465,10 @@ def create_useful_views(conn: sqlite3.Connection):
 def main():
     base_dir = Path(__file__).resolve().parent.parent
     data_dir = base_dir / "resources" / "data"
-    person_file = data_dir / "person.json"
-    int_file = data_dir / "unit_internal_province.json"
-    ext_file = data_dir / "unit_except_provice.json"
+    tenant_dir = base_dir / "resources" / "tenants" / "vpub"
+    person_file = person_file if (person_file := data_dir / "person.json").exists() else tenant_dir / "person.json"
+    int_file = int_file if (int_file := data_dir / "unit_internal_province.json").exists() else tenant_dir / "unit_internal_province.json"
+    ext_file = ext_file if (ext_file := data_dir / "unit_except_provice.json").exists() else tenant_dir / "unit_except_provice.json"
     db_file = data_dir / "lookup.db"
 
     print("=" * 60)
