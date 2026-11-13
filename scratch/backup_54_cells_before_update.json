@@ -1,0 +1,488 @@
+[
+  {
+    "range": "'Test 4 (Formatted)'!H342",
+    "majorDimension": "ROWS",
+    "values": [
+      [
+        "- Dư (26):\n  + Ban Quản lý Dự án Nông nghiệp và Phát triển nông thôn tỉnh Gia Lai (H21.41)\n  + Ban Quản lý các dự án đầu tư xây dựng tỉnh Gia Lai (H21.38)\n  + Sở Tư pháp - tỉnh Gia Lai (H21.16)\n  + Thanh tra tỉnh Gia Lai (H21.20)\n  + Xã Biển Hồ - tỉnh Gia Lai (H21.111)\n  + Xã Bờ Ngoong - tỉnh Gia Lai (H21.112)\n  + Xã Chư Krey - tỉnh Gia Lai (H21.115)\n  + Xã Cửu An - tỉnh Gia Lai (H21.120)\n  + Xã Đak Sơmei - tỉnh Gia Lai (H21.124)\n  + Xã Đăk Song - tỉnh Gia Lai (H21.125)\n  + Xã Ia Chía - tỉnh Gia Lai (H21.131)\n  + Xã Ia Hrung - tỉnh Gia Lai (H21.138)\n  + Xã Ia Ko - tỉnh Gia Lai (H21.140)\n  + Xã Krong - tỉnh Gia Lai (H21.165)\n  + UBND phường Bình Định - Tỉnh Gia Lai (H21.186)\n  + UBND xã An Nhơn Tây - Tỉnh Gia Lai (H21.189)\n  + UBND phường An Nhơn Nam - Tỉnh Gia Lai (H21.190)\n  + UBND phường Bồng Sơn - Tỉnh Gia Lai (H21.192)\n  + UBND phường Hoài Nhơn - Tỉnh Gia Lai (H21.195)\n  + UBND xã Phù Cát - Tỉnh Gia Lai (H21.199)\n  + UBND xã Ngô Mây - Tỉnh Gia Lai (H21.201)\n  + UBND xã Phù Mỹ Đông - Tỉnh Gia Lai (H21.210)\n  + UBND xã Bình Dương - Tỉnh Gia Lai (H21.211)\n  + UBND xã Hoài Ân - Tỉnh Gia Lai (H21.222)\n  + Xã Canh Vinh - Tỉnh Gia Lai (H21.228)\n  + UBND Xã An Toàn - Tỉnh Gia Lai (H21.237)\n- Thiếu (2):\n  + Trưởng phòng T1 (Lê Đức Phương)\n  + Bộ Chỉ huy Quân sự tỉnh Gia Lai"
+      ]
+    ]
+  },
+  {
+    "range": "'Test 4 (Formatted)'!H518",
+    "majorDimension": "ROWS",
+    "values": [
+      [
+        "- Dư (60):\n  + Lãnh đạo UBND tỉnh (Nội bộ UBND tỉnh)\n  + Sở Công Thương - tỉnh Gia Lai (H21.05)\n  + Sở Ngoại vụ - tỉnh Gia Lai (H21.26)\n  + Sở Tài chính - tỉnh Gia Lai (H21.13)\n  + Sở Tư pháp - tỉnh Gia Lai (H21.16)\n  + Phường An Phú - tỉnh Gia Lai (H21.102)\n  + Xã Đăk Song - tỉnh Gia Lai (H21.125)\n  + Xã Đức Cơ - tỉnh Gia Lai (H21.126)\n  + Xã Hra - tỉnh Gia Lai (H21.128)\n  + Xã Ia Krêl - tỉnh Gia Lai (H21.142)\n  + Xã Ia Nan - tỉnh Gia Lai (H21.147)\n  + Xã Ia O - tỉnh Gia Lai (H21.148)\n  + Xã Ia Púch - tỉnh Gia Lai (H21.153)\n  + Xã Kon Chiêng - tỉnh Gia Lai (H21.161)\n  + Xã Krong - tỉnh Gia Lai (H21.165)\n  + Xã Uar - tỉnh Gia Lai (H21.174)\n  + UBND phường Quy Nhơn Tây - Tỉnh Gia Lai (H21.183)\n  + UBND phường An Nhơn Nam - Tỉnh Gia Lai (H21.190)\n  + UBND xã Ngô Mây - Tỉnh Gia Lai (H21.201)\n  + UBND xã Đề Gi - Tỉnh Gia Lai (H21.203)\n  + UBND xã Tây Sơn - Tỉnh Gia Lai (H21.217)\n  + UBND xã Bình Khê - Tỉnh Gia Lai (H21.218)\n  + UBND Xã Ân Tường - Tỉnh Gia Lai (H21.223)\n  + UBND Xã Vạn Đức - Tỉnh Gia Lai (H21.225)\n  + Xã Canh Vinh - Tỉnh Gia Lai (H21.228)\n  + UBND Xã Vĩnh Thạnh - Tỉnh Gia Lai (H21.230)\n  + UBND Xã Vĩnh Thịnh - Tỉnh Gia Lai (H21.231)\n  + UBND Xã An Hòa - Tinh Gia Lai (H21.234)\n  + UBND Xã An Vinh - Tỉnh Gia Lai (H21.236)\n  + Trịnh Bảo Minh - Chuyên viên V2 (Phòng Khoa giáo Văn xã) (minhtb@vpub.gialai.gov.vn)\n  + Nguyễn Tiến Mạnh - Phó Trưởng phòng (Phòng Hành chính Tổ chức) (manhnt@vpub.gialai.gov.vn)\n  + Huỳnh Thế Dịu - Chuyên viên (Phòng Hành chính Tổ chức) (diuht@vpub.gialai.gov.vn)\n  + Nguyễn Thị Minh Ngân - Chuyên viên (Phòng Hành chính Tổ chức) (nganntm@vpub.gialai.gov.vn)\n  + Võ Nguyễn Phương Tú - Chuyên viên (Phòng Hành chính Tổ chức) (tuvnp@vpub.gialai.gov.vn)\n  + Nguyễn Thị Kim Oanh - Chuyên viên (Phòng Hành chính Tổ chức) (oanhntk@vpub.gialai.gov.vn)\n  + Trần Thị Hồng Nhung - Chuyên viên (Phòng Hành chính Tổ chức) (nhungtth@vpub.gialai.gov.vn)\n  + Nguyễn Thị Lâm Anh - Chuyên viên T8 (Phòng Hành chính Tổ chức) (anhltn@vpub.gialai.gov.vn)\n  + Lê Nguyễn Ái Vy - Lưu trữ viên (Phòng Hành chính Tổ chức) (vylna@vpub.gialai.gov.vn)\n  + Trần Thị Như Thảo - Chuyên viên (Phòng Hành chính Tổ chức) (thaottn@vpub.gialai.gov.vn)\n  + Phan Thị Hà - Chuyên viên (Phòng Hành chính Tổ chức) (hapt@vpub.gialai.gov.vn)\n  + Trần Xuân Nhã Khuê - Chuyên viên (Phòng Hành chính Tổ chức) (khuetxn@vpub.gialai.gov.vn)\n  + Đỗ Thị Minh Trâm - Nhân viên (Phòng Hành chính Tổ chức) (tramdtm@vpub.gialai.gov.vn)\n  + Trần Minh Trung - Nhân viên (Phòng Hành chính Tổ chức) (trungtm@vpub.gialai.gov.vn)\n  + Nguyễn Trung Chiến - Trưởng phòng (Phòng Quản trị Tài vụ) (chiennt@vpub.gialai.gov.vn)\n  + Lâm Xuân Hoa - Kế toán (Phòng Quản trị Tài vụ) (hoalx@vpub.gialai.gov.vn)\n  + Nguyễn Thị Minh Tân - Chuyên viên (Phòng Quản trị Tài vụ) (tanntm@vpub.gialai.gov.vn)\n  + Võ Thị Lệ Thủy - Thủ quỹ (Phòng Quản trị Tài vụ) (thuyvtl@vpub.gialai.gov.vn)\n  + Trần Khánh Hưng - Chuyên viên (Phòng Quản trị Tài vụ) (hungtk@vpub.gialai.gov.vn)\n  + Phan Thị Vũ Phong - Chuyên viên (Phòng Quản trị Tài vụ) (phongptv@vpub.gialai.gov.vn)\n  + Nguyễn Thị Nguyệt Thu - Chuyên viên (Phòng Quản trị Tài vụ) (thuntn@vpub.gialai.gov.vn)\n  + Nguyễn Quốc Hà - Nhân viên (Phòng Quản trị Tài vụ) (hanq@vpub.gialai.gov.vn)\n  + Nhữ Minh Hoàng - Nhân viên (Phòng Quản trị Tài vụ) (hoangnm@vpub.gialai.gov.vn)\n  + Trương Hồ Hữu Trí - Nhân viên (Phòng Quản trị Tài vụ) (trithh@vpub.gialai.gov.vn)\n  + Võ Minh Cảnh - Phó Trưởng ban (Ban Tiếp Công dân tỉnh Gia Lai) (canhvm@vpub.gialai.gov.vn)\n  + Rơ Chăm Y Thịnh - Phó Trưởng ban (Ban Tiếp Công dân tỉnh Gia Lai) (thinhrcy@vpub.gialai.gov.vn)\n  + Nguyễn Thành Long - Chuyên viên (Ban Tiếp Công dân tỉnh Gia Lai) (longnt@vpub.gialai.gov.vn)\n  + Phạm Văn Vinh - Chuyên viên (Ban Tiếp Công dân tỉnh Gia Lai) (vinhpv@vpub.gialai.gov.vn)\n  + Nay Sơng - Chuyên viên (Ban Tiếp Công dân tỉnh Gia Lai) (songn@vpub.gialai.gov.vn)\n  + Nguyễn Thị Diệu Hiền - Nhân viên phục vụ (Ban Tiếp Công dân tỉnh Gia Lai) (hienntd@vpub.gialai.gov.vn)\n  + Nguyễn Ngọc Trinh - Chuyên viên (Ban Tiếp Công dân tỉnh Gia Lai) (trinhnn@vpub.gialai.gov.vn)\n- Thiếu (3):\n  + UBND tỉnh Gia Lai\n  + Công an tỉnh Gia Lai\n  + Bộ Chỉ huy Quân sự tỉnh G..."
+      ]
+    ]
+  },
+  {
+    "range": "'Test 4 (Formatted)'!H920",
+    "majorDimension": "ROWS",
+    "values": [
+      [
+        "- Dư (21):\n  + Ban QLDA các công trình Giao thông và Dân dụng tỉnh Gia Lai (H21.40)\n  + Ban Quản lý các dự án đầu tư xây dựng tỉnh Gia Lai (H21.38)\n  + Phường Diên Hồng - tỉnh Gia Lai (H21.104)\n  + Xã Chư Prông - tỉnh Gia Lai (H21.117)\n  + Xã Chư Sê - tỉnh Gia Lai (H21.119)\n  + Xã Đak Sơmei - tỉnh Gia Lai (H21.124)\n  + Xã Ia Krái - tỉnh Gia Lai (H21.141)\n  + Xã Ia Pnôn - tỉnh Gia Lai (H21.152)\n  + Xã KDang - tỉnh Gia Lai (H21.160)\n  + Xã Kon Gang - tỉnh Gia Lai (H21.162)\n  + Xã Mang Yang - tỉnh Gia Lai (H21.167)\n  + UBND phường Quy Nhơn Nam - Tỉnh Gia Lai (H21.181)\n  + UBND xã An Nhơn Tây - Tỉnh Gia Lai (H21.189)\n  + UBND phường Hoài Nhơn Tây - Tỉnh Gia Lai (H21.196)\n  + UBND xã Phù Cát - Tỉnh Gia Lai (H21.199)\n  + UBND xã Ngô Mây - Tỉnh Gia Lai (H21.201)\n  + UBND xã Phù Mỹ Bắc- tỉnh Gia Lai (H21.212)\n  + UBND xã Tuy Phước - Tỉnh Gia Lai (H21.214)\n  + UBND Xã Kim Sơn - Tỉnh Gia Lai (H21.224)\n  + Xã Canh Vinh - Tỉnh Gia Lai (H21.228)\n  + Đảng ủy Ủy ban nhân dân tỉnh Gia Lai (A21.07)\n- Thiếu (3):\n  + Trưởng phòng N1 (Võ Văn Cảnh)\n  + Công an tỉnh Gia Lai\n  + UBND phường Ho..."
+      ]
+    ]
+  },
+  {
+    "range": "'Test 4 (Formatted)'!H1095",
+    "majorDimension": "ROWS",
+    "values": [
+      [
+        "- Dư (3):\n  + Sở Công Thương - tỉnh Gia Lai (H21.05)\n  + UBND xã Đề Gi - Tỉnh Gia Lai (H21.203)\n  + UBND xã An Lương - Tỉnh Gia Lai (H21.209)\n- Thiếu (1):\n  + Trưởng phòng N1 (Võ Văn Cảnh)"
+      ]
+    ]
+  },
+  {
+    "range": "'Test 4 (Formatted)'!H1609",
+    "majorDimension": "ROWS",
+    "values": [
+      [
+        "- Dư (21):\n  + Sở Nông nghiệp và Môi trường - tỉnh Gia Lai (H21.24)\n  + Xã Chơ Long - tỉnh Gia Lai (H21.113)\n  + Xã Chư Păh - tỉnh Gia Lai (H21.116)\n  + Xã Hra - tỉnh Gia Lai (H21.128)\n  + Xã Ia Boòng - tỉnh Gia Lai (H21.130)\n  + Xã Ia Pia - tỉnh Gia Lai (H21.151)\n  + Xã Ia Sao - tỉnh Gia Lai (H21.156)\n  + Xã Ia Tôr - tỉnh Gia Lai (H21.157)\n  + Xã Ia Tul - tỉnh Gia Lai (H21.158)\n  + Xã Kon Chiêng - tỉnh Gia Lai (H21.161)\n  + Xã Mang Yang - tỉnh Gia Lai (H21.167)\n  + Xã SRó - tỉnh Gia Lai (H21.172)\n  + UBND xã An Nhơn Tây - Tỉnh Gia Lai (H21.189)\n  + UBND xã Phù Mỹ Nam - Tỉnh Gia Lai (H21.208)\n  + UBND xã An Lương - Tỉnh Gia Lai (H21.209)\n  + UBND xã Tuy Phước Đông - Tỉnh Gia Lai (H21.216)\n  + UBND xã Bình Phú - Tỉnh Gia Lai (H21.219)\n  + UBND Xã An Lão - Tỉnh Gia Lai (H21.235)\n  + Ban Quản lý Khu kinh tế - tỉnh Gia Lai (H21.02)\n  + Sở Dân tộc và Tôn giáo - tỉnh Gia Lai (H21.01)\n  + Sở Tư pháp - tỉnh Gia Lai (H21.16)\n- Thiếu: Không"
+      ]
+    ]
+  },
+  {
+    "range": "'Test 4 (Formatted)'!H2238",
+    "majorDimension": "ROWS",
+    "values": [
+      [
+        "- Dư (1):\n  + UBND phường Hoài Nhơn Nam - Tỉnh Gia Lai (H21.193)\n- Thiếu (2):\n  + Trưởng phòng X1 (Nguyễn Cửu Quốc Dũng)\n  + ..."
+      ]
+    ]
+  },
+  {
+    "range": "'Test 4 (Formatted)'!H2623",
+    "majorDimension": "ROWS",
+    "values": [
+      [
+        "- Dư (13):\n  + Xã Biển Hồ - tỉnh Gia Lai (H21.111)\n  + Xã Ia Chía - tỉnh Gia Lai (H21.131)\n  + Xã Ia Dơk - tỉnh Gia Lai (H21.132)\n  + Xã Ia Nan - tỉnh Gia Lai (H21.147)\n  + Xã Phú Túc - tỉnh Gia Lai (H21.169)\n  + UBND xã An Nhơn Tây - Tỉnh Gia Lai (H21.189)\n  + UBND phường Hoài Nhơn Bắc - Tỉnh Gia Lai (H21.198)\n  + UBND xã Hòa Hội - tỉnh Gia Lai (H21.204)\n  + UBND xã Phù Mỹ Nam - Tỉnh Gia Lai (H21.208)\n  + UBND xã Tây Sơn - Tỉnh Gia Lai (H21.217)\n  + UBND xã Bình Khê - Tỉnh Gia Lai (H21.218)\n  + UBND xã Bình An - Tỉnh Gia Lai (H21.221)\n  + UBND Xã An Toàn - Tỉnh Gia Lai (H21.237)\n- Thiếu: Không"
+      ]
+    ]
+  },
+  {
+    "range": "'Test 4 (Formatted)'!H2820",
+    "majorDimension": "ROWS",
+    "values": [
+      [
+        "- Dư (1):\n  + Xã Ia Tôr - tỉnh Gia Lai (H21.157)\n- Thiếu (1):\n  + Trưởng phòng N1 (Võ Văn Cảnh)"
+      ]
+    ]
+  },
+  {
+    "range": "'Test 4 (Formatted)'!H3036",
+    "majorDimension": "ROWS",
+    "values": [
+      [
+        "- Dư (61):\n  + Bộ Chỉ huy Quân sự tỉnh Gia Lai (G11.12.006)\n  + Sở Nội vụ - tỉnh Gia Lai (H21.11)\n  + Sở Văn hóa, Thể thao và Du lịch - tỉnh Gia Lai (H21.17)\n  + Phường An Khê - tỉnh Gia Lai (H21.101)\n  + Phường An Phú - tỉnh Gia Lai (H21.102)\n  + Phường Pleiku - tỉnh Gia Lai (H21.106)\n  + Xã Albá - tỉnh Gia Lai (H21.108)\n  + Xã Bàu Cạn - tỉnh Gia Lai (H21.110)\n  + Xã Chơ Long - tỉnh Gia Lai (H21.113)\n  + Xã Đak Pơ - tỉnh Gia Lai (H21.122)\n  + Xã Ia Dreh - tỉnh Gia Lai (H21.135)\n  + Xã Ia Hrú - tỉnh Gia Lai (H21.137)\n  + Xã Ia Ko - tỉnh Gia Lai (H21.140)\n  + Xã Ia Krái - tỉnh Gia Lai (H21.141)\n  + Xã Ia Krêl - tỉnh Gia Lai (H21.142)\n  + Xã Ia O - tỉnh Gia Lai (H21.148)\n  + Xã Ia Sao - tỉnh Gia Lai (H21.156)\n  + Xã Ia Tul - tỉnh Gia Lai (H21.158)\n  + Xã Mang Yang - tỉnh Gia Lai (H21.167)\n  + Xã Pờ Tó - tỉnh Gia Lai (H21.170)\n  + Xã SRó - tỉnh Gia Lai (H21.172)\n  + Xã Tơ Tung - tỉnh Gia Lai (H21.173)\n  + Xã Ya Hội - tỉnh Gia Lai (H21.175)\n  + UBND phường Hoài Nhơn Tây - Tỉnh Gia Lai (H21.196)\n  + UBND xã Tuy Phước - Tỉnh Gia Lai (H21.214)\n  + UBND xã Tây Sơn - Tỉnh Gia Lai (H21.217)\n  + UBND xã Bình Khê - Tỉnh Gia Lai (H21.218)\n  + UBND Xã Ân Tường - Tỉnh Gia Lai (H21.223)\n  + UBND Xã Vân Canh -Tỉnh Gia Lai (H21.227)\n  + Trịnh Bảo Minh - Chuyên viên V2 (Phòng Khoa giáo Văn xã) (minhtb@vpub.gialai.gov.vn)\n  + Nguyễn Ngọc Nguyên - Trưởng phòng (Phòng Hành chính Tổ chức) (nguyennn@vpub.gialai.gov.vn)\n  + Nguyễn Tiến Mạnh - Phó Trưởng phòng (Phòng Hành chính Tổ chức) (manhnt@vpub.gialai.gov.vn)\n  + Huỳnh Thế Dịu - Chuyên viên (Phòng Hành chính Tổ chức) (diuht@vpub.gialai.gov.vn)\n  + Nguyễn Thị Minh Ngân - Chuyên viên (Phòng Hành chính Tổ chức) (nganntm@vpub.gialai.gov.vn)\n  + Võ Nguyễn Phương Tú - Chuyên viên (Phòng Hành chính Tổ chức) (tuvnp@vpub.gialai.gov.vn)\n  + Nguyễn Thị Kim Oanh - Chuyên viên (Phòng Hành chính Tổ chức) (oanhntk@vpub.gialai.gov.vn)\n  + Trần Thị Hồng Nhung - Chuyên viên (Phòng Hành chính Tổ chức) (nhungtth@vpub.gialai.gov.vn)\n  + Nguyễn Thị Lâm Anh - Chuyên viên T8 (Phòng Hành chính Tổ chức) (anhltn@vpub.gialai.gov.vn)\n  + Lê Nguyễn Ái Vy - Lưu trữ viên (Phòng Hành chính Tổ chức) (vylna@vpub.gialai.gov.vn)\n  + Trần Thị Như Thảo - Chuyên viên (Phòng Hành chính Tổ chức) (thaottn@vpub.gialai.gov.vn)\n  + Phan Thị Hà - Chuyên viên (Phòng Hành chính Tổ chức) (hapt@vpub.gialai.gov.vn)\n  + Trần Xuân Nhã Khuê - Chuyên viên (Phòng Hành chính Tổ chức) (khuetxn@vpub.gialai.gov.vn)\n  + Đỗ Thị Minh Trâm - Nhân viên (Phòng Hành chính Tổ chức) (tramdtm@vpub.gialai.gov.vn)\n  + Trần Minh Trung - Nhân viên (Phòng Hành chính Tổ chức) (trungtm@vpub.gialai.gov.vn)\n  + Nguyễn Trung Chiến - Trưởng phòng (Phòng Quản trị Tài vụ) (chiennt@vpub.gialai.gov.vn)\n  + Lâm Xuân Hoa - Kế toán (Phòng Quản trị Tài vụ) (hoalx@vpub.gialai.gov.vn)\n  + Nguyễn Thị Minh Tân - Chuyên viên (Phòng Quản trị Tài vụ) (tanntm@vpub.gialai.gov.vn)\n  + Võ Thị Lệ Thủy - Thủ quỹ (Phòng Quản trị Tài vụ) (thuyvtl@vpub.gialai.gov.vn)\n  + Trần Khánh Hưng - Chuyên viên (Phòng Quản trị Tài vụ) (hungtk@vpub.gialai.gov.vn)\n  + Phan Thị Vũ Phong - Chuyên viên (Phòng Quản trị Tài vụ) (phongptv@vpub.gialai.gov.vn)\n  + Nguyễn Thị Nguyệt Thu - Chuyên viên (Phòng Quản trị Tài vụ) (thuntn@vpub.gialai.gov.vn)\n  + Nguyễn Quốc Hà - Nhân viên (Phòng Quản trị Tài vụ) (hanq@vpub.gialai.gov.vn)\n  + Nhữ Minh Hoàng - Nhân viên (Phòng Quản trị Tài vụ) (hoangnm@vpub.gialai.gov.vn)\n  + Trương Hồ Hữu Trí - Nhân viên (Phòng Quản trị Tài vụ) (trithh@vpub.gialai.gov.vn)\n  + Võ Minh Cảnh - Phó Trưởng ban (Ban Tiếp Công dân tỉnh Gia Lai) (canhvm@vpub.gialai.gov.vn)\n  + Rơ Chăm Y Thịnh - Phó Trưởng ban (Ban Tiếp Công dân tỉnh Gia Lai) (thinhrcy@vpub.gialai.gov.vn)\n  + Nguyễn Thành Long - Chuyên viên (Ban Tiếp Công dân tỉnh Gia Lai) (longnt@vpub.gialai.gov.vn)\n  + Phạm Văn Vinh - Chuyên viên (Ban Tiếp Công dân tỉnh Gia Lai) (vinhpv@vpub.gialai.gov.vn)\n  + Nay Sơng - Chuyên viên (Ban Tiếp Công dân tỉnh Gia Lai) (songn@vpub.gialai.gov.vn)\n  + Nguyễn Thị Diệu Hiền - Nhân viên phục vụ (Ban Tiếp Công dân tỉnh Gia Lai) (hienntd@vpub.gialai.gov.vn)\n  + Nguyễn Ngọc Trinh - Chuyên viên (Ban Tiếp Công dân tỉnh Gia Lai) (trinhnn@vpub.gialai.gov.vn)\n- Thiếu: Không"
+      ]
+    ]
+  },
+  {
+    "range": "'Test 4 (Formatted)'!H3405",
+    "majorDimension": "ROWS",
+    "values": [
+      [
+        "- Dư (26):\n  + Ban Quản lý Dự án Nông nghiệp và Phát triển nông thôn tỉnh Gia Lai (H21.41)\n  + Trung tâm Phát triển Quỹ đất - tỉnh Gia Lai (H21.49)\n  + Sở Ngoại vụ - tỉnh Gia Lai (H21.26)\n  + Sở Văn hóa, Thể thao và Du lịch - tỉnh Gia Lai (H21.17)\n  + Thanh tra tỉnh Gia Lai (H21.20)\n  + Phường An Phú - tỉnh Gia Lai (H21.102)\n  + Phường Ayun Pa - tỉnh Gia Lai (H21.103)\n  + Phường Hội Phú - tỉnh Gia Lai (H21.105)\n  + Phường Thống Nhất - tỉnh Gia Lai (H21.107)\n  + Xã Biển Hồ - tỉnh Gia Lai (H21.111)\n  + Xã Chư A Thai - tỉnh Gia Lai (H21.114)\n  + Xã Chư Sê - tỉnh Gia Lai (H21.119)\n  + Xã Ia Boòng - tỉnh Gia Lai (H21.130)\n  + Xã Ia Nan - tỉnh Gia Lai (H21.147)\n  + Xã Ia Pa - tỉnh Gia Lai (H21.149)\n  + Xã Ia Phí - tỉnh Gia Lai (H21.150)\n  + Xã Kbang - tỉnh Gia Lai (H21.159)\n  + Xã Phú Thiện - tỉnh Gia Lai (H21.168)\n  + Xã Ya Ma - tỉnh Gia Lai (H21.176)\n  + UBND phường Hoài Nhơn Tây - Tỉnh Gia Lai (H21.196)\n  + UBND xã An Lương - Tỉnh Gia Lai (H21.209)\n  + UBND xã Tuy Phước - Tỉnh Gia Lai (H21.214)\n  + UBND xã Tây Sơn - Tỉnh Gia Lai (H21.217)\n  + UBND Xã Vạn Đức - Tỉnh Gia Lai (H21.225)\n  + UBND Xã Vân Canh -Tỉnh Gia Lai (H21.227)\n  + UBND Xã Canh Liên - Tỉnh Gia Lai (H21.229)\n- Thiếu (6):\n  + Trưởng phòng (Nguyễn Ngọc Nguyên)\n  + Phó Chánh Văn phòng, Thư ký Chủ tịch (Lê Huy Vũ)\n  + Vườn Quốc Gia Kon Ka Kinh - tỉnh Gia Lai\n  + Công an tỉnh Gia Lai\n  + Bộ Chỉ huy Quân sự tỉnh Gia Lai\n  + U..."
+      ]
+    ]
+  },
+  {
+    "range": "'Test 4 (Formatted)'!H3629",
+    "majorDimension": "ROWS",
+    "values": [
+      [
+        "- Dư (24):\n  + Ban Quản lý Khu kinh tế - tỉnh Gia Lai (H21.02)\n  + Phường Hội Phú - tỉnh Gia Lai (H21.105)\n  + Xã Bờ Ngoong - tỉnh Gia Lai (H21.112)\n  + Xã Đak Sơmei - tỉnh Gia Lai (H21.124)\n  + Xã Ia Dom - tỉnh Gia Lai (H21.133)\n  + Xã Ia Ly - tỉnh Gia Lai (H21.145)\n  + Xã Ia Mơ - tỉnh Gia Lai (H21.146)\n  + Xã Ia Púch - tỉnh Gia Lai (H21.153)\n  + Xã KDang - tỉnh Gia Lai (H21.160)\n  + Xã Pờ Tó - tỉnh Gia Lai (H21.170)\n  + Xã Sơn Lang - tỉnh Gia Lai (H21.171)\n  + Xã Uar - tỉnh Gia Lai (H21.174)\n  + UBND phường Quy Nhơn Đông - Tỉnh Gia Lai (H21.184)\n  + UBND xã Nhơn Châu - Tỉnh Gia Lai (H21.185)\n  + UBND phường Bình Định - Tỉnh Gia Lai (H21.186)\n  + UBND phường An Nhơn Nam - Tỉnh Gia Lai (H21.190)\n  + UBND phường Hoài Nhơn Bắc - Tỉnh Gia Lai (H21.198)\n  + UBND xã Phù Cát - Tỉnh Gia Lai (H21.199)\n  + UBND xã Cát Tiến - Tỉnh Gia Lai (H21.202)\n  + UBND xã Đề Gi - Tỉnh Gia Lai (H21.203)\n  + UBND xã Phù Mỹ Tây - Tỉnh Gia Lai (H21.207)\n  + UBND xã Bình Khê - Tỉnh Gia Lai (H21.218)\n  + UBND Xã Vĩnh Thạnh - Tỉnh Gia Lai (H21.230)\n  + UBND xã Vĩnh Sơn - Tinh Gia Lai (H21.233)\n- Thiếu (5):\n  + Trưởng phòng (Nguyễn Ngọc Nguyên)\n  + Chuyên viên (Trần Thị Như Thảo)\n  + Văn phòng UBND tỉnh Gia Lai\n  + Bộ Chỉ huy Quân sự tỉnh Gia Lai\n  + U..."
+      ]
+    ]
+  },
+  {
+    "range": "'Test 4 (Formatted)'!H3814",
+    "majorDimension": "ROWS",
+    "values": [
+      [
+        "- Dư (31):\n  + Sở Công Thương - tỉnh Gia Lai (H21.05)\n  + Sở Văn hóa, Thể thao và Du lịch - tỉnh Gia Lai (H21.17)\n  + Phường An Bình - tỉnh Gia Lai (H21.100)\n  + Phường An Khê - tỉnh Gia Lai (H21.101)\n  + Phường Diên Hồng - tỉnh Gia Lai (H21.104)\n  + Phường Hội Phú - tỉnh Gia Lai (H21.105)\n  + Xã Chơ Long - tỉnh Gia Lai (H21.113)\n  + Xã Đak Đoa - tỉnh Gia Lai (H21.121)\n  + Xã Đak Sơmei - tỉnh Gia Lai (H21.124)\n  + Xã Đức Cơ - tỉnh Gia Lai (H21.126)\n  + Xã Hra - tỉnh Gia Lai (H21.128)\n  + Xã Ia Hrú - tỉnh Gia Lai (H21.137)\n  + Xã Ia Ko - tỉnh Gia Lai (H21.140)\n  + Xã Ia Krái - tỉnh Gia Lai (H21.141)\n  + Xã Ia Le - tỉnh Gia Lai (H21.144)\n  + Xã Ia Ly - tỉnh Gia Lai (H21.145)\n  + Xã Ia Phí - tỉnh Gia Lai (H21.150)\n  + Xã Ia Tôr - tỉnh Gia Lai (H21.157)\n  + Xã Kbang - tỉnh Gia Lai (H21.159)\n  + Xã Phú Túc - tỉnh Gia Lai (H21.169)\n  + Xã Sơn Lang - tỉnh Gia Lai (H21.171)\n  + UBND phường An Nhơn Đông - Tỉnh Gia Lai (H21.188)\n  + UBND phường An Nhơn Nam - Tỉnh Gia Lai (H21.190)\n  + UBND phường Hoài Nhơn Tây - Tỉnh Gia Lai (H21.196)\n  + UBND xã An Lương - Tỉnh Gia Lai (H21.209)\n  + UBND xã Tây Sơn - Tỉnh Gia Lai (H21.217)\n  + UBND xã Bình Khê - Tỉnh Gia Lai (H21.218)\n  + UBND Xã Vân Canh -Tỉnh Gia Lai (H21.227)\n  + UBND Xã Canh Liên - Tỉnh Gia Lai (H21.229)\n  + Văn phòng Đoàn ĐBQH và HĐND tỉnh Gia Lai (K21)\n  + Lãnh đạo Văn phòng UBND tỉnh (Nội bộ UBND tỉnh)\n- Thiếu (8):\n  + Chánh Văn phòng UBND tỉnh (Nguyễn Xuân Vĩnh)\n  + Phó Chánh Văn phòng (Phan Đình Hải)\n  + Phó Chánh Văn phòng (Võ Gia Nghĩa)\n  + Phó Chánh Văn phòng (Trương Công Hoài)\n  + Phó Chánh Văn phòng (Trần Đình Triết)\n  + Phó Chánh Văn phòng, Thư ký Chủ tịch (Lê Huy Vũ)\n  + Trưởng phòng (Nguyễn Ngọc Nguyên)\n  + Trưởng phòng N1 (Võ Văn Cảnh)"
+      ]
+    ]
+  },
+  {
+    "range": "'Test 4 (Formatted)'!H4019",
+    "majorDimension": "ROWS",
+    "values": [
+      [
+        "- Dư (1):\n  + Cơ quan Ủy ban MTTQ Việt Nam tỉnh Gia Lai (A21.13)\n- Thiếu: Không"
+      ]
+    ]
+  },
+  {
+    "range": "'Test 4 (Formatted)'!H4378",
+    "majorDimension": "ROWS",
+    "values": [
+      [
+        "- Dư (22):\n  + Ban QLDA các công trình Giao thông và Dân dụng tỉnh Gia Lai (H21.40)\n  + Ban Quản lý Dự án Nông nghiệp và Phát triển nông thôn tỉnh Gia Lai (H21.41)\n  + Ban Quản lý các dự án đầu tư xây dựng tỉnh Gia Lai (H21.38)\n  + Trung tâm Phát triển Quỹ đất - tỉnh Gia Lai (H21.49)\n  + Sở Nông nghiệp và Môi trường - tỉnh Gia Lai (H21.24)\n  + Sở Tư pháp - tỉnh Gia Lai (H21.16)\n  + Sở Văn hóa, Thể thao và Du lịch - tỉnh Gia Lai (H21.17)\n  + Sở Xây dựng - tỉnh Gia Lai (H21.18)\n  + Phường Thống Nhất - tỉnh Gia Lai (H21.107)\n  + Xã Chư A Thai - tỉnh Gia Lai (H21.114)\n  + Xã Ia Ly - tỉnh Gia Lai (H21.145)\n  + UBND phường Quy Nhơn - Tỉnh Gia Lai (H21.180)\n  + UBND phường Quy Nhơn Bắc - Tỉnh Gia Lai (H21.182)\n  + UBND phường Quy Nhơn Đông - Tỉnh Gia Lai (H21.184)\n  + UBND xã Nhơn Châu - Tỉnh Gia Lai (H21.185)\n  + UBND phường Hoài Nhơn Tây - Tỉnh Gia Lai (H21.196)\n  + UBND phường Tam Quan - Tỉnh Gia Lai (H21.197)\n  + UBND phường Hoài Nhơn Bắc - Tỉnh Gia Lai (H21.198)\n  + UBND xã Phù Mỹ Tây - Tỉnh Gia Lai (H21.207)\n  + UBND xã Tuy Phước - Tỉnh Gia Lai (H21.214)\n  + Xã Canh Vinh - Tỉnh Gia Lai (H21.228)\n  + Văn phòng Đoàn ĐBQH và HĐND tỉnh Gia Lai (K21)\n- Thiếu (6):\n  + Trưởng phòng (Nguyễn Ngọc Nguyên)\n  + Trưởng phòng C1 (Hoàng Oanh)\n  + Văn phòng UBND tỉnh Gia Lai\n  + Bộ Chỉ huy Quân sự tỉnh Gia Lai\n  + Công an tỉnh Gia Lai\n  + UBND phường..."
+      ]
+    ]
+  },
+  {
+    "range": "'Test 4 (Formatted)'!H4558",
+    "majorDimension": "ROWS",
+    "values": [
+      [
+        "- Dư (22):\n  + Ban QLDA các công trình Giao thông và Dân dụng tỉnh Gia Lai (H21.40)\n  + Ban Quản lý Dự án Nông nghiệp và Phát triển nông thôn tỉnh Gia Lai (H21.41)\n  + Ban Quản lý Khu kinh tế - tỉnh Gia Lai (H21.02)\n  + Ban Quản lý các dự án đầu tư xây dựng tỉnh Gia Lai (H21.38)\n  + Trung tâm Phát triển Quỹ đất - tỉnh Gia Lai (H21.49)\n  + Sở Dân tộc và Tôn giáo - tỉnh Gia Lai (H21.01)\n  + Sở Xây dựng - tỉnh Gia Lai (H21.18)\n  + Sở Y tế - tỉnh Gia Lai (H21.19)\n  + Thanh tra tỉnh Gia Lai (H21.20)\n  + Phường Hội Phú - tỉnh Gia Lai (H21.105)\n  + Xã Albá - tỉnh Gia Lai (H21.108)\n  + Xã Biển Hồ - tỉnh Gia Lai (H21.111)\n  + Xã Đak Pơ - tỉnh Gia Lai (H21.122)\n  + Xã Ia Mơ - tỉnh Gia Lai (H21.146)\n  + Xã Phú Thiện - tỉnh Gia Lai (H21.168)\n  + UBND phường Tam Quan - Tỉnh Gia Lai (H21.197)\n  + UBND phường Hoài Nhơn Bắc - Tỉnh Gia Lai (H21.198)\n  + UBND xã Phù Cát - Tỉnh Gia Lai (H21.199)\n  + UBND Xã Kim Sơn - Tỉnh Gia Lai (H21.224)\n  + UBND Xã Ân Hảo - Tỉnh Gia Lai (H21.226)\n  + UBND Xã An Hòa - Tinh Gia Lai (H21.234)\n  + Cơ quan Ủy ban MTTQ Việt Nam tỉnh Gia Lai (A21.13)\n- Thiếu (4):\n  + Trưởng phòng C1 (Hoàng Oanh)\n  + Công an tỉnh Gia Lai\n  + Bộ Chỉ huy Quân sự tỉnh Gia Lai\n  + Phường Hội..."
+      ]
+    ]
+  },
+  {
+    "range": "'Test 4 (Formatted)'!H4746",
+    "majorDimension": "ROWS",
+    "values": [
+      [
+        "- Dư (3):\n  + Xã Chư Pưh - tỉnh Gia Lai (H21.118)\n  + Xã Ia Khươl - tỉnh Gia Lai (H21.139)\n  + UBND phường Quy Nhơn - Tỉnh Gia Lai (H21.180)\n- Thiếu (2):\n  + Trưởng phòng X1 (Nguyễn Cửu Quốc Dũng)\n  + Xã Chư Pưh - t..."
+      ]
+    ]
+  },
+  {
+    "range": "'Test 4 (Formatted)'!H5062",
+    "majorDimension": "ROWS",
+    "values": [
+      [
+        "- Dư (23):\n  + Trung tâm Phát triển Quỹ đất - tỉnh Gia Lai (H21.49)\n  + Sở Dân tộc và Tôn giáo - tỉnh Gia Lai (H21.01)\n  + Sở Nông nghiệp và Môi trường - tỉnh Gia Lai (H21.24)\n  + Phường Hội Phú - tỉnh Gia Lai (H21.105)\n  + Xã Bờ Ngoong - tỉnh Gia Lai (H21.112)\n  + Xã Đăk Song - tỉnh Gia Lai (H21.125)\n  + Xã Ia Dom - tỉnh Gia Lai (H21.133)\n  + Xã Ia Le - tỉnh Gia Lai (H21.144)\n  + Xã Kông Chro - tỉnh Gia Lai (H21.164)\n  + Xã Phú Thiện - tỉnh Gia Lai (H21.168)\n  + Xã Pờ Tó - tỉnh Gia Lai (H21.170)\n  + UBND phường Bình Định - Tỉnh Gia Lai (H21.186)\n  + UBND phường Hoài Nhơn Đông - Tỉnh Gia Lai (H21.194)\n  + UBND xã Cát Tiến - Tỉnh Gia Lai (H21.202)\n  + UBND xã Đề Gi - Tỉnh Gia Lai (H21.203)\n  + UBND xã Bình Khê - Tỉnh Gia Lai (H21.218)\n  + UBND xã Hoài Ân - Tỉnh Gia Lai (H21.222)\n  + UBND Xã Ân Tường - Tỉnh Gia Lai (H21.223)\n  + UBND Xã Kim Sơn - Tỉnh Gia Lai (H21.224)\n  + UBND Xã Vĩnh Thạnh - Tỉnh Gia Lai (H21.230)\n  + UBND Xã An Lão - Tỉnh Gia Lai (H21.235)\n  + UBND Xã An Vinh - Tỉnh Gia Lai (H21.236)\n  + Nguyễn Xuân Vĩnh - Chánh Văn phòng UBND tỉnh (Lãnh đạo Văn phòng UBND tỉnh) (vinhnx@vpub.gialai.gov.vn)\n- Thiếu (4):\n  + Trưởng phòng C1 (Hoàng Oanh)\n  + Phó Chánh Văn phòng (Võ Gia Nghĩa)\n  + Bộ Chỉ huy Quân sự tỉnh Gia Lai\n  + Xã Kông Chro - tỉnh Gia L..."
+      ]
+    ]
+  },
+  {
+    "range": "'Test 4 (Formatted)'!H5499",
+    "majorDimension": "ROWS",
+    "values": [
+      [
+        "- Dư (3):\n  + Xã Ia Khươl - tỉnh Gia Lai (H21.139)\n  + Xã Ia Pia - tỉnh Gia Lai (H21.151)\n  + UBND xã Hòa Hội - tỉnh Gia Lai (H21.204)\n- Thiếu (2):\n  + Trưởng phòng X1 (Nguyễn Cửu Quốc Dũng)\n  + UBND xã ..."
+      ]
+    ]
+  },
+  {
+    "range": "'Test 4 (Formatted)'!H5701",
+    "majorDimension": "ROWS",
+    "values": [
+      [
+        "- Dư (23):\n  + Ban QLDA các công trình Giao thông và Dân dụng tỉnh Gia Lai (H21.40)\n  + Sở Dân tộc và Tôn giáo - tỉnh Gia Lai (H21.01)\n  + Sở Tài chính - tỉnh Gia Lai (H21.13)\n  + Sở Xây dựng - tỉnh Gia Lai (H21.18)\n  + Sở Y tế - tỉnh Gia Lai (H21.19)\n  + Phường An Khê - tỉnh Gia Lai (H21.101)\n  + Xã Cửu An - tỉnh Gia Lai (H21.120)\n  + Xã Đăk Song - tỉnh Gia Lai (H21.125)\n  + Xã Ia Băng - tỉnh Gia Lai (H21.129)\n  + Xã Ia Dơk - tỉnh Gia Lai (H21.132)\n  + Xã Ia Krái - tỉnh Gia Lai (H21.141)\n  + Xã Ia Le - tỉnh Gia Lai (H21.144)\n  + Xã Ia Mơ - tỉnh Gia Lai (H21.146)\n  + Xã Ya Hội - tỉnh Gia Lai (H21.175)\n  + UBND phường Quy Nhơn Nam - Tỉnh Gia Lai (H21.181)\n  + UBND phường Quy Nhơn Bắc - Tỉnh Gia Lai (H21.182)\n  + UBND phường Bình Định - Tỉnh Gia Lai (H21.186)\n  + UBND xã Đề Gi - Tỉnh Gia Lai (H21.203)\n  + UBND xã Bình An - Tỉnh Gia Lai (H21.221)\n  + UBND xã Hoài Ân - Tỉnh Gia Lai (H21.222)\n  + UBND Xã Vĩnh Thịnh - Tỉnh Gia Lai (H21.231)\n  + UBND Xã An Toàn - Tỉnh Gia Lai (H21.237)\n  + Bộ Tư Pháp (G15)\n- Thiếu (3):\n  + Trưởng phòng C1 (Hoàng Oanh)\n  + Bộ Chỉ huy Quân sự tỉnh Gia Lai\n  + Xã Ia Krái - tỉnh Gia Lai..."
+      ]
+    ]
+  },
+  {
+    "range": "'Test 4 (Formatted)'!H5867",
+    "majorDimension": "ROWS",
+    "values": [
+      [
+        "- Dư (2):\n  + Xã Chơ Long - tỉnh Gia Lai (H21.113)\n  + UBND Xã Vĩnh Thạnh - Tỉnh Gia Lai (H21.230)\n- Thiếu (30):\n  + Chuyên viên (Võ Hương Ly)\n  + Chuyên viên (Nguyễn Thị Kim Thi)\n  + Chuyên viên (Nguyễn Thị Kim Châu)\n  + Chuyên viên (Lê Tấn Tài)\n  + Chuyên viên (Phạm Thị Lệ)\n  + Chuyên viên (Đinh Thị Thu Hồng)\n  + Chuyên viên (Nguyễn Thị Kim Loan)\n  + Chuyên viên (Trịnh Thị Ngọc Minh)\n  + Chuyên viên (Hoàng Thị Thảo)\n  + Chuyên viên (Châu Hải Duy Nghĩa)\n  + Chuyên viên (Lê Thị Tuyết)\n  + Chuyên viên (Nguyễn Văn Hiệp)\n  + Chuyên viên (Trần Nguyễn Ngọc Thanh)\n  + Chuyên viên (Phạm Hoàng Lâm)\n  + Chuyên viên V2 (Trịnh Bảo Minh)\n  + Giám đốc (TT) (Lê Dũng Linh)\n  + Kế toán (Lê Thị Hồng Hoa)\n  + Nhân viên (Lê Nguyễn Danh Phương)\n  + Nhân viên (Lê Thị Hà)\n  + Nhân viên (Nguyễn Văn Nhân)\n  + Phó Giám đốc (Đặng Hoài Vinh)\n  + Phó Giám đốc (Đặng Trung Du)\n  + Phó Giám đốc (Trần Thị Thu Lượng)\n  + Phó Giám đốc (Lê Thị Thuỳ Trang)\n  + Phó Giám đốc (Đặng Xuân Thoại)\n  + Phó Giám đốc (Nguyễn Ngọc Chính)\n  + Trưởng phòng (Nguyễn Thị Thanh Trà)\n  + Trưởng phòng (Nguyễn Văn Phong)\n  + Trưởng phòng (Nguyễn Quốc Hưng)\n  + UBND Xã Vĩnh Thạnh - Tỉnh Gia..."
+      ]
+    ]
+  },
+  {
+    "range": "'Test 4 (Formatted)'!H6154",
+    "majorDimension": "ROWS",
+    "values": [
+      [
+        "- Dư (20):\n  + Ban QLDA các công trình Giao thông và Dân dụng tỉnh Gia Lai (H21.40)\n  + Ban Quản lý Dự án Nông nghiệp và Phát triển nông thôn tỉnh Gia Lai (H21.41)\n  + Ban Quản lý Khu kinh tế - tỉnh Gia Lai (H21.02)\n  + Ban Quản lý các dự án đầu tư xây dựng tỉnh Gia Lai (H21.38)\n  + Trung tâm Phát triển Quỹ đất - tỉnh Gia Lai (H21.49)\n  + Sở Công Thương - tỉnh Gia Lai (H21.05)\n  + Sở Dân tộc và Tôn giáo - tỉnh Gia Lai (H21.01)\n  + Sở Giáo dục và Đào tạo - tỉnh Gia Lai (H21.06)\n  + Sở Khoa học và Công nghệ - tỉnh Gia Lai (H21.09)\n  + Sở Ngoại vụ - tỉnh Gia Lai (H21.26)\n  + Sở Nông nghiệp và Môi trường - tỉnh Gia Lai (H21.24)\n  + Sở Nội vụ - tỉnh Gia Lai (H21.11)\n  + Sở Tài chính - tỉnh Gia Lai (H21.13)\n  + Sở Tư pháp - tỉnh Gia Lai (H21.16)\n  + Sở Văn hóa, Thể thao và Du lịch - tỉnh Gia Lai (H21.17)\n  + Sở Xây dựng - tỉnh Gia Lai (H21.18)\n  + Sở Y tế - tỉnh Gia Lai (H21.19)\n  + Thanh tra tỉnh Gia Lai (H21.20)\n  + Xã Ia Dom - tỉnh Gia Lai (H21.133)\n  + Xã Ia Rbol - tỉnh Gia Lai (H21.154)\n- Thiếu (1):\n  + Xã..."
+      ]
+    ]
+  },
+  {
+    "range": "'Test 4 (Formatted)'!H6628",
+    "majorDimension": "ROWS",
+    "values": [
+      [
+        "- Dư (5):\n  + Thống kê tỉnh Gia Lai (G12.99.61)\n  + Cơ quan Ủy ban MTTQ Việt Nam tỉnh Gia Lai (A21.13)\n  + Xã Cửu An - tỉnh Gia Lai (H21.120)\n  + UBND xã Nhơn Châu - Tỉnh Gia Lai (H21.185)\n  + UBND Xã Vĩnh Thịnh - Tỉnh Gia Lai (H21.231)\n- Thiếu (2):\n  + Chi cục thống kê tỉnh Gia Lai\n  + Cơ quan ..."
+      ]
+    ]
+  },
+  {
+    "range": "'Test 4 (Formatted)'!H6905",
+    "majorDimension": "ROWS",
+    "values": [
+      [
+        "- Dư (32):\n  + Công an tỉnh Gia Lai (G01.035.000.000)\n  + Sở Giáo dục và Đào tạo - tỉnh Gia Lai (H21.06)\n  + Sở Y tế - tỉnh Gia Lai (H21.19)\n  + Phường Diên Hồng - tỉnh Gia Lai (H21.104)\n  + Xã Cửu An - tỉnh Gia Lai (H21.120)\n  + Xã Ia Băng - tỉnh Gia Lai (H21.129)\n  + Xã Ia Boòng - tỉnh Gia Lai (H21.130)\n  + Xã Ia Hrú - tỉnh Gia Lai (H21.137)\n  + Xã Ia Krêl - tỉnh Gia Lai (H21.142)\n  + Xã Ia O - tỉnh Gia Lai (H21.148)\n  + Xã Ia Pa - tỉnh Gia Lai (H21.149)\n  + Xã Ia Phí - tỉnh Gia Lai (H21.150)\n  + Xã Ia Púch - tỉnh Gia Lai (H21.153)\n  + Xã Kbang - tỉnh Gia Lai (H21.159)\n  + Xã KDang - tỉnh Gia Lai (H21.160)\n  + Xã Kông Bơ La - tỉnh Gia Lai (H21.163)\n  + Xã Uar - tỉnh Gia Lai (H21.174)\n  + Xã Ya Hội - tỉnh Gia Lai (H21.175)\n  + Xã Ya Ma - tỉnh Gia Lai (H21.176)\n  + UBND phường Quy Nhơn Nam - Tỉnh Gia Lai (H21.181)\n  + UBND phường Quy Nhơn Tây - Tỉnh Gia Lai (H21.183)\n  + UBND xã Nhơn Châu - Tỉnh Gia Lai (H21.185)\n  + UBND phường An Nhơn - Tỉnh Gia Lai (H21.187)\n  + UBND phường Hoài Nhơn Nam - Tỉnh Gia Lai (H21.193)\n  + UBND xã Phù Mỹ - Tỉnh Gia Lai (H21.206)\n  + UBND xã Phù Mỹ Đông - Tỉnh Gia Lai (H21.210)\n  + UBND xã Tuy Phước - Tỉnh Gia Lai (H21.214)\n  + UBND xã Tuy Phước Đông - Tỉnh Gia Lai (H21.216)\n  + UBND xã Hoài Ân - Tỉnh Gia Lai (H21.222)\n  + UBND Xã Vân Canh -Tỉnh Gia Lai (H21.227)\n  + UBND xã Vĩnh Sơn - Tinh Gia Lai (H21.233)\n  + UBND Xã An Hòa - Tinh Gia Lai (H21.234)\n- Thiếu (6):\n  + Trưởng phòng (Nguyễn Ngọc Nguyên)\n  + Phó Trưởng phòng (Nguyễn Tiến Mạnh)\n  + Trưởng phòng C1 (Hoàng Oanh)\n  + Văn phòng UBND tỉnh Gia Lai\n  + Bộ Công an\n  + UBND Xã ..."
+      ]
+    ]
+  },
+  {
+    "range": "'Test 4 (Formatted)'!H7085",
+    "majorDimension": "ROWS",
+    "values": [
+      [
+        "- Dư (4):\n  + Xã Đăk Song - tỉnh Gia Lai (H21.125)\n  + UBND xã Phù Cát - Tỉnh Gia Lai (H21.199)\n  + UBND xã Tuy Phước Bắc - Tỉnh Gia Lai (H21.215)\n  + Lãnh đạo Văn phòng UBND tỉnh (Nội bộ UBND tỉnh)\n- Thiếu (8):\n  + Chánh Văn phòng UBND tỉnh (Nguyễn Xuân Vĩnh)\n  + Phó Chánh Văn phòng (Phan Đình Hải)\n  + Phó Chánh Văn phòng (Võ Gia Nghĩa)\n  + Phó Chánh Văn phòng (Trương Công Hoài)\n  + Phó Chánh Văn phòng (Trần Đình Triết)\n  + Phó Chánh Văn phòng, Thư ký Chủ tịch (Lê Huy Vũ)\n  + Trưởng phòng N1 (Võ Văn Cảnh)\n  + UBND xã T..."
+      ]
+    ]
+  },
+  {
+    "range": "'Test 4 (Formatted)'!H7266",
+    "majorDimension": "ROWS",
+    "values": [
+      [
+        "- Dư (23):\n  + Ban QLDA các công trình Giao thông và Dân dụng tỉnh Gia Lai (H21.40)\n  + Ban Quản lý các dự án đầu tư xây dựng tỉnh Gia Lai (H21.38)\n  + Sở Công Thương - tỉnh Gia Lai (H21.05)\n  + Sở Dân tộc và Tôn giáo - tỉnh Gia Lai (H21.01)\n  + Sở Tài chính - tỉnh Gia Lai (H21.13)\n  + Phường An Khê - tỉnh Gia Lai (H21.101)\n  + Xã Chư Păh - tỉnh Gia Lai (H21.116)\n  + Xã Gào - tỉnh Gia Lai (H21.127)\n  + Xã Ia Chía - tỉnh Gia Lai (H21.131)\n  + Xã Ia Krái - tỉnh Gia Lai (H21.141)\n  + Xã Ia Lâu - tỉnh Gia Lai (H21.143)\n  + Xã Ia Púch - tỉnh Gia Lai (H21.153)\n  + Xã Ia Tôr - tỉnh Gia Lai (H21.157)\n  + Xã Kon Chiêng - tỉnh Gia Lai (H21.161)\n  + UBND phường Quy Nhơn - Tỉnh Gia Lai (H21.180)\n  + UBND xã Nhơn Châu - Tỉnh Gia Lai (H21.185)\n  + UBND phường Hoài Nhơn - Tỉnh Gia Lai (H21.195)\n  + UBND xã Xuân An - Tỉnh Gia Lai (H21.200)\n  + UBND xã Đề Gi - Tỉnh Gia Lai (H21.203)\n  + UBND xã Phù Mỹ Đông - Tỉnh Gia Lai (H21.210)\n  + UBND xã Tuy Phước Tây - Tỉnh Gia Lai (H21.213)\n  + UBND Xã Vĩnh Thạnh - Tỉnh Gia Lai (H21.230)\n  + Lãnh đạo Văn phòng UBND tỉnh (Nội bộ UBND tỉnh)\n- Thiếu (10):\n  + Chánh Văn phòng UBND tỉnh (Nguyễn Xuân Vĩnh)\n  + Phó Chánh Văn phòng (Phan Đình Hải)\n  + Phó Chánh Văn phòng (Võ Gia Nghĩa)\n  + Phó Chánh Văn phòng (Trương Công Hoài)\n  + Phó Chánh Văn phòng (Trần Đình Triết)\n  + Phó Chánh Văn phòng, Thư ký Chủ tịch (Lê Huy Vũ)\n  + Trưởng phòng C1 (Hoàng Oanh)\n  + Công an tỉnh Gia Lai\n  + Bộ Chỉ huy Quân sự tỉnh Gia Lai\n  + Phường..."
+      ]
+    ]
+  },
+  {
+    "range": "'Test 4 (Formatted)'!H7590",
+    "majorDimension": "ROWS",
+    "values": [
+      [
+        "- Dư (23):\n  + Sở Công Thương - tỉnh Gia Lai (H21.05)\n  + Sở Giáo dục và Đào tạo - tỉnh Gia Lai (H21.06)\n  + Sở Nội vụ - tỉnh Gia Lai (H21.11)\n  + Phường An Phú - tỉnh Gia Lai (H21.102)\n  + Phường Thống Nhất - tỉnh Gia Lai (H21.107)\n  + Xã Đak Pơ - tỉnh Gia Lai (H21.122)\n  + Xã Đak Rong - tỉnh Gia Lai (H21.123)\n  + Xã Gào - tỉnh Gia Lai (H21.127)\n  + Xã Hra - tỉnh Gia Lai (H21.128)\n  + Xã Ia Khươl - tỉnh Gia Lai (H21.139)\n  + Xã Ia Krái - tỉnh Gia Lai (H21.141)\n  + Xã Ia Mơ - tỉnh Gia Lai (H21.146)\n  + Xã Ia Nan - tỉnh Gia Lai (H21.147)\n  + Xã Ia Phí - tỉnh Gia Lai (H21.150)\n  + Xã Ia Rsai - tỉnh Gia Lai (H21.155)\n  + Xã Krong - tỉnh Gia Lai (H21.165)\n  + Xã Phú Túc - tỉnh Gia Lai (H21.169)\n  + UBND phường Quy Nhơn - Tỉnh Gia Lai (H21.180)\n  + UBND phường An Nhơn - Tỉnh Gia Lai (H21.187)\n  + UBND phường Hoài Nhơn Đông - Tỉnh Gia Lai (H21.194)\n  + UBND xã Hội Sơn - Tỉnh Gia Lai (H21.205)\n  + UBND xã Bình Phú - Tỉnh Gia Lai (H21.219)\n  + UBND Xã Vĩnh Thịnh - Tỉnh Gia Lai (H21.231)\n- Thiếu (1):\n  + Ph..."
+      ]
+    ]
+  },
+  {
+    "range": "'Test 4 (Formatted)'!H7836",
+    "majorDimension": "ROWS",
+    "values": [
+      [
+        "- Dư (6):\n  + Xã Đak Đoa - tỉnh Gia Lai (H21.121)\n  + Xã Đức Cơ - tỉnh Gia Lai (H21.126)\n  + UBND phường An Nhơn - Tỉnh Gia Lai (H21.187)\n  + UBND xã Phù Mỹ - Tỉnh Gia Lai (H21.206)\n  + UBND xã Phù Mỹ Nam - Tỉnh Gia Lai (H21.208)\n  + UBND xã Tây Sơn - Tỉnh Gia Lai (H21.217)\n- Thiếu (2):\n  + Trưởng phòng C1 (Hoàng Oanh)\n  + UBND ..."
+      ]
+    ]
+  },
+  {
+    "range": "'Test 4 (Formatted)'!H8017",
+    "majorDimension": "ROWS",
+    "values": [
+      [
+        "- Dư (51):\n  + Phường An Khê - tỉnh Gia Lai (H21.101)\n  + Xã Albá - tỉnh Gia Lai (H21.108)\n  + Xã Chư A Thai - tỉnh Gia Lai (H21.114)\n  + Xã Gào - tỉnh Gia Lai (H21.127)\n  + Xã Ia Pia - tỉnh Gia Lai (H21.151)\n  + Xã Lơ Pang - tỉnh Gia Lai (H21.166)\n  + Xã Phú Túc - tỉnh Gia Lai (H21.169)\n  + Xã Uar - tỉnh Gia Lai (H21.174)\n  + Xã Ya Hội - tỉnh Gia Lai (H21.175)\n  + UBND phường Hoài Nhơn Nam - Tỉnh Gia Lai (H21.193)\n  + UBND phường Hoài Nhơn Đông - Tỉnh Gia Lai (H21.194)\n  + UBND xã Hòa Hội - tỉnh Gia Lai (H21.204)\n  + UBND xã Phù Mỹ - Tỉnh Gia Lai (H21.206)\n  + UBND xã Phù Mỹ Nam - Tỉnh Gia Lai (H21.208)\n  + UBND xã Phù Mỹ Đông - Tỉnh Gia Lai (H21.210)\n  + UBND xã Bình Dương - Tỉnh Gia Lai (H21.211)\n  + Sở Khoa học và Công nghệ - tỉnh Gia Lai (H21.09)\n  + Sở Ngoại vụ - tỉnh Gia Lai (H21.26)\n  + Sở Nội vụ - tỉnh Gia Lai (H21.11)\n  + Trịnh Bảo Minh - Chuyên viên V2 (Phòng Khoa giáo Văn xã) (minhtb@vpub.gialai.gov.vn)\n  + Nguyễn Ngọc Nguyên - Trưởng phòng (Phòng Hành chính Tổ chức) (nguyennn@vpub.gialai.gov.vn)\n  + Nguyễn Tiến Mạnh - Phó Trưởng phòng (Phòng Hành chính Tổ chức) (manhnt@vpub.gialai.gov.vn)\n  + Huỳnh Thế Dịu - Chuyên viên (Phòng Hành chính Tổ chức) (diuht@vpub.gialai.gov.vn)\n  + Nguyễn Thị Minh Ngân - Chuyên viên (Phòng Hành chính Tổ chức) (nganntm@vpub.gialai.gov.vn)\n  + Võ Nguyễn Phương Tú - Chuyên viên (Phòng Hành chính Tổ chức) (tuvnp@vpub.gialai.gov.vn)\n  + Nguyễn Thị Kim Oanh - Chuyên viên (Phòng Hành chính Tổ chức) (oanhntk@vpub.gialai.gov.vn)\n  + Trần Thị Hồng Nhung - Chuyên viên (Phòng Hành chính Tổ chức) (nhungtth@vpub.gialai.gov.vn)\n  + Nguyễn Thị Lâm Anh - Chuyên viên T8 (Phòng Hành chính Tổ chức) (anhltn@vpub.gialai.gov.vn)\n  + Lê Nguyễn Ái Vy - Lưu trữ viên (Phòng Hành chính Tổ chức) (vylna@vpub.gialai.gov.vn)\n  + Trần Thị Như Thảo - Chuyên viên (Phòng Hành chính Tổ chức) (thaottn@vpub.gialai.gov.vn)\n  + Phan Thị Hà - Chuyên viên (Phòng Hành chính Tổ chức) (hapt@vpub.gialai.gov.vn)\n  + Trần Xuân Nhã Khuê - Chuyên viên (Phòng Hành chính Tổ chức) (khuetxn@vpub.gialai.gov.vn)\n  + Đỗ Thị Minh Trâm - Nhân viên (Phòng Hành chính Tổ chức) (tramdtm@vpub.gialai.gov.vn)\n  + Trần Minh Trung - Nhân viên (Phòng Hành chính Tổ chức) (trungtm@vpub.gialai.gov.vn)\n  + Nguyễn Trung Chiến - Trưởng phòng (Phòng Quản trị Tài vụ) (chiennt@vpub.gialai.gov.vn)\n  + Lâm Xuân Hoa - Kế toán (Phòng Quản trị Tài vụ) (hoalx@vpub.gialai.gov.vn)\n  + Nguyễn Thị Minh Tân - Chuyên viên (Phòng Quản trị Tài vụ) (tanntm@vpub.gialai.gov.vn)\n  + Võ Thị Lệ Thủy - Thủ quỹ (Phòng Quản trị Tài vụ) (thuyvtl@vpub.gialai.gov.vn)\n  + Trần Khánh Hưng - Chuyên viên (Phòng Quản trị Tài vụ) (hungtk@vpub.gialai.gov.vn)\n  + Phan Thị Vũ Phong - Chuyên viên (Phòng Quản trị Tài vụ) (phongptv@vpub.gialai.gov.vn)\n  + Nguyễn Thị Nguyệt Thu - Chuyên viên (Phòng Quản trị Tài vụ) (thuntn@vpub.gialai.gov.vn)\n  + Nguyễn Quốc Hà - Nhân viên (Phòng Quản trị Tài vụ) (hanq@vpub.gialai.gov.vn)\n  + Nhữ Minh Hoàng - Nhân viên (Phòng Quản trị Tài vụ) (hoangnm@vpub.gialai.gov.vn)\n  + Trương Hồ Hữu Trí - Nhân viên (Phòng Quản trị Tài vụ) (trithh@vpub.gialai.gov.vn)\n  + Võ Minh Cảnh - Phó Trưởng ban (Ban Tiếp Công dân tỉnh Gia Lai) (canhvm@vpub.gialai.gov.vn)\n  + Rơ Chăm Y Thịnh - Phó Trưởng ban (Ban Tiếp Công dân tỉnh Gia Lai) (thinhrcy@vpub.gialai.gov.vn)\n  + Nguyễn Thành Long - Chuyên viên (Ban Tiếp Công dân tỉnh Gia Lai) (longnt@vpub.gialai.gov.vn)\n  + Phạm Văn Vinh - Chuyên viên (Ban Tiếp Công dân tỉnh Gia Lai) (vinhpv@vpub.gialai.gov.vn)\n  + Nay Sơng - Chuyên viên (Ban Tiếp Công dân tỉnh Gia Lai) (songn@vpub.gialai.gov.vn)\n  + Nguyễn Thị Diệu Hiền - Nhân viên phục vụ (Ban Tiếp Công dân tỉnh Gia Lai) (hienntd@vpub.gialai.gov.vn)\n  + Nguyễn Ngọc Trinh - Chuyên viên (Ban Tiếp Công dân tỉnh Gia Lai) (trinhnn@vpub.gialai.gov.vn)\n- Thiếu (1):\n  + UBND..."
+      ]
+    ]
+  },
+  {
+    "range": "'Test 4 (Formatted)'!H8902",
+    "majorDimension": "ROWS",
+    "values": [
+      [
+        "- Dư (6):\n  + Xã Đak Pơ - tỉnh Gia Lai (H21.122)\n  + Xã Hra - tỉnh Gia Lai (H21.128)\n  + Xã Ia Le - tỉnh Gia Lai (H21.144)\n  + Xã Kông Bơ La - tỉnh Gia Lai (H21.163)\n  + Xã SRó - tỉnh Gia Lai (H21.172)\n  + UBND Xã An Hòa - Tinh Gia Lai (H21.234)\n- Thiếu (1):\n  + Xã ..."
+      ]
+    ]
+  },
+  {
+    "range": "'Test 4 (Formatted)'!H9334",
+    "majorDimension": "ROWS",
+    "values": [
+      [
+        "- Dư (3):\n  + Xã Chư Prông - tỉnh Gia Lai (H21.117)\n  + Xã Ya Ma - tỉnh Gia Lai (H21.176)\n  + UBND phường Hoài Nhơn Bắc - Tỉnh Gia Lai (H21.198)\n- Thiếu (2):\n  + Trưởng phòng X1 (Nguyễn Cửu Quốc Dũng)\n  + UBND phường Hoài N..."
+      ]
+    ]
+  },
+  {
+    "range": "'Test 4 (Formatted)'!H9673",
+    "majorDimension": "ROWS",
+    "values": [
+      [
+        "- Dư (24):\n  + Ban Quản lý Khu kinh tế - tỉnh Gia Lai (H21.02)\n  + Sở Nông nghiệp và Môi trường - tỉnh Gia Lai (H21.24)\n  + Sở Tài chính - tỉnh Gia Lai (H21.13)\n  + Xã Bàu Cạn - tỉnh Gia Lai (H21.110)\n  + Xã Bờ Ngoong - tỉnh Gia Lai (H21.112)\n  + Xã Đak Đoa - tỉnh Gia Lai (H21.121)\n  + Xã Ia Dreh - tỉnh Gia Lai (H21.135)\n  + Xã Ia Lâu - tỉnh Gia Lai (H21.143)\n  + Xã Ia Pa - tỉnh Gia Lai (H21.149)\n  + Xã Ia Rbol - tỉnh Gia Lai (H21.154)\n  + Xã Kông Chro - tỉnh Gia Lai (H21.164)\n  + Xã Krong - tỉnh Gia Lai (H21.165)\n  + Xã Lơ Pang - tỉnh Gia Lai (H21.166)\n  + Xã Sơn Lang - tỉnh Gia Lai (H21.171)\n  + Xã Tơ Tung - tỉnh Gia Lai (H21.173)\n  + UBND phường Quy Nhơn Nam - Tỉnh Gia Lai (H21.181)\n  + UBND phường An Nhơn Đông - Tỉnh Gia Lai (H21.188)\n  + UBND xã Xuân An - Tỉnh Gia Lai (H21.200)\n  + UBND xã Đề Gi - Tỉnh Gia Lai (H21.203)\n  + UBND xã Tuy Phước Đông - Tỉnh Gia Lai (H21.216)\n  + UBND xã Tây Sơn - Tỉnh Gia Lai (H21.217)\n  + UBND Xã Ân Tường - Tỉnh Gia Lai (H21.223)\n  + Xã Canh Vinh - Tỉnh Gia Lai (H21.228)\n  + Văn phòng Tỉnh Ủy - tỉnh Gia Lai (000.00.23.H21)\n- Thiếu (3):\n  + Trưởng phòng V1 (Nguyễn Hoàng Đan)\n  + Bộ Chỉ huy Quân sự tỉnh Gia Lai\n  + Xã Canh Vinh - T..."
+      ]
+    ]
+  },
+  {
+    "range": "'Test 4 (Formatted)'!H9839",
+    "majorDimension": "ROWS",
+    "values": [
+      [
+        "- Dư (24):\n  + Sở Giáo dục và Đào tạo - tỉnh Gia Lai (H21.06)\n  + Sở Tài chính - tỉnh Gia Lai (H21.13)\n  + Sở Xây dựng - tỉnh Gia Lai (H21.18)\n  + Phường An Khê - tỉnh Gia Lai (H21.101)\n  + Phường An Phú - tỉnh Gia Lai (H21.102)\n  + Phường Ayun Pa - tỉnh Gia Lai (H21.103)\n  + Phường Hội Phú - tỉnh Gia Lai (H21.105)\n  + Xã Đak Đoa - tỉnh Gia Lai (H21.121)\n  + Xã Gào - tỉnh Gia Lai (H21.127)\n  + Xã Ia Băng - tỉnh Gia Lai (H21.129)\n  + Xã Ia Boòng - tỉnh Gia Lai (H21.130)\n  + Xã Ia Hiao - tỉnh Gia Lai (H21.136)\n  + Xã Ia Krái - tỉnh Gia Lai (H21.141)\n  + Xã Ia Lâu - tỉnh Gia Lai (H21.143)\n  + Xã Ia Le - tỉnh Gia Lai (H21.144)\n  + Xã Ia Ly - tỉnh Gia Lai (H21.145)\n  + Xã Ia Phí - tỉnh Gia Lai (H21.150)\n  + Xã Ia Pnôn - tỉnh Gia Lai (H21.152)\n  + Xã Tơ Tung - tỉnh Gia Lai (H21.173)\n  + UBND phường Tam Quan - Tỉnh Gia Lai (H21.197)\n  + UBND xã Cát Tiến - Tỉnh Gia Lai (H21.202)\n  + UBND xã Bình Phú - Tỉnh Gia Lai (H21.219)\n  + UBND Xã An Hòa - Tinh Gia Lai (H21.234)\n  + UBND Xã An Lão - Tỉnh Gia Lai (H21.235)\n- Thiếu (2):\n  + Trưởng phòng V1 (Nguyễn Hoàng Đan)\n  + Ph..."
+      ]
+    ]
+  },
+  {
+    "range": "'Test 4 (Formatted)'!H10153",
+    "majorDimension": "ROWS",
+    "values": [
+      [
+        "- Dư (23):\n  + Ban Quản lý Dự án Nông nghiệp và Phát triển nông thôn tỉnh Gia Lai (H21.41)\n  + Ban Quản lý Khu kinh tế - tỉnh Gia Lai (H21.02)\n  + Sở Văn hóa, Thể thao và Du lịch - tỉnh Gia Lai (H21.17)\n  + Thanh tra tỉnh Gia Lai (H21.20)\n  + Phường Diên Hồng - tỉnh Gia Lai (H21.104)\n  + Phường Thống Nhất - tỉnh Gia Lai (H21.107)\n  + Xã Bờ Ngoong - tỉnh Gia Lai (H21.112)\n  + Xã Đak Pơ - tỉnh Gia Lai (H21.122)\n  + Xã Ia Dom - tỉnh Gia Lai (H21.133)\n  + Xã Ia Grai - tỉnh Gia Lai (H21.134)\n  + Xã Ia Ly - tỉnh Gia Lai (H21.145)\n  + Xã Ia Púch - tỉnh Gia Lai (H21.153)\n  + Xã KDang - tỉnh Gia Lai (H21.160)\n  + Xã Lơ Pang - tỉnh Gia Lai (H21.166)\n  + Xã Mang Yang - tỉnh Gia Lai (H21.167)\n  + Xã Phú Túc - tỉnh Gia Lai (H21.169)\n  + Xã Sơn Lang - tỉnh Gia Lai (H21.171)\n  + Xã Ya Ma - tỉnh Gia Lai (H21.176)\n  + UBND phường Quy Nhơn Nam - Tỉnh Gia Lai (H21.181)\n  + UBND phường An Nhơn Đông - Tỉnh Gia Lai (H21.188)\n  + UBND xã Đề Gi - Tỉnh Gia Lai (H21.203)\n  + UBND xã Bình Khê - Tỉnh Gia Lai (H21.218)\n  + UBND xã Bình An - Tỉnh Gia Lai (H21.221)\n- Thiếu (4):\n  + Trưởng phòng X1 (Nguyễn Cửu Quốc Dũng)\n  + Bộ Chỉ huy Quân sự tỉnh Gia Lai\n  + Công an tỉnh Gia Lai\n  + UBND ..."
+      ]
+    ]
+  },
+  {
+    "range": "'Test 4 (Formatted)'!H10882",
+    "majorDimension": "ROWS",
+    "values": [
+      [
+        "- Dư (25):\n  + Trung tâm Phát triển Quỹ đất - tỉnh Gia Lai (H21.49)\n  + Sở Giáo dục và Đào tạo - tỉnh Gia Lai (H21.06)\n  + Sở Khoa học và Công nghệ - tỉnh Gia Lai (H21.09)\n  + Sở Tư pháp - tỉnh Gia Lai (H21.16)\n  + Sở Xây dựng - tỉnh Gia Lai (H21.18)\n  + Thanh tra tỉnh Gia Lai (H21.20)\n  + Phường An Phú - tỉnh Gia Lai (H21.102)\n  + Phường Diên Hồng - tỉnh Gia Lai (H21.104)\n  + Xã Đak Pơ - tỉnh Gia Lai (H21.122)\n  + Xã Ia Băng - tỉnh Gia Lai (H21.129)\n  + Xã Ia Ly - tỉnh Gia Lai (H21.145)\n  + Xã Ia Phí - tỉnh Gia Lai (H21.150)\n  + Xã Ia Rsai - tỉnh Gia Lai (H21.155)\n  + Xã Kông Bơ La - tỉnh Gia Lai (H21.163)\n  + UBND phường Quy Nhơn Bắc - Tỉnh Gia Lai (H21.182)\n  + UBND phường Quy Nhơn Tây - Tỉnh Gia Lai (H21.183)\n  + UBND phường Bình Định - Tỉnh Gia Lai (H21.186)\n  + UBND xã Phù Mỹ - Tỉnh Gia Lai (H21.206)\n  + UBND xã Phù Mỹ Nam - Tỉnh Gia Lai (H21.208)\n  + UBND xã Tuy Phước Bắc - Tỉnh Gia Lai (H21.215)\n  + UBND xã Tây Sơn - Tỉnh Gia Lai (H21.217)\n  + UBND xã Bình Hiệp - Tỉnh Gia Lai (H21.220)\n  + UBND Xã Vĩnh Thạnh - Tỉnh Gia Lai (H21.230)\n  + UBND Xã An Toàn - Tỉnh Gia Lai (H21.237)\n  + Lãnh đạo UBND tỉnh (Nội bộ UBND tỉnh)\n- Thiếu (8):\n  + Chủ tịch UBND tỉnh (Phạm Anh Tuấn)\n  + Phó Chủ tịch Thường trực UBND tỉnh (Nguyễn Tuấn Thanh)\n  + Phó Chủ tịch UBND tỉnh (Nguyễn Tự Công Hoàng)\n  + Phó Chủ tịch UBND tỉnh (Lâm Hải Giang)\n  + Phó Chủ tịch UBND tỉnh (Nguyễn Thị Thanh Lịch)\n  + Phó Chủ tịch UBND tỉnh (Nguyễn Hữu Quế)\n  + Phó Chủ tịch UBND tỉnh (Dương Mah Tiệp)\n  + UBND..."
+      ]
+    ]
+  },
+  {
+    "range": "'Test 4 (Formatted)'!H11346",
+    "majorDimension": "ROWS",
+    "values": [
+      [
+        "- Dư (1):\n  + UBND xã Ngô Mây - Tỉnh Gia Lai (H21.201)\n- Thiếu (1):\n  + UBND xã Ngô Mây - Tỉnh G..."
+      ]
+    ]
+  },
+  {
+    "range": "'Test 4 (Formatted)'!H11515",
+    "majorDimension": "ROWS",
+    "values": [
+      [
+        "- Dư (22):\n  + Sở Tài chính - tỉnh Gia Lai (H21.13)\n  + Ban Quản lý Dự án Nông nghiệp và Phát triển nông thôn tỉnh Gia Lai (H21.41)\n  + Sở Y tế - tỉnh Gia Lai (H21.19)\n  + Phường Hội Phú - tỉnh Gia Lai (H21.105)\n  + Xã Đak Rong - tỉnh Gia Lai (H21.123)\n  + Xã Ia Dreh - tỉnh Gia Lai (H21.135)\n  + Xã Ia Krái - tỉnh Gia Lai (H21.141)\n  + Xã Ia Lâu - tỉnh Gia Lai (H21.143)\n  + Xã Ia Mơ - tỉnh Gia Lai (H21.146)\n  + Xã Ia Rsai - tỉnh Gia Lai (H21.155)\n  + Xã Lơ Pang - tỉnh Gia Lai (H21.166)\n  + Xã Phú Túc - tỉnh Gia Lai (H21.169)\n  + Xã Ya Hội - tỉnh Gia Lai (H21.175)\n  + UBND phường Quy Nhơn - Tỉnh Gia Lai (H21.180)\n  + UBND phường Quy Nhơn Bắc - Tỉnh Gia Lai (H21.182)\n  + UBND phường An Nhơn Nam - Tỉnh Gia Lai (H21.190)\n  + UBND xã Ngô Mây - Tỉnh Gia Lai (H21.201)\n  + UBND xã Phù Mỹ Đông - Tỉnh Gia Lai (H21.210)\n  + UBND Xã Ân Tường - Tỉnh Gia Lai (H21.223)\n  + UBND Xã Kim Sơn - Tỉnh Gia Lai (H21.224)\n  + Xã Canh Vinh - Tỉnh Gia Lai (H21.228)\n  + UBND Xã An Hòa - Tinh Gia Lai (H21.234)\n- Thiếu (4):\n  + Trung tâm Phục vụ hành chính công tỉnh Gia Lai\n  + Bộ Chỉ huy Quân sự tỉnh Gia Lai\n  + Công an tỉnh Gia Lai\n  + UBND ..."
+      ]
+    ]
+  },
+  {
+    "range": "'Test 4 (Formatted)'!H12027",
+    "majorDimension": "ROWS",
+    "values": [
+      [
+        "- Dư (26):\n  + Ban Quản lý các dự án đầu tư xây dựng tỉnh Gia Lai (H21.38)\n  + Trung tâm Phát triển Quỹ đất - tỉnh Gia Lai (H21.49)\n  + Sở Nội vụ - tỉnh Gia Lai (H21.11)\n  + Xã Biển Hồ - tỉnh Gia Lai (H21.111)\n  + Xã Bờ Ngoong - tỉnh Gia Lai (H21.112)\n  + Xã Chơ Long - tỉnh Gia Lai (H21.113)\n  + Xã Chư Sê - tỉnh Gia Lai (H21.119)\n  + Xã Cửu An - tỉnh Gia Lai (H21.120)\n  + Xã Đak Pơ - tỉnh Gia Lai (H21.122)\n  + Xã Hra - tỉnh Gia Lai (H21.128)\n  + Xã Ia Boòng - tỉnh Gia Lai (H21.130)\n  + Xã Ia Chía - tỉnh Gia Lai (H21.131)\n  + Xã Ia Dom - tỉnh Gia Lai (H21.133)\n  + Xã Ia Hrung - tỉnh Gia Lai (H21.138)\n  + Xã Ia Ko - tỉnh Gia Lai (H21.140)\n  + Xã Kon Gang - tỉnh Gia Lai (H21.162)\n  + UBND phường Quy Nhơn - Tỉnh Gia Lai (H21.180)\n  + UBND phường Hoài Nhơn - Tỉnh Gia Lai (H21.195)\n  + UBND xã Xuân An - Tỉnh Gia Lai (H21.200)\n  + UBND xã Cát Tiến - Tỉnh Gia Lai (H21.202)\n  + UBND xã Đề Gi - Tỉnh Gia Lai (H21.203)\n  + UBND xã Phù Mỹ - Tỉnh Gia Lai (H21.206)\n  + UBND xã Tuy Phước Tây - Tỉnh Gia Lai (H21.213)\n  + UBND xã Tuy Phước Bắc - Tỉnh Gia Lai (H21.215)\n  + UBND xã Bình Khê - Tỉnh Gia Lai (H21.218)\n  + Xã Canh Vinh - Tỉnh Gia Lai (H21.228)\n- Thiếu (2):\n  + Trung tâm Phục vụ hành chính công tỉnh Gia Lai\n  + Xã Bờ Ngoong - tỉnh Gia Lai..."
+      ]
+    ]
+  },
+  {
+    "range": "'Test 4 (Formatted)'!H12202",
+    "majorDimension": "ROWS",
+    "values": [
+      [
+        "- Dư (17):\n  + Sở Khoa học và Công nghệ - tỉnh Gia Lai (H21.09)\n  + Công an tỉnh Gia Lai (G01.035.000.000)\n  + Phường An Bình - tỉnh Gia Lai (H21.100)\n  + Phường Diên Hồng - tỉnh Gia Lai (H21.104)\n  + Xã Albá - tỉnh Gia Lai (H21.108)\n  + Xã Đak Sơmei - tỉnh Gia Lai (H21.124)\n  + Xã Ia Ly - tỉnh Gia Lai (H21.145)\n  + Xã Ia Pnôn - tỉnh Gia Lai (H21.152)\n  + Xã Kon Gang - tỉnh Gia Lai (H21.162)\n  + Xã Mang Yang - tỉnh Gia Lai (H21.167)\n  + UBND Phường An Nhơn Bắc - Tỉnh Gia Lai (H21.191)\n  + UBND xã Đề Gi - Tỉnh Gia Lai (H21.203)\n  + UBND xã Phù Mỹ Nam - Tỉnh Gia Lai (H21.208)\n  + UBND xã Bình Dương - Tỉnh Gia Lai (H21.211)\n  + UBND xã Bình Khê - Tỉnh Gia Lai (H21.218)\n  + UBND xã Bình An - Tỉnh Gia Lai (H21.221)\n  + UBND Xã Vĩnh Thạnh - Tỉnh Gia Lai (H21.230)\n- Thiếu (1):\n  + Sở Khoa học ..."
+      ]
+    ]
+  },
+  {
+    "range": "'Test 4 (Formatted)'!H12645",
+    "majorDimension": "ROWS",
+    "values": [
+      [
+        "- Dư (20):\n  + Ban Quản lý Khu kinh tế - tỉnh Gia Lai (H21.02)\n  + Trung tâm Phát triển Quỹ đất - tỉnh Gia Lai (H21.49)\n  + Sở Tài chính - tỉnh Gia Lai (H21.13)\n  + Sở Văn hóa, Thể thao và Du lịch - tỉnh Gia Lai (H21.17)\n  + Xã Chư Prông - tỉnh Gia Lai (H21.117)\n  + Xã Ia O - tỉnh Gia Lai (H21.148)\n  + Xã Ia Púch - tỉnh Gia Lai (H21.153)\n  + Xã Lơ Pang - tỉnh Gia Lai (H21.166)\n  + UBND phường Quy Nhơn Nam - Tỉnh Gia Lai (H21.181)\n  + UBND phường Quy Nhơn Tây - Tỉnh Gia Lai (H21.183)\n  + UBND xã Nhơn Châu - Tỉnh Gia Lai (H21.185)\n  + UBND phường Hoài Nhơn - Tỉnh Gia Lai (H21.195)\n  + UBND phường Hoài Nhơn Tây - Tỉnh Gia Lai (H21.196)\n  + UBND xã Hòa Hội - tỉnh Gia Lai (H21.204)\n  + UBND xã An Lương - Tỉnh Gia Lai (H21.209)\n  + UBND xã Tuy Phước Tây - Tỉnh Gia Lai (H21.213)\n  + UBND xã Tuy Phước Bắc - Tỉnh Gia Lai (H21.215)\n  + UBND Xã Ân Tường - Tỉnh Gia Lai (H21.223)\n  + Xã Canh Vinh - Tỉnh Gia Lai (H21.228)\n  + UBND xã Vĩnh Sơn - Tinh Gia Lai (H21.233)\n- Thiếu (3):\n  + Bộ Chỉ huy Quân sự tỉnh Gia Lai\n  + Công an tỉnh Gia Lai\n  + UBND ..."
+      ]
+    ]
+  },
+  {
+    "range": "'Test 4 (Formatted)'!H12973",
+    "majorDimension": "ROWS",
+    "values": [
+      [
+        "- Dư (1):\n  + UBND Xã Ân Tường - Tỉnh Gia Lai (H21.223)\n- Thiếu (1):\n  + UBND Xã Ân Tư..."
+      ]
+    ]
+  },
+  {
+    "range": "'Test 4 (Formatted)'!H13163",
+    "majorDimension": "ROWS",
+    "values": [
+      [
+        "- Dư (6):\n  + Sở Y tế - tỉnh Gia Lai (H21.19)\n  + Xã Ia Nan - tỉnh Gia Lai (H21.147)\n  + Xã Ia Tul - tỉnh Gia Lai (H21.158)\n  + UBND phường Quy Nhơn Bắc - Tỉnh Gia Lai (H21.182)\n  + UBND xã Vĩnh Quang - Tinh Gia Lai (H21.232)\n  + Tỉnh ủy Gia Lai (A21)\n- Thiếu (1):\n  + Xã Ia Nan - tỉnh Gia La..."
+      ]
+    ]
+  },
+  {
+    "range": "'Test 4 (Formatted)'!H13318",
+    "majorDimension": "ROWS",
+    "values": [
+      [
+        "- Dư (10):\n  + Xã Ia Dom - tỉnh Gia Lai (H21.133)\n  + Xã Kon Chiêng - tỉnh Gia Lai (H21.161)\n  + Xã Krong - tỉnh Gia Lai (H21.165)\n  + Xã Uar - tỉnh Gia Lai (H21.174)\n  + UBND phường Quy Nhơn Đông - Tỉnh Gia Lai (H21.184)\n  + UBND xã Ngô Mây - Tỉnh Gia Lai (H21.201)\n  + UBND xã Bình Khê - Tỉnh Gia Lai (H21.218)\n  + UBND Xã Canh Liên - Tỉnh Gia Lai (H21.229)\n  + Lãnh đạo Văn phòng UBND tỉnh (Nội bộ UBND tỉnh)\n  + Trung tâm Phục vụ hành chính công tỉnh Gia Lai (H21.21.04)\n- Thiếu (7):\n  + Chánh Văn phòng UBND tỉnh (Nguyễn Xuân Vĩnh)\n  + Phó Chánh Văn phòng (Phan Đình Hải)\n  + Phó Chánh Văn phòng (Võ Gia Nghĩa)\n  + Phó Chánh Văn phòng (Trương Công Hoài)\n  + Phó Chánh Văn phòng (Trần Đình Triết)\n  + Phó Chánh Văn phòng, Thư ký Chủ tịch (Lê Huy Vũ)\n  + Trung tâm Ph..."
+      ]
+    ]
+  },
+  {
+    "range": "'Test 4 (Formatted)'!H13499",
+    "majorDimension": "ROWS",
+    "values": [
+      [
+        "- Dư (15):\n  + Phường Thống Nhất - tỉnh Gia Lai (H21.107)\n  + Xã Chư A Thai - tỉnh Gia Lai (H21.114)\n  + Xã Gào - tỉnh Gia Lai (H21.127)\n  + Xã Ia Dom - tỉnh Gia Lai (H21.133)\n  + Xã Ia Hrung - tỉnh Gia Lai (H21.138)\n  + Xã Kông Bơ La - tỉnh Gia Lai (H21.163)\n  + Xã Phú Thiện - tỉnh Gia Lai (H21.168)\n  + Xã Ya Hội - tỉnh Gia Lai (H21.175)\n  + UBND phường Bình Định - Tỉnh Gia Lai (H21.186)\n  + UBND xã Phù Mỹ - Tỉnh Gia Lai (H21.206)\n  + UBND xã Hoài Ân - Tỉnh Gia Lai (H21.222)\n  + UBND Xã Ân Tường - Tỉnh Gia Lai (H21.223)\n  + UBND Xã Canh Liên - Tỉnh Gia Lai (H21.229)\n  + UBND Xã Vĩnh Thạnh - Tỉnh Gia Lai (H21.230)\n  + Trung tâm Phục vụ hành chính công tỉnh Gia Lai (H21.21.04)\n- Thiếu (30):\n  + Chuyên viên (Võ Hương Ly)\n  + Chuyên viên (Nguyễn Thị Kim Thi)\n  + Chuyên viên (Nguyễn Thị Kim Châu)\n  + Chuyên viên (Lê Tấn Tài)\n  + Chuyên viên (Phạm Thị Lệ)\n  + Chuyên viên (Đinh Thị Thu Hồng)\n  + Chuyên viên (Nguyễn Thị Kim Loan)\n  + Chuyên viên (Trịnh Thị Ngọc Minh)\n  + Chuyên viên (Hoàng Thị Thảo)\n  + Chuyên viên (Châu Hải Duy Nghĩa)\n  + Chuyên viên (Lê Thị Tuyết)\n  + Chuyên viên (Nguyễn Văn Hiệp)\n  + Chuyên viên (Trần Nguyễn Ngọc Thanh)\n  + Chuyên viên (Phạm Hoàng Lâm)\n  + Giám đốc (TT) (Lê Dũng Linh)\n  + Kế toán (Lê Thị Hồng Hoa)\n  + Nhân viên (Lê Nguyễn Danh Phương)\n  + Nhân viên (Lê Thị Hà)\n  + Nhân viên (Nguyễn Văn Nhân)\n  + Phó Giám đốc (Đặng Hoài Vinh)\n  + Phó Giám đốc (Đặng Trung Du)\n  + Phó Giám đốc (Trần Thị Thu Lượng)\n  + Phó Giám đốc (Lê Thị Thuỳ Trang)\n  + Phó Giám đốc (Đặng Xuân Thoại)\n  + Phó Giám đốc (Nguyễn Ngọc Chính)\n  + Trưởng phòng (Nguyễn Thị Thanh Trà)\n  + Trưởng phòng (Trịnh Bảo Minh)\n  + Trưởng phòng (Nguyễn Văn Phong)\n  + Trưởng phòng (Nguyễn Quốc Hưng)\n  + UBND xã Phù Mỹ - Tỉn..."
+      ]
+    ]
+  },
+  {
+    "range": "'Test 4 (Formatted)'!H13845",
+    "majorDimension": "ROWS",
+    "values": [
+      [
+        "- Dư (3):\n  + Sở Nội vụ - tỉnh Gia Lai (H21.11)\n  + Xã Kbang - tỉnh Gia Lai (H21.159)\n  + UBND xã Vĩnh Sơn - Tinh Gia Lai (H21.233)\n- Thiếu (1):\n  + UBND xã Vĩnh Sơn - Tinh Gia Lai..."
+      ]
+    ]
+  },
+  {
+    "range": "'Test 4 (Formatted)'!H14002",
+    "majorDimension": "ROWS",
+    "values": [
+      [
+        "- Dư (57):\n  + Phường Ayun Pa - tỉnh Gia Lai (H21.103)\n  + Phường Hội Phú - tỉnh Gia Lai (H21.105)\n  + Phường Thống Nhất - tỉnh Gia Lai (H21.107)\n  + Xã Ayun - tỉnh Gia Lai (H21.109)\n  + Xã Bờ Ngoong - tỉnh Gia Lai (H21.112)\n  + Xã Chư Sê - tỉnh Gia Lai (H21.119)\n  + Xã Đak Pơ - tỉnh Gia Lai (H21.122)\n  + Xã Đức Cơ - tỉnh Gia Lai (H21.126)\n  + Xã Ia Băng - tỉnh Gia Lai (H21.129)\n  + Xã Ia Le - tỉnh Gia Lai (H21.144)\n  + Xã Ia Ly - tỉnh Gia Lai (H21.145)\n  + Xã Ia Mơ - tỉnh Gia Lai (H21.146)\n  + Xã Ia Pa - tỉnh Gia Lai (H21.149)\n  + Xã Ia Sao - tỉnh Gia Lai (H21.156)\n  + Xã KDang - tỉnh Gia Lai (H21.160)\n  + Xã Lơ Pang - tỉnh Gia Lai (H21.166)\n  + UBND phường Quy Nhơn Tây - Tỉnh Gia Lai (H21.183)\n  + UBND xã Nhơn Châu - Tỉnh Gia Lai (H21.185)\n  + UBND phường Bình Định - Tỉnh Gia Lai (H21.186)\n  + UBND xã An Nhơn Tây - Tỉnh Gia Lai (H21.189)\n  + UBND phường Hoài Nhơn Đông - Tỉnh Gia Lai (H21.194)\n  + UBND phường Hoài Nhơn Bắc - Tỉnh Gia Lai (H21.198)\n  + UBND xã Phù Mỹ - Tỉnh Gia Lai (H21.206)\n  + UBND xã Bình An - Tỉnh Gia Lai (H21.221)\n  + UBND Xã An Lão - Tỉnh Gia Lai (H21.235)\n  + Trịnh Bảo Minh - Chuyên viên V2 (Phòng Khoa giáo Văn xã) (minhtb@vpub.gialai.gov.vn)\n  + Nguyễn Ngọc Nguyên - Trưởng phòng (Phòng Hành chính Tổ chức) (nguyennn@vpub.gialai.gov.vn)\n  + Nguyễn Tiến Mạnh - Phó Trưởng phòng (Phòng Hành chính Tổ chức) (manhnt@vpub.gialai.gov.vn)\n  + Huỳnh Thế Dịu - Chuyên viên (Phòng Hành chính Tổ chức) (diuht@vpub.gialai.gov.vn)\n  + Nguyễn Thị Minh Ngân - Chuyên viên (Phòng Hành chính Tổ chức) (nganntm@vpub.gialai.gov.vn)\n  + Võ Nguyễn Phương Tú - Chuyên viên (Phòng Hành chính Tổ chức) (tuvnp@vpub.gialai.gov.vn)\n  + Nguyễn Thị Kim Oanh - Chuyên viên (Phòng Hành chính Tổ chức) (oanhntk@vpub.gialai.gov.vn)\n  + Trần Thị Hồng Nhung - Chuyên viên (Phòng Hành chính Tổ chức) (nhungtth@vpub.gialai.gov.vn)\n  + Nguyễn Thị Lâm Anh - Chuyên viên T8 (Phòng Hành chính Tổ chức) (anhltn@vpub.gialai.gov.vn)\n  + Lê Nguyễn Ái Vy - Lưu trữ viên (Phòng Hành chính Tổ chức) (vylna@vpub.gialai.gov.vn)\n  + Trần Thị Như Thảo - Chuyên viên (Phòng Hành chính Tổ chức) (thaottn@vpub.gialai.gov.vn)\n  + Phan Thị Hà - Chuyên viên (Phòng Hành chính Tổ chức) (hapt@vpub.gialai.gov.vn)\n  + Trần Xuân Nhã Khuê - Chuyên viên (Phòng Hành chính Tổ chức) (khuetxn@vpub.gialai.gov.vn)\n  + Đỗ Thị Minh Trâm - Nhân viên (Phòng Hành chính Tổ chức) (tramdtm@vpub.gialai.gov.vn)\n  + Trần Minh Trung - Nhân viên (Phòng Hành chính Tổ chức) (trungtm@vpub.gialai.gov.vn)\n  + Nguyễn Trung Chiến - Trưởng phòng (Phòng Quản trị Tài vụ) (chiennt@vpub.gialai.gov.vn)\n  + Lâm Xuân Hoa - Kế toán (Phòng Quản trị Tài vụ) (hoalx@vpub.gialai.gov.vn)\n  + Nguyễn Thị Minh Tân - Chuyên viên (Phòng Quản trị Tài vụ) (tanntm@vpub.gialai.gov.vn)\n  + Võ Thị Lệ Thủy - Thủ quỹ (Phòng Quản trị Tài vụ) (thuyvtl@vpub.gialai.gov.vn)\n  + Trần Khánh Hưng - Chuyên viên (Phòng Quản trị Tài vụ) (hungtk@vpub.gialai.gov.vn)\n  + Phan Thị Vũ Phong - Chuyên viên (Phòng Quản trị Tài vụ) (phongptv@vpub.gialai.gov.vn)\n  + Nguyễn Thị Nguyệt Thu - Chuyên viên (Phòng Quản trị Tài vụ) (thuntn@vpub.gialai.gov.vn)\n  + Nguyễn Quốc Hà - Nhân viên (Phòng Quản trị Tài vụ) (hanq@vpub.gialai.gov.vn)\n  + Nhữ Minh Hoàng - Nhân viên (Phòng Quản trị Tài vụ) (hoangnm@vpub.gialai.gov.vn)\n  + Trương Hồ Hữu Trí - Nhân viên (Phòng Quản trị Tài vụ) (trithh@vpub.gialai.gov.vn)\n  + Võ Minh Cảnh - Phó Trưởng ban (Ban Tiếp Công dân tỉnh Gia Lai) (canhvm@vpub.gialai.gov.vn)\n  + Rơ Chăm Y Thịnh - Phó Trưởng ban (Ban Tiếp Công dân tỉnh Gia Lai) (thinhrcy@vpub.gialai.gov.vn)\n  + Nguyễn Thành Long - Chuyên viên (Ban Tiếp Công dân tỉnh Gia Lai) (longnt@vpub.gialai.gov.vn)\n  + Phạm Văn Vinh - Chuyên viên (Ban Tiếp Công dân tỉnh Gia Lai) (vinhpv@vpub.gialai.gov.vn)\n  + Nay Sơng - Chuyên viên (Ban Tiếp Công dân tỉnh Gia Lai) (songn@vpub.gialai.gov.vn)\n  + Nguyễn Thị Diệu Hiền - Nhân viên phục vụ (Ban Tiếp Công dân tỉnh Gia Lai) (hienntd@vpub.gialai.gov.vn)\n  + Nguyễn Ngọc Trinh - Chuyên viên (Ban Tiếp Công dân tỉnh Gia Lai) (trinhnn@vpub.gialai.gov.vn)\n- Thiếu (2):\n  + Trung tâm Phục vụ hành chính công tỉnh Gia Lai\n  + Xã Ia Mơ - tỉ..."
+      ]
+    ]
+  },
+  {
+    "range": "'Test 4 (Formatted)'!H14301",
+    "majorDimension": "ROWS",
+    "values": [
+      [
+        "- Dư (25):\n  + Sở Nông nghiệp và Môi trường - tỉnh Gia Lai (H21.24)\n  + Thanh tra tỉnh Gia Lai (H21.20)\n  + Xã Chư Krey - tỉnh Gia Lai (H21.115)\n  + Xã Đak Đoa - tỉnh Gia Lai (H21.121)\n  + Xã Ia Boòng - tỉnh Gia Lai (H21.130)\n  + Xã Ia Dom - tỉnh Gia Lai (H21.133)\n  + Xã Ia Khươl - tỉnh Gia Lai (H21.139)\n  + Xã Ia Mơ - tỉnh Gia Lai (H21.146)\n  + Xã Ia Pa - tỉnh Gia Lai (H21.149)\n  + Xã Ia Phí - tỉnh Gia Lai (H21.150)\n  + Xã Ia Sao - tỉnh Gia Lai (H21.156)\n  + Xã Kông Bơ La - tỉnh Gia Lai (H21.163)\n  + Xã SRó - tỉnh Gia Lai (H21.172)\n  + Xã Ya Hội - tỉnh Gia Lai (H21.175)\n  + Xã Ya Ma - tỉnh Gia Lai (H21.176)\n  + UBND phường Quy Nhơn Tây - Tỉnh Gia Lai (H21.183)\n  + UBND phường An Nhơn Nam - Tỉnh Gia Lai (H21.190)\n  + UBND phường Hoài Nhơn - Tỉnh Gia Lai (H21.195)\n  + UBND xã Phù Cát - Tỉnh Gia Lai (H21.199)\n  + UBND xã Xuân An - Tỉnh Gia Lai (H21.200)\n  + UBND xã Hoài Ân - Tỉnh Gia Lai (H21.222)\n  + UBND Xã Vạn Đức - Tỉnh Gia Lai (H21.225)\n  + UBND Xã Ân Hảo - Tỉnh Gia Lai (H21.226)\n  + Xã Canh Vinh - Tỉnh Gia Lai (H21.228)\n  + UBND Xã Canh Liên - Tỉnh Gia Lai (H21.229)\n- Thiếu (7):\n  + Trưởng phòng (Nguyễn Ngọc Nguyên)\n  + Chuyên viên (Trần Thị Như Thảo)\n  + Bộ Chỉ huy Quân sự tỉnh Gia Lai\n  + Trung tâm Phục vụ hành chính công tỉnh Gia Lai\n  + Công an tỉnh Gia Lai\n  + Văn phòng UBND tỉnh Gia Lai\n  + Xã Ia Khươl - tỉnh Gia L..."
+      ]
+    ]
+  },
+  {
+    "range": "'Test 4 (Formatted)'!H14468",
+    "majorDimension": "ROWS",
+    "values": [
+      [
+        "- Dư (2):\n  + Xã Ia Mơ - tỉnh Gia Lai (H21.146)\n  + UBND Xã Ân Tường - Tỉnh Gia Lai (H21.223)\n- Thiếu (1):\n  + UBND Xã Ân Tường - T..."
+      ]
+    ]
+  },
+  {
+    "range": "'Test 4 (Formatted)'!H15003",
+    "majorDimension": "ROWS",
+    "values": [
+      [
+        "- Dư (23):\n  + Ban QLDA các công trình Giao thông và Dân dụng tỉnh Gia Lai (H21.40)\n  + Ban Quản lý Khu kinh tế - tỉnh Gia Lai (H21.02)\n  + Sở Nội vụ - tỉnh Gia Lai (H21.11)\n  + Sở Tư pháp - tỉnh Gia Lai (H21.16)\n  + Sở Văn hóa, Thể thao và Du lịch - tỉnh Gia Lai (H21.17)\n  + Xã Bờ Ngoong - tỉnh Gia Lai (H21.112)\n  + Xã Chư A Thai - tỉnh Gia Lai (H21.114)\n  + Xã Hra - tỉnh Gia Lai (H21.128)\n  + Xã Ia Grai - tỉnh Gia Lai (H21.134)\n  + Xã Ia O - tỉnh Gia Lai (H21.148)\n  + Xã Ia Sao - tỉnh Gia Lai (H21.156)\n  + Xã Kông Bơ La - tỉnh Gia Lai (H21.163)\n  + Xã Tơ Tung - tỉnh Gia Lai (H21.173)\n  + UBND phường Quy Nhơn Đông - Tỉnh Gia Lai (H21.184)\n  + UBND phường Bình Định - Tỉnh Gia Lai (H21.186)\n  + UBND phường Hoài Nhơn Nam - Tỉnh Gia Lai (H21.193)\n  + UBND phường Hoài Nhơn Đông - Tỉnh Gia Lai (H21.194)\n  + UBND xã Xuân An - Tỉnh Gia Lai (H21.200)\n  + UBND xã Tuy Phước - Tỉnh Gia Lai (H21.214)\n  + UBND xã Tuy Phước Bắc - Tỉnh Gia Lai (H21.215)\n  + UBND xã Bình Hiệp - Tỉnh Gia Lai (H21.220)\n  + UBND xã Bình An - Tỉnh Gia Lai (H21.221)\n  + Thống kê tỉnh Gia Lai (G12.99.61)\n- Thiếu (2):\n  + Trung tâm Phục vụ hành chính công tỉnh Gia Lai\n  + UBND phường Hoài Nhơn Nam..."
+      ]
+    ]
+  },
+  {
+    "range": "'Test 4 (Formatted)'!H15541",
+    "majorDimension": "ROWS",
+    "values": [
+      [
+        "- Dư (8):\n  + Sở Tài chính - tỉnh Gia Lai (H21.13)\n  + Xã Ia Tôr - tỉnh Gia Lai (H21.157)\n  + Xã Kon Gang - tỉnh Gia Lai (H21.162)\n  + Xã Kông Bơ La - tỉnh Gia Lai (H21.163)\n  + UBND phường Quy Nhơn Nam - Tỉnh Gia Lai (H21.181)\n  + UBND phường An Nhơn Nam - Tỉnh Gia Lai (H21.190)\n  + UBND phường Hoài Nhơn - Tỉnh Gia Lai (H21.195)\n  + UBND xã An Lương - Tỉnh Gia Lai (H21.209)\n- Thiếu (1):\n  + Xã Ia Tôr -..."
+      ]
+    ]
+  },
+  {
+    "range": "'Test 4 (Formatted)'!H15811",
+    "majorDimension": "ROWS",
+    "values": [
+      [
+        "- Dư (1):\n  + Xã Canh Vinh - Tỉnh Gia Lai (H21.228)\n- Thiếu (1):\n  + ..."
+      ]
+    ]
+  },
+  {
+    "range": "'Test 4 (Formatted)'!H16613",
+    "majorDimension": "ROWS",
+    "values": [
+      [
+        "- Dư (5):\n  + Sở Tài chính - tỉnh Gia Lai (H21.13)\n  + Xã Ayun - tỉnh Gia Lai (H21.109)\n  + Xã Chư A Thai - tỉnh Gia Lai (H21.114)\n  + Xã Phú Túc - tỉnh Gia Lai (H21.169)\n  + UBND xã Tuy Phước - Tỉnh Gia Lai (H21.214)\n- Thiếu (1):\n  + U..."
+      ]
+    ]
+  },
+  {
+    "range": "'Test 4 (Formatted)'!H17100",
+    "majorDimension": "ROWS",
+    "values": [
+      [
+        "- Dư (2):\n  + UBND xã Đề Gi - Tỉnh Gia Lai (H21.203)\n  + UBND Xã Vĩnh Thịnh - Tỉnh Gia Lai (H21.231)\n- Thiếu (1):\n  + UBND x..."
+      ]
+    ]
+  },
+  {
+    "range": "'Test 4 (Formatted)'!H17647",
+    "majorDimension": "ROWS",
+    "values": [
+      [
+        "- Dư (2):\n  + UBND xã Ngô Mây - Tỉnh Gia Lai (H21.201)\n  + Công ty TNHH Khai thác công trình thủy lợi Bình Định (4100259395)\n- Thiếu (1):\n  + UBND ..."
+      ]
+    ]
+  },
+  {
+    "range": "'Test 4 (Formatted)'!H18147",
+    "majorDimension": "ROWS",
+    "values": [
+      [
+        "- Dư (23):\n  + Ban Quản lý Dự án Nông nghiệp và Phát triển nông thôn tỉnh Gia Lai (H21.41)\n  + Sở Văn hóa, Thể thao và Du lịch - tỉnh Gia Lai (H21.17)\n  + Viện kiểm sát nhân dân tỉnh Gia Lai (H21.95)\n  + Xã Chơ Long - tỉnh Gia Lai (H21.113)\n  + Xã Chư Păh - tỉnh Gia Lai (H21.116)\n  + Xã Ia Grai - tỉnh Gia Lai (H21.134)\n  + Xã Ia Khươl - tỉnh Gia Lai (H21.139)\n  + Xã Ia Le - tỉnh Gia Lai (H21.144)\n  + Xã Ia Phí - tỉnh Gia Lai (H21.150)\n  + Xã Ia Rsai - tỉnh Gia Lai (H21.155)\n  + Xã Ia Sao - tỉnh Gia Lai (H21.156)\n  + Xã Kon Chiêng - tỉnh Gia Lai (H21.161)\n  + Xã Kông Chro - tỉnh Gia Lai (H21.164)\n  + Xã Ya Ma - tỉnh Gia Lai (H21.176)\n  + UBND xã Nhơn Châu - Tỉnh Gia Lai (H21.185)\n  + UBND phường An Nhơn - Tỉnh Gia Lai (H21.187)\n  + UBND phường Bồng Sơn - Tỉnh Gia Lai (H21.192)\n  + UBND phường Hoài Nhơn - Tỉnh Gia Lai (H21.195)\n  + UBND xã Ngô Mây - Tỉnh Gia Lai (H21.201)\n  + UBND Xã Kim Sơn - Tỉnh Gia Lai (H21.224)\n  + UBND Xã Vạn Đức - Tỉnh Gia Lai (H21.225)\n  + Xã Canh Vinh - Tỉnh Gia Lai (H21.228)\n  + UBND Xã An Hòa - Tinh Gia Lai (H21.234)\n- Thiếu (5):\n  + Trưởng phòng (Nguyễn Ngọc Nguyên)\n  + Chuyên viên (Trần Thị Như Thảo)\n  + Bộ Chỉ huy Quân sự tỉnh Gia Lai\n  + Văn phòng UBND tỉnh Gia Lai\n  + Xã Ia K..."
+      ]
+    ]
+  }
+]
