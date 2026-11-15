@@ -57,3 +57,30 @@ def test_snapshot_readers_release_database_handles(settings):
     settings.lookup_db.rename(moved_lookup)
     settings.runtime_db.unlink()
     assert registry.exact_role("Chủ tịch UBND tỉnh")[0].recipient_id == "internal_270"
+
+
+def test_local_names_preserves_tinh_suffix_without_commune_underscore_collision(settings):
+    with sqlite3.connect(settings.lookup_db) as conn:
+        cols = {row[1] for row in conn.execute("PRAGMA table_info(recipients)")}
+        for rid, code, sphere, rtype, name in [
+            ("comm_h21_38", "H21.38", "int_province_comm", "INT_PROVINCE_UNIT", "Ban Quản lý các dự án đầu tư xây dựng tỉnh Gia Lai"),
+            ("comm_h21_49", "H21.49", "int_province_comm", "INT_PROVINCE_UNIT", "Trung tâm Phát triển Quỹ đất - tỉnh Gia Lai"),
+            ("comm_h21_51_30", "H21.51.30", "ext_province_comm", "EXT_PROVINCE_UNIT", "Ban Quản lý các dự án đầu tư xây dựng_Tỉnh Gia Lai"),
+            ("comm_h21_58_17", "H21.58.17", "ext_province_comm", "EXT_PROVINCE_UNIT", "Ban Quản lý các Dự án đầu tư xây dựng_Tỉnh Gia Lai"),
+        ]:
+            row = {
+                "recipient_id": rid, "source_id": rid, "recipient_type": rtype,
+                "sphere": sphere, "name": name, "full_name": "", "display_name": name,
+                "code": code, "parent_name": "", "rank_level": "", "email": "",
+                "priority_score": 10, "search_text": name,
+            }
+            use_cols = [c for c in row if c in cols]
+            conn.execute(
+                f"INSERT INTO recipients ({','.join(use_cols)}) VALUES ({','.join('?' * len(use_cols))})",
+                [row[c] for c in use_cols],
+            )
+    registry = Registry(settings)
+    assert [r.code for r in registry._local_names.get("ban quan ly cac du an dau tu xay dung tinh", [])] == ["H21.38"]
+    assert [r.code for r in registry._local_names.get("trung tam phat trien quy dat tinh", [])] == ["H21.49"]
+    assert "ban quan ly cac du an dau tu xay dung_tinh" not in registry._local_names
+

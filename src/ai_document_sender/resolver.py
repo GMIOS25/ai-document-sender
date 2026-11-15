@@ -2,13 +2,20 @@
 import re
 import unicodedata
 from time import perf_counter
-from .contracts import OutgoingResult, Unresolved, Excluded
+from .contracts import GroupSelection, OutgoingResult, Unresolved, Excluded
 from .registry import normalize, words, department_context
 from .publication import apply_publication_policy, explicit_service_center
 from .recipient_groups import conflicting_group_scope, local_commune_list, native_group
 
 
 VERSION = "recipient-reviewed-sheet-aliases-v6"
+VPUB_DEPARTMENT_HEADS = {
+    "KTTH": "phuongld@vpub.gialai.gov.vn",
+    "NNMT": "canhvv@vpub.gialai.gov.vn",
+    "XDCT": "dungncq@vpub.gialai.gov.vn",
+    "NC": "oanhh@vpub.gialai.gov.vn",
+    "KGVX": "danhnh@vpub.gialai.gov.vn",
+}
 
 
 def expand_lexical(raw):
@@ -53,9 +60,22 @@ async def resolve_mentions(extraction, registry, metadata, job_id, input_sha256,
         combined = raw
         if mention.qualifier and not normalize(raw).startswith(normalize(mention.qualifier)):
             combined = mention.qualifier + " " + raw
+        is_gl_context = bool("gia lai" in normalize(metadata.issuer) if metadata.issuer else getattr(registry, "tenant_id", "") == "vpub")
         from .learning import learned_alias
-        learned = learned_alias(registry, raw, metadata, mention)
-        pending = learned or registry.alias(raw, metadata) or registry.alias(combined, metadata)
+        if combined != raw:
+            learned = (
+                learned_alias(registry, combined, metadata, mention)
+                or learned_alias(registry, raw, metadata, mention, require_qualifier=True)
+            )
+            pending = learned or registry.alias(combined, metadata)
+            if pending is None and not (
+                is_gl_context and (registry.local_unit_name(combined, metadata.issuer or "Gia Lai") or registry.exact_name(combined))
+            ):
+                learned = learned_alias(registry, raw, metadata, mention)
+                pending = learned or registry.alias(raw, metadata)
+        else:
+            learned = learned_alias(registry, raw, metadata, mention)
+            pending = learned or registry.alias(raw, metadata)
         if pending is None:
             # Jurisdiction suffixes do not make an unverified portfolio alias safe.
             prefix = re.match(r"^(PVPQT|PVPVX|PCVP\s*XD)\b", combined, re.I)
@@ -68,7 +88,6 @@ async def resolve_mentions(extraction, registry, metadata, job_id, input_sha256,
         recipient_scope = any(e.section in {"kinh_gui", "noi_nhan", "body_reference"} for e in mention.evidence)
         # An explicit geographic list or verified selectable group takes
         # precedence over whole-phrase aliases learned from older snapshots.
-        is_gl_context = bool("gia lai" in normalize(metadata.issuer) if metadata.issuer else getattr(registry, "tenant_id", "") == "vpub")
         geography = (local_commune_list(raw, registry) if recipient_scope and mention.kind != "reference" and
                      is_gl_context else None)
         group = (native_group(combined, registry) if recipient_scope and mention.kind in {"group", "unit", "unknown"} and geography is None and
@@ -249,8 +268,56 @@ async def resolve_mentions(extraction, registry, metadata, job_id, input_sha256,
             recipient = chosen[key]
             recipient.mention_ids.append(mention.mention_id)
             recipient.evidence.extend(mention.evidence)
+    if getattr(registry, "tenant_id", None) == "vpub":
+        suffix_match = re.search(r"/UBND-(KTTH|NNMT|XDCT|NC|KGVX)\b", metadata.sign_number or "", re.I)
+        if suffix_match:
+            head_email = VPUB_DEPARTMENT_HEADS[suffix_match.group(1).upper()]
+            heads = [r for r in registry.exact_code(head_email) if r.sphere == "internal" and r.recipient_type == "INTERNAL_PERSON"]
+            if len(heads) == 1 and heads[0].recipient_id not in chosen:
+                chosen[heads[0].recipient_id] = heads[0].model_copy(
+                    update={"match_method": "vpub_department_head_default"}, deep=True
+                )
     result.people = [r for r in chosen.values() if r.recipient_type == "INTERNAL_PERSON"]
     result.units = [r for r in chosen.values() if r.recipient_type != "INTERNAL_PERSON"]
+    unit_codes = {r.code for r in result.units if r.sphere == "int_province_comm" and r.code}
+    for g in getattr(registry, "unit_groups", []):
+        if (
+            g.get("sphere") == "int_province_comm"
+            and g.get("complete")
+            and g.get("member_codes")
+            and g["id"] not in group_selections
+            and set(g["member_codes"]) <= unit_codes
+        ):
+            sel = GroupSelection(
+                group_id=str(g["id"]),
+                sphere="int_province_comm",
+                member_codes=list(g["member_codes"]),
+                registry_version=registry.registry_version,
+            )
+            group_selections[sel.group_id] = sel
+            group_dependencies.setdefault(sel.group_id, sel.model_dump(mode="json"))
+    people_ids = {r.recipient_id for r in result.people}
+    for dept_id, member_ids in getattr(registry, "recipient_expansions", {}).items():
+        dept = registry.by_id.get(dept_id)
+        if (
+            dept is None
+            or dept.recipient_type != "INTERNAL_DEPT"
+            or len(member_ids) < 2
+            or not set(member_ids) <= people_ids
+        ):
+            continue
+        member_codes = [registry.by_id[mid].source_id for mid in member_ids if mid in registry.by_id]
+        if (
+            len(member_codes) == len(member_ids)
+            and len(set(member_codes)) == len(member_ids)
+            and dept.source_id not in group_selections
+        ):
+            group_selections[dept.source_id] = GroupSelection(
+                group_id=dept.source_id,
+                sphere="internal",
+                member_codes=member_codes,
+                registry_version=registry.registry_version,
+            )
     result.selection_plan = list(group_selections.values())
     if group_dependencies:
         result.audit["group_dependencies"] = list(group_dependencies.values())

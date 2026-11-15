@@ -216,3 +216,119 @@ def test_vietocr_failure_is_reviewable_and_does_not_use_cloud_ocr(settings):
     assert "local_ocr_unavailable" in result.review_reasons
     assert "unreadable_region" in result.review_reasons
     assert result.status == "partial"
+
+
+def test_real_pdf_signature_chanh_van_phong_and_signer_name_not_clipped():
+    from reportlab.pdfgen import canvas
+    from reportlab.pdfbase import pdfmetrics
+    from reportlab.pdfbase.ttfonts import TTFont
+    import pytest
+    font = next((path for path in [Path("C:/Windows/Fonts/arial.ttf"), Path("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf")] if path.exists()), None)
+    if font is None:
+        pytest.skip("Unicode test font is unavailable")
+    pdfmetrics.registerFont(TTFont("RecipientTestSig", str(font)))
+    with tempfile.TemporaryDirectory() as tmp:
+        path = Path(tmp) / "chanh.pdf"
+        pdf = canvas.Canvas(str(path), pagesize=(595, 842))
+        pdf.setFont("RecipientTestSig", 11)
+        for y, line in [
+            (770, "Kính gửi: Sở Xây dựng."),
+            (720, "Nội dung công văn."),
+            (320, "Nơi nhận:"),
+            (300, "- Như trên;"),
+            (280, "- PCT Nguyễn Tự Công Hoàng;"),
+            (260, "- Lưu: VT, X5, T3."),
+        ]:
+            pdf.drawString(40, y, line)
+        pdf.drawString(372, 315, "TL. CHỦ TỊCH")
+        pdf.drawString(350, 298, "CHÁNH VĂN PHÒNG")
+        pdf.drawString(362, 200, "Nguyễn Xuân Vĩnh")
+        pdf.save()
+        result = asyncio.run(extract_document(path, None, DocumentMetadata(document_id="chanh"), Settings(runtime_dir=Path(tmp))))
+    rtext = result.pages[0]["recipient_text"]
+    assert "CH" not in rtext.splitlines()
+    assert not any(ln.strip() in {"CH", "N", "Ng"} for ln in rtext.splitlines())
+    raws = {m.raw for m in result.mentions}
+    assert {"Sở Xây dựng", "PCT Nguyễn Tự Công Hoàng", "VT", "X5", "T3"} <= raws
+
+
+def test_kinh_gui_multiline_semicolons_and_missing_comma_so_split():
+    text_13060 = (
+        "Kính gửi:\n"
+        "- Các Sở: Khoa học và Công nghệ; Giáo dục và Đào\n"
+        "tạo; Công Thương; Nông nghiệp và Môi trường;\n"
+        "Xây dựng; Tài chính; Văn hóa, Thể thao và Du lịch;\n"
+        "- UBND các xã: Tuy Phước, Ia Le;\n"
+        "- Văn phòng UBND tỉnh.\n"
+        "Căn cứ Công văn số 603/2026/CV-VUNI."
+    )
+    mentions, _ = extract_rule_mentions(pages(text_13060))
+    got = {(m.raw, m.qualifier) for m in mentions}
+    assert {
+        ("Khoa học và Công nghệ", "Sở"),
+        ("Giáo dục và Đào tạo", "Sở"),
+        ("Công Thương", "Sở"),
+        ("Nông nghiệp và Môi trường", "Sở"),
+        ("Xây dựng", "Sở"),
+        ("Tài chính", "Sở"),
+        ("Văn hóa, Thể thao và Du lịch", "Sở"),
+        ("Tuy Phước", "UBND xã"),
+        ("Ia Le", "UBND xã"),
+        ("Văn phòng UBND tỉnh", None),
+    } <= got
+
+    text_12874 = (
+        "Kính gửi:\n"
+        "- Các Sở: Xây dựng, Tài chính\n"
+        "Nông nghiệp và Môi trường;\n"
+        "- Ban QLDA Giao thông và Dân dụng tỉnh;\n"
+        "Xét đề nghị của Sở Xây dựng."
+    )
+    mentions_12874, _ = extract_rule_mentions(pages(text_12874))
+    assert {
+        ("Xây dựng", "Sở"),
+        ("Tài chính", "Sở"),
+        ("Nông nghiệp và Môi trường", "Sở"),
+        ("Ban QLDA Giao thông và Dân dụng tỉnh", None),
+    } <= {(m.raw, m.qualifier) for m in mentions_12874}
+
+    text_12635 = (
+        "Kính gửi:\n"
+        "- Sở Ngoại vụ;\n"
+        "- Sở Xây dựng;\n"
+        "Công an tỉnh;\n"
+        "- UBND xã Tuy Phước.\n"
+        "Thực hiện Kế hoạch số 371/KH-UBND."
+    )
+    mentions_12635, _ = extract_rule_mentions(pages(text_12635))
+    assert {"Sở Ngoại vụ", "Sở Xây dựng", "Công an tỉnh", "UBND xã Tuy Phước"} <= {m.raw for m in mentions_12635}
+
+
+def test_blank_trailing_page_in_native_pdf_does_not_trigger_local_ocr_empty_page(settings):
+    from reportlab.pdfgen import canvas
+    from reportlab.pdfbase import pdfmetrics
+    from reportlab.pdfbase.ttfonts import TTFont
+    import pytest
+    font = next((path for path in [Path("C:/Windows/Fonts/arial.ttf"), Path("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf")] if path.exists()), None)
+    if font is None:
+        pytest.skip("Unicode test font is unavailable")
+    pdfmetrics.registerFont(TTFont("RecipientTestBlank", str(font)))
+    with tempfile.TemporaryDirectory() as tmp:
+        path = Path(tmp) / "trailing_blank.pdf"
+        pdf = canvas.Canvas(str(path), pagesize=(595, 842))
+        pdf.setFont("RecipientTestBlank", 11)
+        pdf.drawString(40, 770, "Kính gửi: Sở Tài chính.")
+        pdf.drawString(40, 250, "Nơi nhận:")
+        pdf.drawString(40, 230, "- Như trên;")
+        pdf.drawString(40, 210, "- Lưu: VT.")
+        pdf.showPage()
+        pdf.showPage()
+        pdf.save()
+        configured = replace(settings, ocr_backend="vietocr", runtime_dir=Path(tmp))
+        with patch("ai_document_sender.ocr._get_reader"), \
+                patch("ai_document_sender.ocr._render_image") as render_img:
+            result = asyncio.run(extract_document(path, None, DocumentMetadata(document_id="blank-p2"), configured))
+    render_img.assert_not_called()
+    assert "local_ocr_empty_page" not in result.review_reasons
+    assert "unreadable_region" not in result.review_reasons
+    assert result.pages[1].get("blank") is True

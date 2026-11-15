@@ -30,7 +30,7 @@ def explicit_service_center(mention, registry):
 def apply_publication_policy(result, registry, metadata):
     context = metadata.publication
     if (getattr(registry, "tenant_id", None) != "vpub" or context is None
-            or context.date < START or not context.external):
+            or not context.external):
         return
     audit = {"policy_version": VERSION, "source": context.mode, "date": context.date.isoformat(),
              "external": context.external, "recipients": [], "missing": []}

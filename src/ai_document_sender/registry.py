@@ -137,11 +137,11 @@ class Registry:
                     norm_disp = normalize(r.display_name or '')
                     names_to_index = {norm_r, norm_disp} if norm_disp else {norm_r}
                     for base in names_to_index:
-                        if not base:
+                        if not base or "_" in base:
                             continue
-                        cleaned = re.sub(r'\s*[-–—:]*\s*(?:tinh\s+)?gia\s+lai$', '', base).strip()
-                        cleaned = re.sub(r'\s*[-–—:]*\s*tinh$', '', cleaned).strip()
-                        variants = {base, cleaned}
+                        mid = re.sub(r'\s*[-–—:]*\s*gia\s+lai$', '', base).strip()
+                        cleaned = re.sub(r'\s*[-–—:]*\s*tinh$', '', mid).strip()
+                        variants = {base, mid, cleaned}
                         for v in list(variants):
                             if v.startswith('so '):
                                 variants.add(v[3:].strip())

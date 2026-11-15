@@ -38,8 +38,9 @@ def make_mention(raw, kind, page, section, evidence_raw=None, references=(), qua
 def _entries(tail: str, section: str):
     """Read bullets and wrapped continuations, stopping at prose/signature."""
     entries, current = [], ""
-    for index, line in enumerate(tail.splitlines()):
-        line = normalized(line)
+    lines = tail.splitlines()
+    for index, raw_line in enumerate(lines):
+        line = normalized(raw_line)
         if not line:
             if section == "kinh_gui" and current:
                 entries.append(current)
@@ -54,7 +55,8 @@ def _entries(tail: str, section: str):
             if section == "kinh_gui":
                 break
             continue
-        if section == "kinh_gui" and current and re.match(r"^(?:Thực hiện|Xét\s|Căn cứ|Tiếp theo|Để\s|Thay mặt|Trên cơ sở|Giao\s|Yêu cầu|UBND tỉnh nhận)", line, re.I):
+        is_prose = bool(re.match(r"^(?:Thực hiện|Xét\s|Căn cứ|Tiếp theo|Để\s|Thay mặt|Trên cơ sở|Giao\s|Yêu cầu|UBND tỉnh nhận|Theo\s|Nhằm\s|Về\s|Ngày\s|Kính\s|Nội dung)", line, re.I))
+        if section == "kinh_gui" and current and is_prose:
             entries.append(current)
             current = ""
             break
@@ -74,6 +76,17 @@ def _entries(tail: str, section: str):
             continue
         if current and not re.search(r"[.;]$", current):
             current += " " + line
+        elif section == "kinh_gui" and current and current.endswith(";") and not is_prose:
+            next_is_bullet = index + 1 < len(lines) and bool(re.match(r"^[-–—•]\s*", normalized(lines[index + 1])))
+            if ":" in current and (line.endswith((";", ".")) or len(line) <= 85 or next_is_bullet):
+                current += " " + line
+            elif line.endswith(";") or next_is_bullet:
+                entries.append(current)
+                current = line
+            else:
+                entries.append(current)
+                current = ""
+                break
         else:
             if current:
                 entries.append(current)
@@ -106,7 +119,14 @@ def _split_recipient(entry, page, section, scope):
     if batch:
         qualifier = "Sở" if "sở" in batch.group(1).lower() else ("UBND xã" if "xã" in batch.group(1) else "UBND phường")
         values = re.sub(r"Văn\s+hóa,\s*Thể\s+thao\s+và\s+Du\s+lịch", lambda m: m.group(0).replace(",", "\x00"), batch.group(2), flags=re.I)
-        for token in re.split(r",\s*", values):
+        if qualifier == "Sở":
+            values = re.sub(
+                r"(?<!\bvà)(?<!\bcủa)\s+(?=(?:Sở\s+)?(?:Nông nghiệp và Môi trường|Nông nghiệp và Phát triển nông thôn|Khoa học và Công nghệ|Giáo dục và Đào tạo|Văn hóa\x00\s*Thể thao và Du lịch|Dân tộc và Tôn giáo|Công Thương|Xây dựng|Tài chính|Nội vụ|Tư pháp|Ngoại vụ|Y tế|Thanh tra)\b)",
+                ", ",
+                values,
+                flags=re.I,
+            )
+        for token in re.split(r"[;,]\s*", values):
             token = token.replace("\x00", ",")
             if token.strip():
                 output.append(make_mention(token, "unit", page, section, entry, references=[entry], qualifier=qualifier, organization_scope=scope))

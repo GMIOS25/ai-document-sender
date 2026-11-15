@@ -59,14 +59,30 @@ def _read_pages(path, settings):
                     if not following or not HEADERS["noi_nhan"].search(header["text"]+" "+" ".join(word["text"] for word in following[:4])):
                         continue
                     top = max(0, header["top"]-3)
-                    signature = [word["x0"] for word in words if word["top"] >= top and word["x0"] > page.width*0.5 and re.fullmatch(r"(?:TL\.|KT\.|TM\.|CHỦ|PHÓ)", word["text"])]
-                    right = min(signature)-6 if signature else page.width
+                    sig_words = [word for word in words if word["top"] >= top and word["x0"] > page.width*0.5 and re.fullmatch(r"(?:TL\.|KT\.|TM\.|TUQ\.|CHỦ|PHÓ|CHÁNH|Q\.)", word["text"])]
+                    if sig_words:
+                        sig_top = min(word["top"] for word in sig_words)
+                        sig_left = min(word["x0"] for word in sig_words)
+                        # Include indented signer names under the right signature column while skipping wide left-to-right footnotes.
+                        sig_block = [
+                            word["x0"] for word in words
+                            if sig_top <= word["top"] <= sig_top + 160
+                            and sig_left - 45 <= word["x0"] and word["x0"] > page.width * 0.53
+                            and not any(abs(other["top"] - word["top"]) < 5 and word["x0"] - 60 <= other["x1"] < word["x0"] for other in words)
+                        ]
+                        right = min(sig_block or [sig_left]) - 6
+                    else:
+                        right = page.width
                     right = max(page.width*0.53, right)
                     bbox = [0, top, min(page.width, right), page.height]
                     record["recipient_bbox"] = bbox
                     record["recipient_text"] = page.crop(tuple(bbox)).extract_text(x_tolerance=2, y_tolerance=3) or ""
                     break
+                if not text.strip() and not page.images and not page.curves and not page.rects and len(page.lines) < 3:
+                    record["blank"] = True
                 pages.append(record)
+            if pages and all(item.get("blank") for item in pages):
+                pages[0].pop("blank", None)
         return pages
     except ExtractionError:
         raise
@@ -78,7 +94,7 @@ def select_vision_pages(pages, limit=6):
     required = []
     reasons = []
     for page in pages:
-        if page.get("local_ocr_complete"):
+        if page.get("local_ocr_complete") or page.get("blank"):
             continue
         text = unicodedata.normalize("NFC", page.get("text", ""))
         recipient = unicodedata.normalize("NFC", page.get("recipient_text", text))
@@ -211,7 +227,7 @@ async def extract_document(path, provider, metadata, settings):
     started = time.monotonic()
     pages = await asyncio.to_thread(_read_pages, path, settings)
     local_audit, local_reasons = None, []
-    missing_text = {page["page"] for page in pages if not page["text"].strip()}
+    missing_text = {page["page"] for page in pages if not page["text"].strip() and not page.get("blank")}
     if settings.ocr_backend == "vietocr" and missing_text:
         local_audit, local_reasons = await asyncio.to_thread(ocr_missing_pages, path, pages, settings)
     rules, rule_reasons = extract_rule_mentions(pages, metadata)

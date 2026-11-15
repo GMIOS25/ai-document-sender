@@ -23,7 +23,7 @@ def setup_registry(settings, *recipients):
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(("day", "external", "tenant", "applies"), [
-    ("2026-10-16", True, "vpub", False),
+    ("2026-10-16", True, "vpub", True),
     ("2026-10-17", False, "vpub", False),
     ("2026-10-17", True, "other", False),
     ("2026-10-17", True, "vpub", True),
@@ -120,3 +120,41 @@ async def test_explicit_pvhcc_in_archival_line_uses_provincial_route(settings):
     assert [r.recipient_id for r in result.units] == ["pvhcc"]
     assert result.units[0].evidence[0].section == "luu"
     assert not result.field_suggestions
+
+
+@pytest.mark.asyncio
+async def test_unit_group_selection_plan_emits_even_via_learned_rule(settings):
+    import json
+    from ai_document_sender.learning import FILENAME
+    u1 = recipient("c1", "Sở Công Thương - tỉnh Gia Lai", "H21.05")
+    u2 = recipient("c2", "Sở Giáo dục và Đào tạo - tỉnh Gia Lai", "H21.06")
+    extra = recipient("c3", "Công an tỉnh Gia Lai", "G01.035.000.000")
+    learning_path = settings.lookup_db.parent / FILENAME
+    learning_path.write_text(json.dumps({
+        "version": 1,
+        "organization_scope": "UBND tỉnh Gia Lai",
+        "rules": [{
+            "raw_alias": "Các sở, ngành thử nghiệm",
+            "verification_status": "verified",
+            "targets": [
+                {"name": u1.name, "recipient_type": "INT_PROVINCE_UNIT", "sphere": "int_province_comm", "code": u1.code},
+                {"name": u2.name, "recipient_type": "INT_PROVINCE_UNIT", "sphere": "int_province_comm", "code": u2.code},
+                {"name": extra.name, "recipient_type": "INT_PROVINCE_UNIT", "sphere": "int_province_comm", "code": extra.code},
+            ],
+        }],
+    }, ensure_ascii=False), encoding="utf-8")
+    registry = setup_registry(settings, u1, u2, extra)
+    registry.unit_groups = [{
+        "id": "group-cac-so", "name": "Các sở", "sphere": "int_province_comm",
+        "complete": True, "member_codes": ["H21.05", "H21.06"],
+    }]
+    mention = Mention(mention_id="m1", raw="Các sở, ngành thử nghiệm", kind="group",
+                      evidence=[Evidence(raw="Các sở, ngành thử nghiệm", page=1, section="noi_nhan")])
+    result = await resolve_mentions(
+        Extraction(mentions=[mention], status="complete"),
+        registry,
+        DocumentMetadata(document_id="doc", issuer="UBND tỉnh Gia Lai"),
+        "job", "hash",
+    )
+    assert {r.code for r in result.units} == {"H21.05", "H21.06", "G01.035.000.000"}
+    assert [(g.group_id, g.sphere) for g in result.selection_plan] == [("group-cac-so", "int_province_comm")]

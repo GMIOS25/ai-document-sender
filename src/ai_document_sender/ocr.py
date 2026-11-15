@@ -179,20 +179,72 @@ def _render_image(path, page_number, settings):
         return opened.convert("RGB")
 
 
+def _normalize_ocr_lines(lines):
+    """Promote narrow low-confidence dash boxes into leading bullets and drop tiny speckles."""
+    cleaned = [dict(line, bbox=list(line["bbox"])) for line in lines]
+    consumed = set()
+    for idx, artifact in enumerate(cleaned):
+        text = artifact["text"].strip()
+        aw = artifact["bbox"][2] - artifact["bbox"][0]
+        if artifact["confidence"] >= 0.45 or aw > 25 or len(text) > 8 or text.startswith(("-", "–", "—", "•")):
+            continue
+        acy = (artifact["bbox"][1] + artifact["bbox"][3]) / 2
+        sibling = None
+        for jdx, cand in enumerate(cleaned):
+            if jdx == idx or jdx in consumed:
+                continue
+            bw = cand["bbox"][2] - cand["bbox"][0]
+            bh = max(1.0, cand["bbox"][3] - cand["bbox"][1])
+            bcy = (cand["bbox"][1] + cand["bbox"][3]) / 2
+            if (
+                cand["confidence"] >= 0.6
+                and bw > aw * 2
+                and not cand["text"].lstrip().startswith(("-", "–", "—", "•"))
+                and artifact["bbox"][0] < cand["bbox"][0]
+                and cand["bbox"][0] - 12 <= artifact["bbox"][2] <= cand["bbox"][0] + 15
+                and abs(acy - bcy) <= max(4.0, bh * 0.6)
+            ):
+                if sibling is None or cand["bbox"][0] < sibling["bbox"][0]:
+                    sibling = cand
+        if sibling is not None:
+            sibling["text"] = "- " + sibling["text"].lstrip()
+            sibling["bbox"][0] = min(sibling["bbox"][0], artifact["bbox"][0])
+            consumed.add(idx)
+    kept = []
+    for idx, line in enumerate(cleaned):
+        if idx in consumed:
+            continue
+        stripped = line["text"].strip()
+        if len(stripped) <= 1 and line["confidence"] < 0.85:
+            continue
+        if len(stripped) <= 2 and line["confidence"] < 0.65:
+            continue
+        kept.append(line)
+    return kept
+
+
 def _layout_text(lines):
     rows = []
     for line in sorted(lines, key=lambda x: (sum(x["bbox"][1::2]) / 2, x["bbox"][0])):
         center = (line["bbox"][1] + line["bbox"][3]) / 2
-        height = line["bbox"][3] - line["bbox"][1]
-        if rows and abs(center - rows[-1][0]) < max(3, height * 0.5):
-            rows[-1][1].append(line)
-        else:
-            rows.append((center, [line]))
+        height = max(1.0, line["bbox"][3] - line["bbox"][1])
+        if rows:
+            row_center, row_min_h, row_items = rows[-1]
+            x_overlap = any(
+                min(item["bbox"][2], line["bbox"][2]) - max(item["bbox"][0], line["bbox"][0]) > 4
+                for item in row_items
+            )
+            if not x_overlap and abs(center - row_center) < max(3.0, min(height, row_min_h) * 0.65):
+                row_items.append(line)
+                rows[-1] = (row_center, min(row_min_h, height), row_items)
+                continue
+        rows.append((center, height, [line]))
     return "\n".join(" ".join(line["text"] for line in sorted(row, key=lambda x: x["bbox"][0]))
-                     for _, row in rows)
+                     for _, _, row in rows)
 
 
 def _apply_page_text(page, lines):
+    lines = _normalize_ocr_lines(lines)
     text = _layout_text(lines)
     page.update(text=text, ocr_text=text, ocr_lines=lines, local_ocr_complete=True)
     header = next((line for line in lines if HEADERS["noi_nhan"].search(line["text"])), None)
@@ -203,8 +255,7 @@ def _apply_page_text(page, lines):
         right = max(page["width"] * 0.53, min(page["width"] * 0.58, min(signatures) - 6)) if signatures else page["width"] * 0.58
         page["recipient_bbox"] = [0, max(0, top), right, page["height"]]
         page["recipient_text"] = _layout_text([line for line in lines if line["bbox"][1] >= top
-                                              and line["bbox"][0] < right
-                                              and not (len(line["text"]) == 1 and line["confidence"] < 0.85)])
+                                              and line["bbox"][0] < right])
 
 
 def ocr_missing_pages(path, pages, settings):
@@ -224,7 +275,7 @@ def ocr_missing_pages(path, pages, settings):
             reasons.append("local_ocr_failed")
         if not reasons:
             for page in pages:
-                if page["text"].strip():
+                if page["text"].strip() or page.get("blank"):
                     continue
                 try:
                     image = _render_image(path, page["page"], settings)

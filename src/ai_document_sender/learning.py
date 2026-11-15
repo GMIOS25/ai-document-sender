@@ -59,7 +59,7 @@ def index_learning(registry):
         registry._review_candidates.setdefault(normalize(rule['raw_alias']), []).append(rule)
 
 
-def learned_alias(registry, raw, metadata, mention):
+def learned_alias(registry, raw, metadata, mention, require_qualifier=False):
     policy = registry.policy.get('learning', {})
     scope = metadata.issuer or mention.organization_scope
     if not scope or normalize(scope) != normalize(policy.get('organization_scope')):
@@ -73,6 +73,8 @@ def learned_alias(registry, raw, metadata, mention):
             rule_sign = normalize(rule['document_context'].get('sign_number', ''))
             if rule_sign and rule_sign != sign_number:
                 continue
+        if require_qualifier and not rule.get('qualifier'):
+            continue
         if rule.get('qualifier') and normalize(rule['qualifier']) != normalize(mention.qualifier):
             continue
         if rule.get('sections'):

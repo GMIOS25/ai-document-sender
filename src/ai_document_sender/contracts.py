@@ -111,7 +111,7 @@ class FieldAssignment(Model):
 
 class GroupSelection(Model):
     group_id: str
-    sphere: Literal["int_province_comm"]
+    sphere: Literal["int_province_comm", "internal"]
     member_codes: list[str]
     registry_version: str
 

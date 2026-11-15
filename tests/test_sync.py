@@ -1,7 +1,8 @@
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 import sqlite3
 from ai_document_sender.config import Settings
-from ai_document_sender.sync import sync_tenant_lookup
+from ai_document_sender.sync import sync_tenant_lookup, sync_tenant_organizations
 from ai_document_sender.tenants import TenantManager
 
 
@@ -121,3 +122,63 @@ def test_smart_sync_lifecycle(tmp_path):
 
     reg_after_del = manager.get_registry("snnmt")
     assert any("Trung tâm Khuyến nông" in r.name for r in reg_after_del.search("Khuyến nông"))
+
+
+def test_concurrent_sync_lookup_and_null_parent_serialize_cleanly(tmp_path):
+    tenants_dir = tmp_path / "tenants"
+    settings = Settings(
+        lookup_db=tmp_path / "legacy.db",
+        tenants_dir=tenants_dir,
+        policy_path=Path(__file__).resolve().parents[1] / "resources/policies/recipient_aliases.v1.json",
+        runtime_dir=tmp_path / "runtime",
+        default_tenant="vpub",
+    )
+    manager = TenantManager(settings)
+
+    def make_payload(suffix: int):
+        return {
+            "person": {
+                "elements": [
+                    {"id": 1, "parent": None, "type": "dept", "name": "Văn phòng", "order": None},
+                    {
+                        "id": 2,
+                        "parent": 1,
+                        "type": "alias",
+                        "name": "Chuyên viên",
+                        "refFullname": f"Nguyễn Văn {suffix}",
+                        "refUname": "nv@example.vn",
+                        "order": 1,
+                    },
+                ]
+            },
+            "unit_internal": {
+                "elements": [
+                    {"code": "H21.24", "name": f"Sở Nông nghiệp {suffix}", "count": 10 + suffix, "uuid": "u1"}
+                ]
+            },
+            "unit_directory": {
+                "elements": [
+                    {"code": "H21.24", "name": f"Sở Nông nghiệp {suffix}", "sphere": "int_province_comm"}
+                ]
+            },
+        }
+
+    with ThreadPoolExecutor(max_workers=6) as pool:
+        futures = [pool.submit(sync_tenant_lookup, "snnmt", make_payload(i % 2), settings, manager) for i in range(6)]
+        futures.append(
+            pool.submit(
+                sync_tenant_organizations,
+                "snnmt",
+                {"source": "search", "elements": [{"code": "H21.25", "name": "Sở Tài chính", "sphere": "int_province_comm"}]},
+                settings,
+                manager,
+            )
+        )
+        results = [f.result() for f in futures]
+
+    assert all(r["status"] in {"synced", "no_change"} for r in results)
+    with sqlite3.connect(manager.get_db_path("snnmt")) as conn:
+        rec_count = conn.execute("SELECT count(*) FROM recipients").fetchone()[0]
+        fts_count = conn.execute("SELECT count(*) FROM recipients_fts").fetchone()[0]
+        assert rec_count == fts_count
+        assert rec_count == 4

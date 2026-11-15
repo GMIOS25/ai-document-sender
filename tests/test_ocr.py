@@ -117,3 +117,41 @@ def test_visible_bullet_is_detected_without_inventing_one_on_plain_text():
     assert not ocr._has_bullet_prefix(image, box)
     cv2.rectangle(image, (10, 48), (19, 50), (0, 0, 0), -1)
     assert ocr._has_bullet_prefix(image, box)
+
+
+def test_layout_text_separates_overlapping_tall_box_and_filters_low_conf_stamp():
+    lines = [
+        {"text": "Nơi nhận:", "confidence": 0.92, "bbox": [95.0, 675.0, 145.0, 690.0]},
+        {"text": "- CVP, PVPXD;", "confidence": 0.81, "bbox": [95.0, 731.9, 170.6, 745.1]},
+        {"text": "- Lưu: VT, T3, X", "confidence": 0.81, "bbox": [91.3, 735.5, 201.9, 770.9]},
+        {"text": "20", "confidence": 0.39, "bbox": [334.7, 736.1, 356.2, 747.4]},
+        {"text": "KT. CHỦ TỊCH", "confidence": 0.90, "bbox": [380.0, 675.0, 460.0, 690.0]},
+    ]
+    page = {"width": 605.0, "height": 844.0}
+    ocr._apply_page_text(page, lines)
+    assert page["recipient_text"].splitlines() == [
+        "Nơi nhận:",
+        "- CVP, PVPXD;",
+        "- Lưu: VT, T3, X",
+    ]
+
+
+def test_low_confidence_left_dash_artifact_becomes_bullet_prefix():
+    lines = [
+        {"text": "Kính gửi:", "confidence": 0.90, "bbox": [210.0, 175.0, 264.0, 194.0]},
+        {"text": "- Sở Ngoại vụ;", "confidence": 0.86, "bbox": [271.0, 191.6, 358.1, 210.8]},
+        {"text": "Sở Văn hóa, Thể thao và Du lịch;", "confidence": 0.89, "bbox": [283.4, 208.0, 464.6, 226.4]},
+        {"text": "Part", "confidence": 0.14, "bbox": [275.1, 212.8, 289.0, 220.5]},
+        {"text": "Sở Xây dựng;", "confidence": 0.88, "bbox": [283.5, 224.1, 361.5, 243.3]},
+        {"text": "STATES", "confidence": 0.23, "bbox": [274.2, 229.4, 289.1, 237.2]},
+        {"text": "- UBND xã Tuy Phước.", "confidence": 0.84, "bbox": [268.9, 258.4, 406.3, 274.0]},
+    ]
+    page = {"width": 597.0, "height": 842.0}
+    ocr._apply_page_text(page, lines)
+    assert page["text"].splitlines() == [
+        "Kính gửi:",
+        "- Sở Ngoại vụ;",
+        "- Sở Văn hóa, Thể thao và Du lịch;",
+        "- Sở Xây dựng;",
+        "- UBND xã Tuy Phước.",
+    ]

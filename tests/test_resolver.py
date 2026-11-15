@@ -225,3 +225,122 @@ async def test_generic_provincial_association_not_wrong_province(settings):
 async def test_partial_always_needs_review(settings):
     r = await resolve_mentions(Extraction(status="partial"), Registry(settings), DocumentMetadata(document_id="doc"), "j", "h")
     assert r.needs_review and "extraction_partial" in r.review_reasons
+
+
+@pytest.mark.asyncio
+async def test_qualified_so_ct_resolves_only_department_even_when_standalone_ct_rule_exists(settings):
+    import json, sqlite3
+    from ai_document_sender.learning import FILENAME
+    with sqlite3.connect(settings.lookup_db) as conn:
+        conn.execute("INSERT INTO recipients VALUES ('comm_ct','comm_ct','Sở Công Thương - tỉnh Gia Lai',NULL,'Sở Công Thương - tỉnh Gia Lai','H21.05','int_province_comm','INT_PROVINCE_UNIT','Nội tỉnh Gia Lai',10,'{}')")
+    learning_path = settings.lookup_db.parent / FILENAME
+    learning_path.write_text(json.dumps({
+        "version": 1,
+        "organization_scope": "UBND tỉnh Gia Lai",
+        "rules": [
+            {
+                "raw_alias": "CT",
+                "verification_status": "verified",
+                "targets": [
+                    {"name": "Phạm Anh Tuấn", "role": "Chủ tịch UBND tỉnh", "recipient_type": "INTERNAL_PERSON", "sphere": "internal", "code": "tuanpa@vpub.gialai.gov.vn"},
+                    {"name": "Sở Công Thương - tỉnh Gia Lai", "recipient_type": "INT_PROVINCE_UNIT", "sphere": "int_province_comm", "code": "H21.05"},
+                ],
+            },
+            {
+                "raw_alias": "Sở CT",
+                "verification_status": "verified",
+                "targets": [
+                    {"name": "Sở Công Thương - tỉnh Gia Lai", "recipient_type": "INT_PROVINCE_UNIT", "sphere": "int_province_comm", "code": "H21.05"},
+                ],
+            },
+        ],
+    }, ensure_ascii=False), encoding="utf-8")
+    registry = Registry(settings)
+    registry.tenant_id = "vpub"
+    meta = DocumentMetadata(document_id="doc", issuer="UBND tỉnh Gia Lai")
+    qualified = await resolve_mentions(
+        Extraction(mentions=[mention("CT", "unit", qualifier="Sở")], status="complete"),
+        registry, meta, "job1", "h1",
+    )
+    assert not qualified.people
+    assert [u.recipient_id for u in qualified.units] == ["comm_ct"]
+    standalone = await resolve_mentions(
+        Extraction(mentions=[mention("CT", "role", qualifier=None)], status="complete"),
+        registry, meta, "job2", "h2",
+    )
+    assert [p.recipient_id for p in standalone.people] == ["internal_270"]
+    assert [u.recipient_id for u in standalone.units] == ["comm_ct"]
+
+
+@pytest.mark.asyncio
+async def test_vpub_sign_number_suffix_adds_default_department_head_when_missing(settings):
+    import sqlite3
+    with sqlite3.connect(settings.lookup_db) as conn:
+        for rid, role, person, email in [
+            ("internal_319", "Trưởng phòng T1", "Lê Đức Phương", "phuongld@vpub.gialai.gov.vn"),
+            ("internal_413", "Trưởng phòng N1", "Võ Văn Cảnh", "canhvv@vpub.gialai.gov.vn"),
+            ("internal_305", "Trưởng phòng X1", "Nguyễn Cửu Quốc Dũng", "dungncq@vpub.gialai.gov.vn"),
+            ("internal_397", "Trưởng phòng C1", "Hoàng Oanh", "oanhh@vpub.gialai.gov.vn"),
+        ]:
+            conn.execute("INSERT INTO recipients VALUES (?,?,?,?,?,?,?,?,?,0,'{}')",
+                         (rid, rid.removeprefix("internal_"), role, person, f"{person} - {role}", email, "internal", "INTERNAL_PERSON", "Phòng"))
+    registry = Registry(settings)
+    registry.tenant_id = "vpub"
+    for suffix, expected_id in [
+        ("KTTH", "internal_319"),
+        ("NNMT", "internal_413"),
+        ("XDCT", "internal_305"),
+        ("NC", "internal_397"),
+        ("KGVX", "internal_491"),
+    ]:
+        res = await resolve_mentions(
+            Extraction(mentions=[mention("Sở Văn hóa, Thể thao và Du lịch - tỉnh Gia Lai", "unit")], status="complete"),
+            registry,
+            DocumentMetadata(document_id=f"doc-{suffix}", sign_number=f"13000/UBND-{suffix}"),
+            f"job-{suffix}", f"h-{suffix}",
+        )
+        assert expected_id in [p.recipient_id for p in res.people]
+
+    dedup = await resolve_mentions(
+        Extraction(mentions=[mention("V1", "staff_code", "luu")], status="complete"),
+        registry,
+        DocumentMetadata(document_id="doc-v1", sign_number="13000/UBND-KGVX"),
+        "job-v1", "h-v1",
+    )
+    assert [p.recipient_id for p in dedup.people] == ["internal_491"]
+
+    unknown = await resolve_mentions(
+        Extraction(mentions=[mention("Sở Nội vụ - tỉnh Gia Lai", "unit")], status="complete"),
+        registry,
+        DocumentMetadata(document_id="doc-unk", sign_number="13000/UBND-HCTC"),
+        "job-unk", "h-unk",
+    )
+    assert unknown.people == []
+
+
+@pytest.mark.asyncio
+async def test_internal_dept_selection_plan_emits_only_for_complete_child_coverage(settings):
+    import sqlite3
+    with sqlite3.connect(settings.lookup_db) as conn:
+        conn.execute("CREATE TABLE internal_nodes (id TEXT PRIMARY KEY, parent_id TEXT)")
+        conn.executemany("INSERT INTO internal_nodes VALUES (?, ?)", [
+            ("269", "249"), ("286", "249"), ("338", "249"),
+            ("287", "286"), ("297", "286"),
+            ("341", "338"), ("485", "338"), ("343", "338"),
+        ])
+    registry = Registry(settings)
+    registry.tenant_id = "vpub"
+    res = await resolve_mentions(
+        Extraction(mentions=[
+            mention("Chánh Văn phòng UBND tỉnh", "person", mid="m1"),
+            mention("Trương Công Hoài", "person", mid="m2"),
+            mention("V5", "staff_code", "luu", mid="m3"),
+            mention("V8", "staff_code", "luu", mid="m4"),
+        ], status="complete"),
+        registry,
+        DocumentMetadata(document_id="doc-parent"),
+        "job-parent", "h-parent",
+    )
+    assert [(g.group_id, g.sphere, sorted(g.member_codes)) for g in res.selection_plan] == [
+        ("286", "internal", ["287", "297"]),
+    ]
