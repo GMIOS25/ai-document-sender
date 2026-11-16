@@ -97,16 +97,44 @@ async def test_vpub_btcd_ldcv_and_20_unit_rules():
         assert "internal_334" not in {r.recipient_id for r in result.people}
 
     expected_20 = expected_20_provincial_codes()
-    for alias in ("Các sở, ban, ngành", "Các Sở, ngành tỉnh", "Các sở, ban, ngành thuộc tỉnh", "Các sở, ban ngành tỉnh"):
-        mention = make_mention(alias, "group", 1, "noi_nhan", organization_scope="UBND tỉnh Gia Lai")
-        result = await resolve_mentions(
-            Extraction(mentions=[mention], status="complete"),
+    for alias in (
+        "Các sở, ban, ngành",
+        "Các Sở, ngành tỉnh",
+        "Các sở, ban, ngành thuộc tỉnh",
+        "Các sở, ban ngành tỉnh",
+        "Các cơ quan chuyên môn thuộc UBND tỉnh",
+        "Cơ quan chuyên môn thuộc Ủy ban nhân dân tỉnh",
+        "Các cơ quan chuyên môn thuộc tỉnh",
+        "Các sở, ban, ngành liên quan",
+        "Các sở, ban thuộc tỉnh",
+    ):
+        for sec in ("kinh_gui", "noi_nhan"):
+            mention = make_mention(alias, "group", 1, sec, organization_scope="UBND tỉnh Gia Lai")
+            result = await resolve_mentions(
+                Extraction(mentions=[mention], status="complete"),
+                registry,
+                DocumentMetadata(document_id="13095/UBND-NC", sign_number="13095/UBND-NC", issuer="UBND tỉnh Gia Lai"),
+                "job",
+                "sha",
+            )
+            assert {r.code for r in result.units} == expected_20, f"{alias} ({sec}) got { {r.code for r in result.units} }"
+
+    for alias, expected_ids in [
+        ("Lãnh đạo UBND tỉnh", {"internal_270", "internal_272", "internal_274", "internal_276", "internal_278", "internal_280", "internal_284"}),
+        ("Chủ tịch, các PCT UBND tỉnh", {"internal_270", "internal_272", "internal_274", "internal_276", "internal_278", "internal_280", "internal_284"}),
+        ("Lãnh đạo VP UBND tỉnh", {"internal_287", "internal_289", "internal_293", "internal_295", "internal_297", "internal_299"}),
+        ("Lãnh đạo Văn phòng UBND tỉnh", {"internal_287", "internal_289", "internal_293", "internal_295", "internal_297", "internal_299"}),
+    ]:
+        m = make_mention(alias, "group", 1, "noi_nhan", organization_scope="UBND tỉnh Gia Lai")
+        res = await resolve_mentions(
+            Extraction(mentions=[m], status="complete"),
             registry,
-            DocumentMetadata(document_id="13095/UBND-NC", sign_number="13095/UBND-NC", issuer="UBND tỉnh Gia Lai"),
+            DocumentMetadata(document_id="doc-ld", issuer="UBND tỉnh Gia Lai"),
             "job",
             "sha",
         )
-        assert {r.code for r in result.units} == expected_20, f"{alias} got { {r.code for r in result.units} }"
+        assert {r.recipient_id for r in res.people} == expected_ids, f"{alias} got {[r.recipient_id for r in res.people]}"
+        assert not res.units
 
 
 async def test_vpub_kho_bac_ct_and_project_boards():
@@ -121,20 +149,21 @@ async def test_vpub_kho_bac_ct_and_project_boards():
         "job",
         "sha",
     )
-    assert any(r.code in {"G12.12.56", "G12.12.64"} for r in res_xiv.units)
+    assert {r.code for r in res_xiv.units} == {"G12.12.56", "G12.12.64"}
     assert all("khu vực XIV" in r.name for r in res_xiv.units)
 
     for raw_xv in ("Kho bạc Nhà nước khu vực XV", "Kho bạc Nhà nước Khu vực XV", "Kho bạc KV XV"):
-        m_xv = make_mention(raw_xv, "unit", 1, "noi_nhan", organization_scope="UBND tỉnh Gia Lai")
-        res_xv = await resolve_mentions(
-            Extraction(mentions=[m_xv], status="complete"),
-            registry,
-            DocumentMetadata(document_id="12976/UBND-KTTH", sign_number="12976/UBND-KTTH", issuer="UBND tỉnh Gia Lai"),
-            "job",
-            "sha",
-        )
-        assert [r.code for r in res_xv.units] == ["G12.12.64"]
-        assert res_xv.units[0].name == "Kho bạc Nhà nước khu vực XIV"
+        for sec in ("kinh_gui", "noi_nhan"):
+            m_xv = make_mention(raw_xv, "unit", 1, sec, organization_scope="UBND tỉnh Gia Lai")
+            res_xv = await resolve_mentions(
+                Extraction(mentions=[m_xv], status="complete"),
+                registry,
+                DocumentMetadata(document_id="12976/UBND-KTTH", sign_number="12976/UBND-KTTH", issuer="UBND tỉnh Gia Lai"),
+                "job",
+                "sha",
+            )
+            assert [r.code for r in res_xv.units] == ["G12.12.52"]
+            assert res_xv.units[0].name == "Kho bạc Nhà nước khu vực XV"
 
     m_ct = make_mention("CT", "role", 1, "noi_nhan", organization_scope="UBND tỉnh Gia Lai")
     res_ct = await resolve_mentions(
@@ -145,7 +174,87 @@ async def test_vpub_kho_bac_ct_and_project_boards():
         "sha",
     )
     assert {r.recipient_id for r in res_ct.people} == {"internal_270"}
-    assert {r.code for r in res_ct.units} == {"H21.05"}
+    assert not res_ct.units
+
+    m_ct_so = make_mention("CT", "unit", 1, "noi_nhan", qualifier="Sở", organization_scope="UBND tỉnh Gia Lai")
+    res_ct_so = await resolve_mentions(
+        Extraction(mentions=[m_ct_so], status="complete"),
+        registry,
+        DocumentMetadata(document_id="doc-ct-so", issuer="UBND tỉnh Gia Lai"),
+        "job",
+        "sha",
+    )
+    assert not res_ct_so.people
+    assert [r.code for r in res_ct_so.units] == ["H21.05"]
+
+    res_ct_2 = await resolve_mentions(
+        Extraction(mentions=[m_ct, m_ct_so], status="complete"),
+        registry,
+        DocumentMetadata(document_id="doc-ct-2", issuer="UBND tỉnh Gia Lai"),
+        "job",
+        "sha",
+    )
+    assert {r.recipient_id for r in res_ct_2.people} == {"internal_270"}
+    assert [r.code for r in res_ct_2.units] == ["H21.05"]
+
+    for raw in ("Thống kê tỉnh",):
+        for sec in ("kinh_gui", "noi_nhan"):
+            res_tk = await resolve_mentions(
+                Extraction(mentions=[make_mention(raw, "unit", 1, sec, organization_scope="UBND tỉnh Gia Lai")], status="complete"),
+                registry,
+                DocumentMetadata(document_id="doc-tk", issuer="UBND tỉnh Gia Lai"),
+                "job",
+                "sha",
+            )
+            assert {r.code for r in res_tk.units} == {"H21.98", "G12.99.61"}
+
+    res_cuc2 = await resolve_mentions(
+        Extraction(mentions=[make_mention("Cục II - Thanh tra Chính phủ", "unit", 1, "noi_nhan", organization_scope="UBND tỉnh Gia Lai")], status="complete"),
+        registry,
+        DocumentMetadata(document_id="doc-cuc2", issuer="UBND tỉnh Gia Lai"),
+        "job",
+        "sha",
+    )
+    assert [r.code for r in res_cuc2.units] == ["000.00.11.G20"]
+
+    res_vpub = await resolve_mentions(
+        Extraction(mentions=[make_mention("Văn phòng UBND tỉnh", "unit", 1, "kinh_gui", organization_scope="UBND tỉnh Gia Lai")], status="complete"),
+        registry,
+        DocumentMetadata(document_id="doc-vpub", issuer="UBND tỉnh Gia Lai"),
+        "job",
+        "sha",
+    )
+    assert [r.code for r in res_vpub.units] == ["H21.21"]
+
+    for pvhcc_raw, sec in [("PVHCC", "luu"), ("TTPVHCC", "noi_nhan"), ("Trung tâm PVHCC", "noi_nhan")]:
+        res_pv = await resolve_mentions(
+            Extraction(mentions=[make_mention(pvhcc_raw, "unit", 1, sec, organization_scope="UBND tỉnh Gia Lai")], status="complete"),
+            registry,
+            DocumentMetadata(document_id="doc-pv", issuer="UBND tỉnh Gia Lai"),
+            "job",
+            "sha",
+        )
+        assert {r.recipient_id for r in res_pv.people} == {"internal_500"}
+        assert [r.code for r in res_pv.units] == ["H21.21.04"]
+
+    res_isom = await resolve_mentions(
+        Extraction(mentions=[make_mention("Các thành viên Ban Chỉ đạo phục vụ tổ chức Hội nghị ISOM – APEC 2027 tại Gia Lai", "group", 1, "kinh_gui", organization_scope="UBND tỉnh Gia Lai")], status="complete"),
+        registry,
+        DocumentMetadata(document_id="doc-isom", issuer="UBND tỉnh Gia Lai"),
+        "job",
+        "sha",
+    )
+    assert "020100684378" in {r.code for r in res_isom.units}
+    assert len(res_isom.units) == 14
+
+    res_sncl = await resolve_mentions(
+        Extraction(mentions=[make_mention("Các đơn vị sự nghiệp công lập thuộc UBND tỉnh", "group", 1, "kinh_gui", organization_scope="UBND tỉnh Gia Lai")], status="complete"),
+        registry,
+        DocumentMetadata(document_id="doc-sncl", issuer="UBND tỉnh Gia Lai"),
+        "job",
+        "sha",
+    )
+    assert {r.code for r in res_sncl.units} == {"H21.43", "H21.22", "H21.39", "H21.38", "H21.40", "H21.41", "H21.49", "H21.21"}
 
     for raw, expected_code in [
         ("Ban Quản lý các dự án đầu tư xây dựng tỉnh", "H21.38"),
@@ -171,3 +280,35 @@ def test_vpub_lookup_db_unit_groups_cleaned():
     assert not any("Môi trưởng" in name for name in names)
     assert len(coastal) == 1
     assert len(json.loads(coastal[0][1])) == 18
+
+
+def test_vpub_muc5_qlda_boards_and_pcttt_rules():
+    import asyncio
+    from ai_document_sender.config import Settings
+    from ai_document_sender.contracts import DocumentMetadata, Extraction
+    from ai_document_sender.mentions import make_mention
+    from ai_document_sender.resolver import resolve_mentions
+    from ai_document_sender.tenants import TenantManager
+
+    registry = TenantManager(Settings.from_env()).get_registry("vpub")
+    meta = DocumentMetadata(document_id="test_stt353_74", issuer="UBND tỉnh Gia Lai")
+
+    for qualifier in ("Ban QLDA", None):
+        board_mentions = [
+            make_mention("Giao thông và Dân dụng", "unit", 1, "kinh_gui", qualifier=qualifier),
+            make_mention("Nông nghiệp và PTNT", "unit", 1, "kinh_gui", qualifier=qualifier),
+            make_mention("Đầu tư xây dựng tỉnh", "unit", 1, "kinh_gui", qualifier=qualifier),
+        ]
+        board_mentions.append(make_mention("PCTTT UBND tỉnh", "person", 1, "noi_nhan"))
+        result = asyncio.run(
+            resolve_mentions(
+                Extraction(mentions=board_mentions, status="complete"),
+                registry,
+                meta,
+                job_id="j_stt353",
+                input_sha256="h_stt353",
+            )
+        )
+        assert {u.code for u in result.units} == {"H21.40", "H21.41", "H21.38"}
+        assert {p.recipient_id for p in result.people} == {"internal_272"}
+        assert result.unresolved == []

@@ -332,3 +332,56 @@ def test_blank_trailing_page_in_native_pdf_does_not_trigger_local_ocr_empty_page
     assert "local_ocr_empty_page" not in result.review_reasons
     assert "unreadable_region" not in result.review_reasons
     assert result.pages[1].get("blank") is True
+
+
+def test_kinh_gui_without_colon_body_bleed_and_tm_signature():
+    no_colon = (
+        "Kính gửi\n"
+        "- Sở Nông nghiệp và Môi trường;\n"
+        "- Sở Công Thương.\n"
+        "Thực hiện Văn bản số 12017/BNNMT.\n"
+        "Nơi nhận: TM\n"
+        "- Như trên;\n"
+        "- Lưu: VT."
+    )
+    mentions_nc, _ = extract_rule_mentions(pages(no_colon))
+    raws_nc = {m.raw for m in mentions_nc}
+    assert {"Sở Nông nghiệp và Môi trường", "Sở Công Thương", "VT"} <= raws_nc
+    assert "TM" not in raws_nc
+
+    for bleed_doc in [
+        "Kính gửi: Sở Giáo dục và Đào tạo\nSau khi xem xét Tờ trình số 6802/TTr-SGDĐT ngày 07/10/2026.\nNơi nh ận: T M\n- Như trên;\n- Lưu: VT.",
+        "Kính gửi: Bộ Công Thương\nPhát triển năng lượng tái tạo là một trong những định hướng quan trọng.\nNơi nhận:\n- Như trên.",
+        "Kính gửi:\n- Sở Tài chính\n- Căn cứ Quyết định số 3009/QĐ-UBND năm 2026.\nNơi nhận:\n- Như trên.",
+        "Kính gửi:\nỦy ban nhân dân tỉnh Gia Lai trân trọng cảm ơn sự quan tâm.\nNơi nhận:\n- Lưu: VT.",
+    ]:
+        ms, _ = extract_rule_mentions(pages(bleed_doc))
+        for m in ms:
+            assert len(m.raw) <= 60, f"Unexpected body bleed mention: {m.raw!r}"
+            assert m.raw not in {"TM", "T M"}
+
+
+def test_extract_ban_qlda_batch_enumeration_stt353():
+    mentions_out, _ = extract_rule_mentions(
+        [
+            {
+                "page": 1,
+                "text": (
+                    "Kính gửi\n"
+                    "- Các Ban QLDA: Giao thông và Dân dụng, Nông nghiệp và PTNT, Đầu tư xây dựng tỉnh.\n"
+                    "Nơi nhận:\n"
+                    "- Như trên;\n"
+                    "- PCTTT UBND tỉnh;\n"
+                    "- Lưu: VT."
+                ),
+            }
+        ]
+    )
+    kinh_gui = [(m.raw, m.qualifier) for m in mentions_out if m.evidence[0].section == "kinh_gui"]
+    assert kinh_gui == [
+        ("Giao thông và Dân dụng", "Ban QLDA"),
+        ("Nông nghiệp và PTNT", "Ban QLDA"),
+        ("Đầu tư xây dựng tỉnh", "Ban QLDA"),
+    ]
+    noi_nhan = [m.raw for m in mentions_out if m.evidence[0].section == "noi_nhan"]
+    assert "PCTTT UBND tỉnh" in noi_nhan

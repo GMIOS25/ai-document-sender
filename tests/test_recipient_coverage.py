@@ -23,7 +23,7 @@ def setup_registry(settings, *recipients):
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(("day", "external", "tenant", "applies"), [
-    ("2026-10-16", True, "vpub", True),
+    ("2026-10-16", True, "vpub", False),
     ("2026-10-17", False, "vpub", False),
     ("2026-10-17", True, "other", False),
     ("2026-10-17", True, "vpub", True),

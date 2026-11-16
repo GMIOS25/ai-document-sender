@@ -245,3 +245,25 @@ async def test_document_scoped_learning_and_review_candidates(settings):
     assert cand is not None
     assert cand['verification_status'] == 'review_required'
     assert cand['rule']['targets'][0]['name'] == 'Sở Văn hóa, Thể thao và Du lịch - tỉnh Gia Lai'
+
+
+async def test_duplicate_verified_rules_agreeing_on_targets_do_not_conflict(settings):
+    learning_file(settings, [
+        {'raw_alias': 'Báo tỉnh đồng thuận', 'targets': [target('Báo Gia Lai')],
+         'sections': ['noi_nhan'], 'verification_status': 'verified',
+         'target_routes': []},
+        {'raw_alias': 'Báo tỉnh đồng thuận', 'targets': [target('Báo Gia Lai')],
+         'sections': ['kinh_gui', 'noi_nhan'], 'verification_status': 'verified'},
+    ], target_routes=[{'name': 'Báo Gia Lai', 'code': 'H21.94', 'sphere': 'int_province_comm',
+                       'verification_status': 'verified', 'verified_by': 'user'}])
+    res = await run(Registry(settings), 'Báo tỉnh đồng thuận', kind='unit')
+    assert [u.recipient_id for u in res.units] == ['comm_news_1']
+    assert not res.unresolved
+
+    learning_file(settings, [
+        {'raw_alias': 'Đơn vị mâu thuẫn', 'targets': [target('Sở Nội vụ - tỉnh Gia Lai')], 'verification_status': 'verified'},
+        {'raw_alias': 'Đơn vị mâu thuẫn', 'targets': [target('Sở Văn hóa, Thể thao và Du lịch - tỉnh Gia Lai')], 'verification_status': 'verified'},
+    ])
+    conflict = await run(Registry(settings), 'Đơn vị mâu thuẫn', kind='unit')
+    assert not conflict.units
+    assert conflict.unresolved[0].reason == 'ambiguous_learned_alias'

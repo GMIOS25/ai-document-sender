@@ -16,6 +16,58 @@ VPUB_DEPARTMENT_HEADS = {
     "NC": "oanhh@vpub.gialai.gov.vn",
     "KGVX": "danhnh@vpub.gialai.gov.vn",
 }
+# Explicit DFS parent->child expansion applies ONLY to these two VPUB leadership nodes.
+LEADERSHIP_PARENT_MAP = {
+    "internal_269": "internal_269",
+    "internal_8969": "internal_269",
+    "internal_286": "internal_286",
+    "internal_8978": "internal_286",
+}
+
+
+def _expand_leadership_parents(candidates, registry):
+    if not any(r.recipient_id in LEADERSHIP_PARENT_MAP for r in candidates):
+        return None
+    expanded = []
+    for r in candidates:
+        dept_id = LEADERSHIP_PARENT_MAP.get(r.recipient_id)
+        if not dept_id:
+            expanded.append(r)
+            continue
+        member_ids = getattr(registry, "recipient_expansions", {}).get(dept_id, [])
+        children = [registry.by_id[mid] for mid in member_ids if mid in registry.by_id]
+        if not children:
+            dept = registry.by_id.get(dept_id)
+            if dept is not None:
+                children = [
+                    item for item in registry.by_id.values()
+                    if item.recipient_type == "INTERNAL_PERSON" and normalize(item.parent_name) == normalize(dept.name)
+                ]
+        if children:
+            expanded.extend(children)
+        elif r.recipient_type != "INTERNAL_GROUP":
+            expanded.append(r)
+    return expanded
+
+
+def _apply_ct_policy(mention, candidates, registry, ct_count, has_qualified_so_ct):
+    if normalize(mention.raw) != "ct":
+        return candidates
+    if normalize(mention.qualifier) == "so":
+        dept_only = [r for r in candidates if r.recipient_type != "INTERNAL_PERSON"]
+        return dept_only or candidates
+    if mention.qualifier:
+        return candidates
+    if ct_count <= 1:
+        people_only = [r for r in candidates if r.recipient_type == "INTERNAL_PERSON"]
+        return people_only or candidates
+    if not has_qualified_so_ct:
+        merged = {r.recipient_id: r for r in candidates}
+        for unit in registry.exact_code("H21.05"):
+            if unit.sphere == "int_province_comm":
+                merged.setdefault(unit.recipient_id, unit)
+        return list(merged.values())
+    return candidates
 
 
 def expand_lexical(raw):
@@ -55,6 +107,11 @@ async def resolve_mentions(extraction, registry, metadata, job_id, input_sha256,
         mentions=extraction.mentions, review_reasons=list(extraction.review_reasons),
         audit={"extraction":extraction.audit,"resolution_context":{"department_code":department,"department_source":department_source}})
     chosen, group_selections, group_dependencies = {}, {}, {}
+    ct_mentions = [m for m in extraction.mentions if normalize(m.raw) == "ct"]
+    ct_count = len(ct_mentions)
+    has_qualified_so_ct = any(normalize(m.qualifier) == "so" for m in ct_mentions) or any(
+        normalize(m.raw) in {"so ct", "so cong thuong"} for m in extraction.mentions
+    )
     for mention in extraction.mentions:
         raw = unicodedata.normalize("NFC", mention.raw).strip(" ;:-")
         combined = raw
@@ -110,6 +167,12 @@ async def resolve_mentions(extraction, registry, metadata, job_id, input_sha256,
                     group_selections[selection.group_id] = selection
             elif not candidates:
                 reason = "missing_group_membership"
+        elif learned and learned.get('member_ids') and mention.kind != 'reference' and learned.get('verification_status') == 'verified':
+            candidates = [registry.by_id[rid] for rid in learned['member_ids']]
+            method = 'verified_sheet_alias'
+            result.audit.setdefault('learned_aliases', []).append({
+                'mention_id': mention.mention_id, 'source_rows': learned.get('source_rows', []),
+                'source': learned.get('source')})
         elif service_center is not None:
             candidates, method = service_center, "explicit_vpub_service_center"
             if not candidates:
@@ -132,12 +195,6 @@ async def resolve_mentions(extraction, registry, metadata, job_id, input_sha256,
         elif pending and pending.get("action") == "exclude":
             result.excluded.append(Excluded(mention_id=mention.mention_id,raw=mention.raw,evidence=mention.evidence,reason=pending.get("reason","archival_reference")))
             continue
-        elif learned and learned.get('member_ids') and mention.kind != 'reference':
-            candidates = [registry.by_id[rid] for rid in learned['member_ids']]
-            method = 'verified_sheet_alias'
-            result.audit.setdefault('learned_aliases', []).append({
-                'mention_id': mention.mention_id, 'source_rows': learned.get('source_rows', []),
-                'source': learned.get('source')})
         elif all(e.section == "luu" for e in mention.evidence) and not re.fullmatch(r"[A-Za-z]{1,3}\d{1,3}", raw) and not pending:
             reason = "policy_unknown"
         elif normalize(raw) in {"nhu tren", "nhu kinh gui"} or mention.kind == "reference":
@@ -254,8 +311,13 @@ async def resolve_mentions(extraction, registry, metadata, job_id, input_sha256,
         if not candidates and not reason:
             reason = "not_in_registry"
         if candidates and not reason:
-            if any(r.recipient_type == "INTERNAL_GROUP" and r.recipient_id not in registry.selectable_groups for r in candidates):
+            expanded_leaders = _expand_leadership_parents(candidates, registry)
+            if expanded_leaders is not None:
+                candidates = expanded_leaders
+            elif any(r.recipient_type == "INTERNAL_GROUP" and r.recipient_id not in registry.selectable_groups for r in candidates):
                 reason = "missing_group_membership"
+        if candidates and not reason:
+            candidates = _apply_ct_policy(mention, candidates, registry, ct_count, has_qualified_so_ct)
         if reason:
             result.unresolved.append(Unresolved(mention_id=mention.mention_id,raw=mention.raw,kind=mention.kind,evidence=mention.evidence,reason=reason,candidates=candidates))
             continue

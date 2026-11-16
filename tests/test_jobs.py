@@ -40,9 +40,9 @@ def test_idempotency_conflict_and_lease_recovery(settings):
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("change", ["extractor", "resolver", "prompt", "model", "vision_limit", "ocr", "legacy"])
+@pytest.mark.parametrize("change", ["extractor", "resolver", "publication", "prompt", "model", "vision_limit", "ocr", "legacy"])
 async def test_same_request_reprocesses_after_processing_change(settings, monkeypatch, change):
-    from ai_document_sender import extraction, provider, resolver
+    from ai_document_sender import extraction, provider, publication, resolver
 
     store = JobStore(settings)
     calls = []
@@ -62,6 +62,8 @@ async def test_same_request_reprocesses_after_processing_change(settings, monkey
         monkeypatch.setattr(extraction, "EXTRACTOR_VERSION", "new-extractor")
     elif change == "resolver":
         monkeypatch.setattr(resolver, "VERSION", "new-resolver", raising=False)
+    elif change == "publication":
+        monkeypatch.setattr(publication, "VERSION", "new-publication")
     elif change == "prompt":
         monkeypatch.setattr(provider, "PROMPT_VERSION", "new-prompt")
     elif change == "model":

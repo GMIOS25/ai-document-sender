@@ -97,6 +97,11 @@ def learned_alias(registry, raw, metadata, mention, require_qualifier=False):
         verified = [r for r in matches if r.get('verification_status') == 'verified']
         if len(verified) == 1:
             matches = verified
+        elif verified:
+            agreed = [tuple(sorted(m.recipient_id for m in members))
+                      for members, reason in (bind_targets(r, registry) for r in verified) if not reason]
+            if len(agreed) == len(verified) and len(set(agreed)) == 1:
+                matches = [verified[0]]
     if len(matches) != 1:
         return {'verification_status': 'conflicting', 'pending_reason': 'ambiguous_learned_alias'}
     rule = matches[0]

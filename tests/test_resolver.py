@@ -139,8 +139,6 @@ async def test_archive_department_is_not_automatically_a_recipient(settings):
 
 
 @pytest.mark.parametrize("raw,kind,quantifier,rid,source_id,recipient_type", [
-    ("Lãnh đạo UBND tỉnh", "unit", None, "internal_269", "269", "INTERNAL_DEPT"),
-    ("Lãnh đạo Văn phòng UBND tỉnh", "group", "all", "internal_286", "286", "INTERNAL_DEPT"),
     ("Phòng Khoa giáo Văn xã", "unit", None, "internal_338", "338", "INTERNAL_DEPT"),
     ("Toàn bộ Phòng Khoa giáo Văn xã", "group", "all", "internal_338", "338", "INTERNAL_DEPT"),
     ("Tất cả Phòng Khoa giáo Văn xã", "group", "all", "internal_338", "338", "INTERNAL_DEPT"),
@@ -157,6 +155,16 @@ async def test_parent_node_keeps_identity_without_expanding_children(settings, r
         (rid, source_id, recipient_type, "internal")]
     assert result.units[0].mention_ids == ["m1"]
     assert result.units[0].evidence[0].raw == raw
+
+
+async def test_leadership_parent_nodes_dfs_expand_to_children(settings):
+    ubnd = await resolve(settings, [mention("Lãnh đạo UBND tỉnh", "unit")])
+    assert not ubnd.units and not ubnd.unresolved
+    assert {r.recipient_id for r in ubnd.people} == {"internal_270", "internal_276", "internal_278"}
+
+    vp = await resolve(settings, [mention("Lãnh đạo Văn phòng UBND tỉnh", "group", quantifier="all")])
+    assert not vp.units and not vp.unresolved
+    assert {r.recipient_id for r in vp.people} == {"internal_287", "internal_293", "internal_297"}
 
 
 async def test_collective_without_matching_parent_still_requires_membership(settings):
@@ -269,7 +277,44 @@ async def test_qualified_so_ct_resolves_only_department_even_when_standalone_ct_
         registry, meta, "job2", "h2",
     )
     assert [p.recipient_id for p in standalone.people] == ["internal_270"]
-    assert [u.recipient_id for u in standalone.units] == ["comm_ct"]
+    assert not standalone.units
+    both_ct = await resolve_mentions(
+        Extraction(mentions=[mention("CT", "role", section="kinh_gui", mid="m1"), mention("CT", "role", section="noi_nhan", mid="m2")], status="complete"),
+        registry, meta, "job3", "h3",
+    )
+    assert [p.recipient_id for p in both_ct.people] == ["internal_270"]
+    assert [u.recipient_id for u in both_ct.units] == ["comm_ct"]
+
+
+@pytest.mark.asyncio
+async def test_verified_learned_alias_overrides_service_center_to_include_director(settings):
+    import json, sqlite3
+    from ai_document_sender.learning import FILENAME
+    with sqlite3.connect(settings.lookup_db) as conn:
+        conn.execute("INSERT INTO recipients VALUES ('comm_pvhcc','comm_pvhcc','Trung tâm Phục vụ hành chính công tỉnh Gia Lai',NULL,'Trung tâm Phục vụ hành chính công tỉnh Gia Lai','H21.21.04','int_province_comm','INT_PROVINCE_UNIT','Nội tỉnh Gia Lai',10,'{}')")
+        conn.execute("INSERT INTO recipients VALUES ('internal_500','500','Giám đốc (TT)','Lê Dũng Linh','Lê Dũng Linh - Giám đốc (TT)','linhld@vpub.gialai.gov.vn','internal','INTERNAL_PERSON','Lãnh đạo TTPVHCC',10,'{}')")
+    learning_path = settings.lookup_db.parent / FILENAME
+    learning_path.write_text(json.dumps({
+        "version": 1,
+        "organization_scope": "UBND tỉnh Gia Lai",
+        "rules": [{
+            "raw_alias": "Trung tâm PVHCC",
+            "verification_status": "verified",
+            "sections": ["kinh_gui", "noi_nhan", "luu"],
+            "targets": [
+                {"name": "Trung tâm Phục vụ hành chính công tỉnh Gia Lai", "recipient_type": "INT_PROVINCE_UNIT", "sphere": "int_province_comm", "code": "H21.21.04"},
+                {"name": "Lê Dũng Linh", "role": "Giám đốc (TT)", "recipient_type": "INTERNAL_PERSON", "sphere": "internal", "code": "linhld@vpub.gialai.gov.vn"},
+            ],
+        }],
+    }, ensure_ascii=False), encoding="utf-8")
+    registry = Registry(settings)
+    registry.tenant_id = "vpub"
+    res = await resolve_mentions(
+        Extraction(mentions=[mention("Trung tâm PVHCC", "unit", "noi_nhan")], status="complete"),
+        registry, DocumentMetadata(document_id="doc-pvhcc", issuer="UBND tỉnh Gia Lai"), "j", "s",
+    )
+    assert [p.recipient_id for p in res.people] == ["internal_500"]
+    assert [u.recipient_id for u in res.units] == ["comm_pvhcc"]
 
 
 @pytest.mark.asyncio

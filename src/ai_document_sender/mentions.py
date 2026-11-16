@@ -8,8 +8,26 @@ import re
 import unicodedata
 from .contracts import Evidence, Mention
 
-HEADERS = {"kinh_gui": re.compile(r"K\s*í\s*n\s*h\s+g\s*ử\s*i\s*[:：]", re.I), "noi_nhan": re.compile(r"N\s*ơ\s*i\s+n\s*h\s*ậ\s*n\s*[:：]", re.I)}
-SIGNATURE = re.compile(r"^(?:(?:KT|TL|TM|TUQ)\s*\.|CHỦ TỊCH\b|PHÓ CHỦ TỊCH\b|PHÓ CHÁNH\b|CHÁNH VĂN\b)")
+HEADERS = {
+    "kinh_gui": re.compile(r"(?:K\s*í\s*n\s*h\s+g\s*[ửở]\s*i\s*[:：]|^\s*K\s*í\s*n\s*h\s+g\s*[ửở]\s*i\s*$)", re.I | re.M),
+    "noi_nhan": re.compile(r"N\s*ơ\s*i\s+n\s*h\s*ậ\s*n\s*[:：]", re.I),
+}
+SIGNATURE = re.compile(r"^(?:(?:KT|TL|TM|T\s*M|TUQ)(?:\s*\.|\s*$)|CHỦ TỊCH\b|PHÓ CHỦ TỊCH\b|PHÓ CHÁNH\b|CHÁNH VĂN\b)")
+KINH_GUI_PROSE = re.compile(
+    r"^(?:Thực hiện|Xét\s|Căn cứ|Tiếp theo|Tiếp tục\s|Tiếp nối\s|Để\s|Thay mặt|Trên cơ sở|"
+    r"Giao\s|Yêu cầu|UBND tỉnh\s+(?:nhận|tiếp tục|trân trọng|kính|có\s|đã\s|đề nghị)|"
+    r"Ủy ban nhân dân\s+(?:tỉnh|thành phố)\b.*\b(?:nhận|trân trọng|kính|báo cáo|có ý kiến|tiếp tục|đã|đang|đề nghị|phúc đáp|gửi|chỉ đạo|thống nhất)\b|"
+    r"Theo\s|Nhằm\s|Về\s|Ngày\s|Kính\s|Nội dung|Sau khi\s|Phúc đáp\b|Thưa\s|Trong thời gian\b|"
+    r"Thời gian\s+(?:qua|tới|gần đây)\b|Được sự\s|Phát triển\s|"
+    r"Qua\s+(?:rà soát|nghiên cứu|kiểm tra|theo dõi|báo cáo)\b|Hiện nay\b|Triển khai\s|Vừa qua\b|Trân trọng\b|Nhận được\b|"
+    r"(?:\d+|[IVXLCDM]+)\.\s)",
+    re.I,
+)
+SENTENCE_BODY_CUES = re.compile(
+    r"\b(?:là một|được sự|đã\s+\w+|đang\s+\w+|có ý kiến|trân trọng|nhận được|về việc\b.*\bngày\s+\d|"
+    r"(?:công văn|văn bản|tờ trình|nghị định|quyết định|kế hoạch|thông báo|báo cáo)\s+số)\b",
+    re.I,
+)
 CODE = re.compile(r"(?<![\w])[TVNCX]\d{1,2}(?![\w])", re.I)
 ROLE_START = re.compile(r"^(?:CT\b|CVP\b|PCT\b|PCTTT\b|PCVP\b|PVP\w*\b|Chủ tịch\b|Chánh Văn phòng\b|Phó Chủ tịch\b)", re.I)
 GROUP = re.compile(r"\b(?:các|toàn bộ|lãnh đạo\s+VP\s*\+|lãnh đạo.*chuyên viên)\b", re.I)
@@ -55,10 +73,12 @@ def _entries(tail: str, section: str):
             if section == "kinh_gui":
                 break
             continue
-        is_prose = bool(re.match(r"^(?:Thực hiện|Xét\s|Căn cứ|Tiếp theo|Để\s|Thay mặt|Trên cơ sở|Giao\s|Yêu cầu|UBND tỉnh nhận|Theo\s|Nhằm\s|Về\s|Ngày\s|Kính\s|Nội dung)", line, re.I))
-        if section == "kinh_gui" and current and is_prose:
-            entries.append(current)
-            current = ""
+        body_candidate = re.sub(r"^[-–—•]\s*", "", line)
+        is_prose = bool(KINH_GUI_PROSE.match(body_candidate))
+        if section == "kinh_gui" and is_prose:
+            if current:
+                entries.append(current)
+                current = ""
             break
         bullet = re.match(r"^[-–—•]\s*(.*)", line)
         if bullet:
@@ -74,6 +94,10 @@ def _entries(tail: str, section: str):
                 current = ""
                 break
             continue
+        if section == "kinh_gui" and current and not current.endswith((":", ",")) and SENTENCE_BODY_CUES.search(line):
+            entries.append(current)
+            current = ""
+            break
         if current and not re.search(r"[.;]$", current):
             current += " " + line
         elif section == "kinh_gui" and current and current.endswith(";") and not is_prose:
@@ -115,9 +139,17 @@ def _split_recipient(entry, page, section, scope):
         return [make_mention(entry, "reference", page, section, references=[entry], organization_scope=scope)]
 
     # Expand explicit enumerations but retain the parent phrase as evidence/context.
-    batch = re.match(r"^(Các\s+[Ss]ở|[Ss]ở|UBND các xã|UBND các phường)\s*:\s*(.+)$", entry, re.I)
+    batch = re.match(r"^(Các\s+Ban\s+QLDA|Các\s+[Ss]ở|[Ss]ở|UBND các xã|UBND các phường)\s*:\s*(.+)$", entry, re.I)
     if batch:
-        qualifier = "Sở" if "sở" in batch.group(1).lower() else ("UBND xã" if "xã" in batch.group(1) else "UBND phường")
+        prefix = batch.group(1).lower()
+        if "ban qlda" in prefix:
+            qualifier = "Ban QLDA"
+        elif "sở" in prefix:
+            qualifier = "Sở"
+        elif "xã" in prefix:
+            qualifier = "UBND xã"
+        else:
+            qualifier = "UBND phường"
         values = re.sub(r"Văn\s+hóa,\s*Thể\s+thao\s+và\s+Du\s+lịch", lambda m: m.group(0).replace(",", "\x00"), batch.group(2), flags=re.I)
         if qualifier == "Sở":
             values = re.sub(
