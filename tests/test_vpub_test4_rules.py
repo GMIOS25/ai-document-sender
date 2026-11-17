@@ -429,3 +429,28 @@ async def test_vpub_test5_round2_policy_and_unit_mappings():
     )
     assert {"internal_270", "internal_289"} <= {p.recipient_id for p in res_coop.people}
     assert {"H21.26"} <= {u.code for u in res_coop.units}
+
+
+async def test_stt367_ld_cv_and_chu_dau_tu_rules_resolve_cleanly():
+    settings = vpub_settings()
+    registry = Registry(settings)
+    registry.tenant_id = "vpub"
+    res_367 = await resolve_mentions(
+        Extraction(
+            mentions=[
+                make_mention("Sở Tài chính", "unit", 1, "kinh_gui"),
+                make_mention("Các sở, ban, ngành, Chủ đầu tư", "group", 1, "noi_nhan", quantifier="all"),
+                make_mention("LĐ, CV VP UBND tỉnh", "unit", 1, "noi_nhan"),
+            ],
+            pages=[{"page": 1, "text": "Kính gửi: Sở Tài chính\nNơi nhận:\n- Các sở, ban, ngành, Chủ đầu tư;\n- LĐ, CV VP UBND tỉnh;\n- Lưu: VT, T5."}],
+            status="complete",
+        ),
+        registry,
+        DocumentMetadata(document_id="doc-367", sign_number="12742/UBND-KTTH", issuer="UBND tỉnh Gia Lai"),
+        "job",
+        "sha",
+    )
+    unit_codes = {u.code for u in res_367.units}
+    assert {"H21.02", "H21.19.32", "H21.19.20", "H21.24.65", "H08.70", "G01.035.000.000"} <= unit_codes
+    assert len(res_367.people) >= 48
+    assert not res_367.unresolved

@@ -15672,6 +15672,13 @@
           "recipient_type": "EXT_PROVINCE_UNIT",
           "sphere": "ext_province_comm",
           "code": "G01.501.000"
+        },
+        {
+          "name": "Bộ Công an",
+          "recipient_id": "comm_68f591f0747b1512793efeba",
+          "recipient_type": "EXT_PROVINCE_UNIT",
+          "sphere": "ext_province_comm",
+          "code": "G01"
         }
       ],
       "verification_status": "verified"
@@ -21506,6 +21513,599 @@
       ],
       "source_rows": [],
       "evidence": "Test 5 Round 2: unified 13 TW units including BHXH tỉnh Gia Lai (G12.98.52)"
+    },
+    {
+      "raw_alias": "LĐ, CV VP UBND tỉnh",
+      "verification_status": "verified",
+      "targets": [
+        {
+          "name": "Phạm Anh Tuấn",
+          "recipient_id": "internal_270",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "role": "Chủ tịch UBND tỉnh",
+          "code": "tuanpa@vpub.gialai.gov.vn"
+        },
+        {
+          "name": "Nguyễn Tuấn Thanh",
+          "recipient_id": "internal_272",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "role": "Phó Chủ tịch Thường trực UBND tỉnh",
+          "code": "thanhnt@vpub.gialai.gov.vn"
+        },
+        {
+          "name": "Nguyễn Tự Công Hoàng",
+          "recipient_id": "internal_274",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "role": "Phó Chủ tịch UBND tỉnh",
+          "code": "hoangntc@vpub.gialai.gov.vn"
+        },
+        {
+          "name": "Lâm Hải Giang",
+          "recipient_id": "internal_276",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "role": "Phó Chủ tịch UBND tỉnh",
+          "code": "gianglh@vpub.gialai.gov.vn"
+        },
+        {
+          "name": "Nguyễn Thị Thanh Lịch",
+          "recipient_id": "internal_278",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "role": "Phó Chủ tịch UBND tỉnh",
+          "code": "lichntt@vpub.gialai.gov.vn"
+        },
+        {
+          "name": "Nguyễn Hữu Quế",
+          "recipient_id": "internal_280",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "role": "Phó Chủ tịch UBND tỉnh",
+          "code": "quenh@vpub.gialai.gov.vn"
+        },
+        {
+          "name": "Dương Mah Tiệp",
+          "recipient_id": "internal_284",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "role": "Phó Chủ tịch UBND tỉnh",
+          "code": "tiepdm@vpub.gialai.gov.vn"
+        },
+        {
+          "name": "Nguyễn Xuân Vĩnh",
+          "recipient_id": "internal_287",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "role": "Chánh Văn phòng UBND tỉnh",
+          "code": "vinhnx@vpub.gialai.gov.vn"
+        },
+        {
+          "name": "Phan Đình Hải",
+          "recipient_id": "internal_295",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "role": "Phó Chánh Văn phòng",
+          "code": "haipd@vpub.gialai.gov.vn"
+        },
+        {
+          "name": "Võ Gia Nghĩa",
+          "recipient_id": "internal_293",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "role": "Phó Chánh Văn phòng",
+          "code": "nghiavg@vpub.gialai.gov.vn"
+        },
+        {
+          "name": "Lê Huy Vũ",
+          "recipient_id": "internal_289",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "role": "Phó Chánh Văn phòng, Thư ký Chủ tịch",
+          "code": "vulh@vpub.gialai.gov.vn"
+        },
+        {
+          "name": "Trương Công Hoài",
+          "recipient_id": "internal_297",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "role": "Phó Chánh Văn phòng",
+          "code": "hoaitc@vpub.gialai.gov.vn"
+        },
+        {
+          "name": "Trần Đình Triết",
+          "recipient_id": "internal_299",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "role": "Phó Chánh Văn phòng",
+          "code": "triettd@vpub.gialai.gov.vn"
+        },
+        {
+          "name": "Nguyễn Cửu Quốc Dũng",
+          "recipient_id": "internal_305",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "role": "Trưởng phòng X1",
+          "code": "dungncq@vpub.gialai.gov.vn"
+        },
+        {
+          "name": "Nguyễn Nhật Minh",
+          "recipient_id": "internal_307",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "role": "Phó Trưởng phòng X2",
+          "code": "minhnn@vpub.gialai.gov.vn"
+        },
+        {
+          "name": "Võ Ngọc Ánh",
+          "recipient_id": "internal_461",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "role": "Phó Trưởng phòng X3",
+          "code": "anhvn@vpub.gialai.gov.vn"
+        },
+        {
+          "name": "Lê Minh Tú",
+          "recipient_id": "internal_463",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "role": "Phó Trưởng phòng X4",
+          "code": "tulm@vpub.gialai.gov.vn"
+        },
+        {
+          "name": "Nguyễn Quốc Đại",
+          "recipient_id": "internal_309",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "role": "Chuyên viên X5",
+          "code": "dainq@vpub.gialai.gov.vn"
+        },
+        {
+          "name": "Lê Trọng Vũ",
+          "recipient_id": "internal_459",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "role": "Chuyên viên X6",
+          "code": "vult@vpub.gialai.gov.vn"
+        },
+        {
+          "name": "Lê Thị Ngọc Bích",
+          "recipient_id": "internal_453",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "role": "Chuyên viên X8",
+          "code": "bichltn@vpub.gialai.gov.vn"
+        },
+        {
+          "name": "Võ Văn Cảnh",
+          "recipient_id": "internal_413",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "role": "Trưởng phòng N1",
+          "code": "canhvv@vpub.gialai.gov.vn"
+        },
+        {
+          "name": "Trương Ngọc Lân",
+          "recipient_id": "internal_312",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "role": "Chuyên viên N3",
+          "code": "lantn@vpub.gialai.gov.vn"
+        },
+        {
+          "name": "Trương Thanh Hùng",
+          "recipient_id": "internal_316",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "role": "Phó Trưởng phòng N4",
+          "code": "hungtruong@vpub.gialai.gov.vn"
+        },
+        {
+          "name": "Nguyễn Trường Phúc",
+          "recipient_id": "internal_357",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "role": "Chuyên viên N2",
+          "code": "phucnt@vpub.gialai.gov.vn"
+        },
+        {
+          "name": "Nguyễn Văn Khánh",
+          "recipient_id": "internal_314",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "role": "Chuyên viên N5",
+          "code": "khanhnv@vpub.gialai.gov.vn"
+        },
+        {
+          "name": "Ngô Minh Hiếu",
+          "recipient_id": "internal_409",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "role": "Chuyên viên N6",
+          "code": "hieunm@vpub.gialai.gov.vn"
+        },
+        {
+          "name": "Hà Thị Thủy",
+          "recipient_id": "internal_425",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "role": "Chuyên viên N7",
+          "code": "thuyht@vpub.gialai.gov.vn"
+        },
+        {
+          "name": "Nguyễn Đình Thành",
+          "recipient_id": "internal_455",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "role": "Chuyên viên N8",
+          "code": "thanhnd@vpub.gialai.gov.vn"
+        },
+        {
+          "name": "Lê Đức Phương",
+          "recipient_id": "internal_319",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "role": "Trưởng phòng T1",
+          "code": "phuongld@vpub.gialai.gov.vn"
+        },
+        {
+          "name": "Nguyễn Thúy Hằng",
+          "recipient_id": "internal_479",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "role": "Phó Trưởng phòng T2",
+          "code": "hangnt@vpub.gialai.gov.vn"
+        },
+        {
+          "name": "Tiêu Tấn Hùng",
+          "recipient_id": "internal_321",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "role": "Chuyên viên T3",
+          "code": "hungtt@vpub.gialai.gov.vn"
+        },
+        {
+          "name": "Lê Văn Pháp",
+          "recipient_id": "internal_323",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "role": "Chuyên viên T4",
+          "code": "phaplv@vpub.gialai.gov.vn"
+        },
+        {
+          "name": "Thái Công Luận",
+          "recipient_id": "internal_325",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "role": "Chuyên viên T5",
+          "code": "luantc@vpub.gialai.gov.vn"
+        },
+        {
+          "name": "Lê Thị Kim Dung",
+          "recipient_id": "internal_327",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "role": "Chuyên viên T6",
+          "code": "dungltk@vpub.gialai.gov.vn"
+        },
+        {
+          "name": "Nguyễn Văn Quý",
+          "recipient_id": "internal_465",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "role": "Chuyên viên T7",
+          "code": "quynv@vpub.gialai.gov.vn"
+        },
+        {
+          "name": "Hoàng Oanh",
+          "recipient_id": "internal_397",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "role": "Trưởng phòng C1",
+          "code": "oanhh@vpub.gialai.gov.vn"
+        },
+        {
+          "name": "Nguyễn Hữu Nhân",
+          "recipient_id": "internal_330",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "role": "Phó Trưởng phòng C2",
+          "code": "nhannh@vpub.gialai.gov.vn"
+        },
+        {
+          "name": "Nguyễn Thứ Trưởng",
+          "recipient_id": "internal_399",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "role": "Phó Trưởng phòng C3",
+          "code": "truongnt@vpub.gialai.gov.vn"
+        },
+        {
+          "name": "Văn Kim Thành",
+          "recipient_id": "internal_332",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "role": "Chuyên viên C4",
+          "code": "thanhvk@vpub.gialai.gov.vn"
+        },
+        {
+          "name": "Nguyễn Thành Luân",
+          "recipient_id": "internal_336",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "role": "Chuyên viên C5",
+          "code": "luannt@vpub.gialai.gov.vn"
+        },
+        {
+          "name": "Lê Thị Út",
+          "recipient_id": "internal_580",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "role": "Chuyên viên C6",
+          "code": "utlt@vpub.gialai.gov.vn"
+        },
+        {
+          "name": "Lê Ngọc Ngân",
+          "recipient_id": "internal_451",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "role": "Chuyên viên C7",
+          "code": "nganln@vpub.gialai.gov.vn"
+        },
+        {
+          "name": "Nguyễn Hoàng Đan",
+          "recipient_id": "internal_491",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "role": "Trưởng phòng V1",
+          "code": "danhnh@vpub.gialai.gov.vn"
+        },
+        {
+          "name": "Bùi Thị Duy Bình",
+          "recipient_id": "internal_483",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "role": "Phó Trưởng phòng V3",
+          "code": "binhbtd@vpub.gialai.gov.vn"
+        },
+        {
+          "name": "Lê Thanh Sơn",
+          "recipient_id": "internal_343",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "role": "Chuyên viên V4",
+          "code": "sonlt@vpub.gialai.gov.vn"
+        },
+        {
+          "name": "Lê Thị Kim Yến",
+          "recipient_id": "internal_341",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "role": "Chuyên viên V5",
+          "code": "yenltk@vpub.gialai.gov.vn"
+        },
+        {
+          "name": "Đoàn Thị Minh Hiếu",
+          "recipient_id": "internal_489",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "role": "Chuyên viên V6",
+          "code": "hieudtm@vpub.gialai.gov.vn"
+        },
+        {
+          "name": "Lê Thị Minh Hiền",
+          "recipient_id": "internal_493",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "role": "Chuyên viên V7",
+          "code": "hienltm@vpub.gialai.gov.vn"
+        },
+        {
+          "name": "Trần Duy Khánh",
+          "recipient_id": "internal_485",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "role": "Chuyên viên V8",
+          "code": "khanhtd@vpub.gialai.gov.vn"
+        },
+        {
+          "name": "Trần Đình Nghĩa",
+          "recipient_id": "internal_44068",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "role": "Chuyên viên V9",
+          "code": "nghiatd@vpub.gialai.gov.vn"
+        }
+      ],
+      "sections": [
+        "kinh_gui",
+        "noi_nhan",
+        "luu"
+      ],
+      "source_rows": [],
+      "evidence": "Test 5 STT 367: LĐ, CV VP UBND tỉnh -> unified 50 VP UBND tỉnh staff targets matching LĐ và CV VP UBND tỉnh"
+    },
+    {
+      "raw_alias": "Các sở, ban, ngành, Chủ đầu tư",
+      "verification_status": "verified",
+      "targets": [
+        {
+          "name": "Sở Dân tộc và Tôn giáo - tỉnh Gia Lai",
+          "recipient_id": "comm_422b0d8cda70c39b2150451e0261b22c3580b1ad5fdae8bdef3a27451ba270e4",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.01"
+        },
+        {
+          "name": "Sở Công Thương - tỉnh Gia Lai",
+          "recipient_id": "comm_68f39cafa04b3537408b3bf6",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.05"
+        },
+        {
+          "name": "Sở Giáo dục và Đào tạo - tỉnh Gia Lai",
+          "recipient_id": "comm_68f39cafa04b3537408b3bf8",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.06"
+        },
+        {
+          "name": "Sở Khoa học và Công nghệ - tỉnh Gia Lai",
+          "recipient_id": "comm_68f48d8ae4127f708594d292",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.09"
+        },
+        {
+          "name": "Sở Nội vụ - tỉnh Gia Lai",
+          "recipient_id": "comm_68f45213e4127f708594b8b8",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.11"
+        },
+        {
+          "name": "Sở Tài chính - tỉnh Gia Lai",
+          "recipient_id": "comm_68f39cafa04b3537408b3bf5",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.13"
+        },
+        {
+          "name": "Sở Tư pháp - tỉnh Gia Lai",
+          "recipient_id": "comm_68f48d8ae4127f708594d290",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.16"
+        },
+        {
+          "name": "Sở Văn hóa, Thể thao và Du lịch - tỉnh Gia Lai",
+          "recipient_id": "comm_68f45213e4127f708594b8ba",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.17"
+        },
+        {
+          "name": "Sở Xây dựng - tỉnh Gia Lai",
+          "recipient_id": "comm_68f39cafa04b3537408b3bf1",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.18"
+        },
+        {
+          "name": "Sở Y tế - tỉnh Gia Lai",
+          "recipient_id": "comm_68f48d8ae4127f708594d291",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.19"
+        },
+        {
+          "name": "Thanh tra tỉnh Gia Lai",
+          "recipient_id": "comm_08a982ef4cbf34ff9457f47db3a3f767a56b4f3c8fec44f94465a4eb746ce542",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.20"
+        },
+        {
+          "name": "Sở Nông nghiệp và Môi trường - tỉnh Gia Lai",
+          "recipient_id": "comm_68f399d1a04b3537408b389c",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.24"
+        },
+        {
+          "name": "Sở Ngoại vụ - tỉnh Gia Lai",
+          "recipient_id": "comm_deec5893ed3b84dfc3264f2ec5044e2c9e01d9346a15e38187b4a290cd22f904",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.26"
+        },
+        {
+          "name": "Ban Quản lý Khu kinh tế - tỉnh Gia Lai",
+          "recipient_id": "comm_68f454d2e4127f708594bab5",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.02"
+        },
+        {
+          "name": "Ban Quản lý các dự án đầu tư xây dựng tỉnh Gia Lai",
+          "recipient_id": "comm_68f4f2c3747b1512793ec530",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.38"
+        },
+        {
+          "name": "Ban QLDA các công trình Giao thông và Dân dụng tỉnh Gia Lai",
+          "recipient_id": "comm_68f39cafa04b3537408b3bf9",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.40"
+        },
+        {
+          "name": "Ban Quản lý Dự án Nông nghiệp và Phát triển nông thôn tỉnh Gia Lai",
+          "recipient_id": "comm_68f596f6747b1512793f0773",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.41"
+        },
+        {
+          "name": "Trung tâm Phát triển Quỹ đất - tỉnh Gia Lai",
+          "recipient_id": "comm_68f39cafa04b3537408b3bfa",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.49"
+        },
+        {
+          "name": "Công an tỉnh Gia Lai",
+          "recipient_id": "comm_68f39cafa04b3537408b3bf7",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "G01.035.000.000"
+        },
+        {
+          "name": "Bộ Chỉ huy Quân sự tỉnh Gia Lai",
+          "recipient_id": "comm_7f94771cfa11a901489f5a9c6857dfd4d84813d452ce79b1d776d835be5465bc",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "G11.12.006"
+        },
+        {
+          "name": "Bệnh viện Đa khoa Trung tâm tỉnh Gia Lai",
+          "recipient_id": "comm_68f84b06ef27fa7e0109d642",
+          "recipient_type": "EXT_PROVINCE_UNIT",
+          "sphere": "ext_province_comm",
+          "code": "H21.19.32"
+        },
+        {
+          "name": "Bệnh viện Đa Khoa Gia Lai",
+          "recipient_id": "comm_68f7455def27fa7e010910d8",
+          "recipient_type": "EXT_PROVINCE_UNIT",
+          "sphere": "ext_province_comm",
+          "code": "H21.19.20"
+        },
+        {
+          "name": "Trung tâm Nước sạch nông thôn - Sở Nông nghiệp và Môi trường - tỉnh Gia Lai",
+          "recipient_id": "comm_690c5babef27fa7e011858f1",
+          "recipient_type": "EXT_PROVINCE_UNIT",
+          "sphere": "ext_province_comm",
+          "code": "H21.24.65"
+        },
+        {
+          "name": "Trường Cao đẳng Kỹ thuật Công nghệ Quy Nhơn",
+          "recipient_id": "comm_68faede8ef27fa7e010c195a",
+          "recipient_type": "EXT_PROVINCE_UNIT",
+          "sphere": "ext_province_comm",
+          "code": "H08.70"
+        }
+      ],
+      "sections": [
+        "kinh_gui",
+        "noi_nhan"
+      ],
+      "source_rows": [],
+      "evidence": "Test 5 STT 367: Các sở, ban, ngành, Chủ đầu tư -> 20 standard Các Sở, ban, ngành units + 4 Phụ lục 1 Chủ đầu tư units (H21.19.32, H21.19.20, H21.24.65, H08.70)"
     }
   ],
   "source": {

@@ -31,6 +31,14 @@ SENTENCE_BODY_CUES = re.compile(
 CODE = re.compile(r"(?<![\w])[TVNCX]\d{1,2}(?![\w])", re.I)
 ROLE_START = re.compile(r"^(?:CT\b|CVP\b|PCT\b|PCTTT\b|PCVP\b|PVP\w*\b|Chủ tịch\b|Chánh Văn phòng\b|Phó Chủ tịch\b)", re.I)
 GROUP = re.compile(r"\b(?:các|toàn bộ|lãnh đạo\s+VP\s*\+|lãnh đạo.*chuyên viên)\b", re.I)
+BODY_LIST_HEADING = re.compile(r"(?im)^[ \t]*(?:[-–—•][ \t]*)?(?:[A-ZĐ]{1,12}[ \t]+){0,2}(?:DANH SÁCH|PHỤ LỤC(?:[ \t]+\d+)?)\b")
+BODY_TASK_HEAD = re.compile(r"(?m)^[ \t]*(\d+)\.[ \t]+([^\n:;]{2,120}):(?:\s|$)")
+BODY_TASK_UNIT = re.compile(
+    r"^(?:Đề nghị\s+)?(?:(?:Giám đốc|Thủ trưởng|Chủ tịch)\s+)?"
+    r"(?:Sở|Bộ Chỉ huy|Công an|Thanh tra|Thuế|Ban Quản lý|Ban QLDA|Trung tâm|Cục|Chi cục|UBND|Ủy ban nhân dân|Bảo hiểm|Kho bạc)\b",
+    re.I,
+)
+BODY_TASK_DISALLOWED = re.compile(r"\b(?:các|chủ trì|phối hợp|chịu trách nhiệm|địa chỉ|như sau|gồm|thực hiện|triển khai|về việc|tại|theo|ngày)\b", re.I)
 
 
 def normalized(value: str) -> str:
@@ -234,6 +242,70 @@ def _split_recipient(entry, page, section, scope):
     return [make_mention(entry, kind, page, section, organization_scope=scope)]
 
 
+def _body_task_mentions(pages, source_page, existing_mentions, scope):
+    chunks, ranges, offset = [], [], 0
+    for page in pages:
+        text = unicodedata.normalize("NFC", page.get("text", ""))
+        chunks.append(text)
+        ranges.append((offset, offset + len(text), page["page"]))
+        offset += len(text) + 1
+    doc_text = "\n".join(chunks)
+    nn = HEADERS["noi_nhan"].search(doc_text)
+    if not nn:
+        return []
+    kg = HEADERS["kinh_gui"].search(doc_text)
+    start = kg.end() if kg and kg.end() < nn.start() else 0
+    stops = [m.start() for pat in HEADERS.values() for m in pat.finditer(doc_text)]
+    stops += [m.start() for m in re.finditer(r"(?m)^.*$", doc_text) if SIGNATURE.match(m[0].strip())]
+    stops += [m.start() for m in BODY_LIST_HEADING.finditer(doc_text)]
+    end_stops = [s for s in stops if s > start]
+    end = min(end_stops) if end_stops else nn.start()
+    if end <= start:
+        return []
+
+    def dedup_key(raw_val: str) -> str:
+        collapsed = re.sub(r"\b(\w+)\s+\1\b", r"\1", normalized(raw_val).casefold())
+        c = compact(collapsed)
+        return re.sub(r"^(?:ubnd|ủybanhândân|ủybannhândân)", "", c)
+
+    seen_keys = set()
+    for m in existing_mentions:
+        seen_keys.add(dedup_key(m.raw))
+        if m.qualifier:
+            seen_keys.add(dedup_key(f"{m.qualifier} {m.raw}"))
+
+    nn_ev = Evidence(page=source_page, section="noi_nhan", raw="Như trên")
+    results = []
+    for match in BODY_TASK_HEAD.finditer(doc_text, start, end):
+        actor = normalized(match.group(2))
+        if not BODY_TASK_UNIT.match(actor) or BODY_TASK_DISALLOWED.search(actor):
+            continue
+        page_no = next((pg for left, right, pg in ranges if left <= match.start() < right), source_page)
+        protected = re.sub(r"Văn\s+hóa,\s*Thể\s+thao\s+và\s+Du\s+lịch", lambda m: m[0].replace(",", "\x00"), actor, flags=re.I)
+        parts = re.split(
+            r"\s*,\s*|\s+và\s+(?=(?:Sở|Ban|UBND|Ủy ban|Công an|Bộ Chỉ huy|Thanh tra|Trung tâm|Cục|Chi cục|xã|phường)\b)",
+            protected,
+            flags=re.I,
+        )
+        line_ev = Evidence(page=page_no, section="body_reference", raw=normalized(match.group(0).rstrip()))
+        for part in parts:
+            tok = part.replace("\x00", ",").strip()
+            tok = re.sub(r"^Đề nghị\s+", "", tok, flags=re.I).strip()
+            tok = re.sub(r"^(?:Giám đốc|Thủ trưởng|Chủ tịch)\s+(?=(?:Sở|Bộ Chỉ huy|Công an|Thanh tra|Thuế|Ban Quản lý|Ban QLDA|Trung tâm|Cục|Chi cục|UBND|Ủy ban nhân dân|Bảo hiểm|Kho bạc)\b)", "", tok, flags=re.I).strip()
+            if not tok or BODY_TASK_DISALLOWED.search(tok):
+                continue
+            k = dedup_key(tok)
+            if not k or k in seen_keys:
+                continue
+            seen_keys.add(k)
+            for item in _split_recipient(tok, page_no, "body_reference", scope):
+                item.evidence = [line_ev, nn_ev]
+                item.references = ["Như trên"]
+                item.mention_id = stable_id(item.raw, item.kind, item.evidence, item.references)
+                results.append(item)
+    return results
+
+
 def extract_rule_mentions(pages, metadata=None):
     from .article_references import expand_article_reference
 
@@ -268,6 +340,7 @@ def extract_rule_mentions(pages, metadata=None):
             for mention in kinh_gui:
                 mention.references.append("Như trên")
                 mention.mention_id = stable_id(mention.raw, mention.kind, mention.evidence, mention.references)
+            mentions.extend(_body_task_mentions(pages, reference_pages[0], mentions, scope))
         else:
             reasons.append("unsupported_reference")
             mentions.append(make_mention("Như trên", "reference", reference_pages[0], "noi_nhan", references=["Kính gửi"]))

@@ -473,3 +473,31 @@ def test_vietocr_low_confidence_escalates_to_hybrid_vision_fallback(settings):
     raws = {m.raw for m in result.mentions}
     assert {"Sở Tài chính", "VT", "T4", "T5"} <= raws
     assert "T475" not in raws
+
+
+def test_numbered_body_task_headings_extracted_when_nhu_tren_present():
+    p1 = (
+        "Kính gửi:\n"
+        "- Công an tỉnh;\n"
+        "- Sở Ngoại vụ;\n"
+        "- UBND phường Hội Phú.\n"
+        "1. Công an tỉnh: Khẩn trương xác minh.\n"
+        "2. Sở Giáo dục và Đào tạo chủ trì, phối hợp với Sở Ngoại vụ:\n"
+        "3. Các Sở: Khẩn trương báo cáo.\n"
+    )
+    p2 = (
+        "4. Sở Y tế: Chỉ đạo các cơ sở y tế phối hợp thực hiện.\n"
+        "5. Sở Văn hóa, Thể thao và Du lịch: Định hướng thông tin.\n"
+        "Nơi nhận:\n"
+        "- Như trên;\n"
+        "- Lưu: VT, V7.\n"
+    )
+    mentions, _ = extract_rule_mentions([
+        {"page": 1, "text": p1, "width": 595, "height": 842, "images": []},
+        {"page": 2, "text": p2, "width": 595, "height": 842, "images": []},
+    ])
+    body_raws = {m.raw for m in mentions if m.evidence[0].section == "body_reference"}
+    assert body_raws == {"Sở Y tế", "Sở Văn hóa, Thể thao và Du lịch"}
+    for m in mentions:
+        if m.evidence[0].section == "body_reference":
+            assert "Như trên" in m.references
