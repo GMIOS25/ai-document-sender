@@ -246,7 +246,8 @@ def _layout_text(lines):
 def _apply_page_text(page, lines):
     lines = _normalize_ocr_lines(lines)
     text = _layout_text(lines)
-    page.update(text=text, ocr_text=text, ocr_lines=lines, local_ocr_complete=True)
+    low_conf = any(line["confidence"] < 0.85 for line in lines if len(line["text"].strip()) > 2)
+    page.update(text=text, ocr_text=text, ocr_lines=lines, local_ocr_complete=True, local_ocr_low_confidence=low_conf)
     header = next((line for line in lines if HEADERS["noi_nhan"].search(line["text"])), None)
     if header:
         top = header["bbox"][1] - 3
@@ -290,6 +291,7 @@ def ocr_missing_pages(path, pages, settings):
                     _apply_page_text(page, lines)
                     audit["pages"].append(page["page"])
                     if any(line["confidence"] < 0.85 for line in lines if len(line["text"]) > 2):
+                        page["local_ocr_low_confidence"] = True
                         reasons.append("local_ocr_low_confidence")
                 except Exception as error:
                     audit.setdefault("failed_pages", []).append({"page": page["page"], "error_type": type(error).__name__})

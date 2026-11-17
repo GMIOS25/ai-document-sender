@@ -74,13 +74,23 @@ def _entries(tail: str, section: str):
                 break
             continue
         body_candidate = re.sub(r"^[-–—•]\s*", "", line)
+        bullet = re.match(r"^[-–—•]\s*(.*)", line)
         is_prose = bool(KINH_GUI_PROSE.match(body_candidate))
+        if (
+            is_prose
+            and section == "kinh_gui"
+            and not bullet
+            and body_candidate[:1].islower()
+            and current
+            and not re.search(r"[.;]$", current)
+            and not SENTENCE_BODY_CUES.search(body_candidate)
+        ):
+            is_prose = False
         if section == "kinh_gui" and is_prose:
             if current:
                 entries.append(current)
                 current = ""
             break
-        bullet = re.match(r"^[-–—•]\s*(.*)", line)
         if bullet:
             if current:
                 entries.append(current)
@@ -98,9 +108,18 @@ def _entries(tail: str, section: str):
             entries.append(current)
             current = ""
             break
+        if current and re.match(r"Lưu\s*(?::|VT)", current, re.I):
+            if not re.fullmatch(
+                r"[\s,.;()/\-]+|(?:[\s,.;()/\-]*(?:[TVNCX]{1,2}\d{0,2}|VT|BTCD|PVHCC|KSTT|HSVV(?:-TD)?|\d{1,2})(?:[\s,;().\-/]+(?:[TVNCX]{1,2}\d{0,2}|VT|BTCD|PVHCC|KSTT|HSVV(?:-TD)?|\d{1,2}))*[\s,.;()]*)",
+                line,
+                re.I,
+            ):
+                entries.append(current)
+                current = ""
+                break
         if current and not re.search(r"[.;]$", current):
             current += " " + line
-        elif section == "kinh_gui" and current and current.endswith(";") and not is_prose:
+        elif section in {"kinh_gui", "noi_nhan"} and current and current.endswith(";") and not is_prose and not re.match(r"Lưu\s*(?::|VT)", current, re.I):
             next_is_bullet = index + 1 < len(lines) and bool(re.match(r"^[-–—•]\s*", normalized(lines[index + 1])))
             if ":" in current and (line.endswith((";", ".")) or len(line) <= 85 or next_is_bullet):
                 current += " " + line
@@ -125,11 +144,18 @@ def _split_recipient(entry, page, section, scope):
     output = []
     if re.match(r"Lưu\s*(?::|VT)", entry, re.I):
         tail = re.sub(r"^Lưu\s*:?\s*", "", entry, flags=re.I)
-        for match in re.finditer(r"(?<!\w)(?:VT|[TVNCX]\d{1,2})(?!\w)", tail, re.I):
+        expanded_tail = re.sub(r"(?<!\w)([TVNCX])\s+(\d{1,2})(?!\w)", r"\1\2", tail)
+        while True:
+            # Expand shared letter prefix lists like N1, 4 -> N1, N4.
+            nxt = re.sub(r"(?<!\w)([TVNCX])(\d{1,2})\s*,\s*(\d{1,2})(?!\w)", r"\1\2, \1\3", expanded_tail)
+            if nxt == expanded_tail:
+                break
+            expanded_tail = nxt
+        for match in re.finditer(r"(?<!\w)(?:VT|[TVNCX]\d{1,2})(?!\w)", expanded_tail, re.I):
             token = match.group(0)
             output.append(make_mention(token, "archive_reference" if token.upper() == "VT" else "staff_code", page, "luu", entry, organization_scope=scope))
         # Preserve unfamiliar archive/routing codes instead of silently dropping them.
-        residual = re.sub(r"(?<!\w)(?:VT|[TVNCX]\d{1,2})(?!\w)", "", tail, flags=re.I)
+        residual = re.sub(r"(?<!\w)(?:VT|[TVNCX]\d{1,2})(?!\w)", "", expanded_tail, flags=re.I)
         residual = re.sub(r"\([^)]*\)", "", residual).strip(" ,.;")
         if residual:
             output.append(make_mention(residual, "unknown", page, "luu", entry, organization_scope=scope))
@@ -139,7 +165,7 @@ def _split_recipient(entry, page, section, scope):
         return [make_mention(entry, "reference", page, section, references=[entry], organization_scope=scope)]
 
     # Expand explicit enumerations but retain the parent phrase as evidence/context.
-    batch = re.match(r"^(Các\s+Ban\s+QLDA|Các\s+[Ss]ở|[Ss]ở|UBND các xã|UBND các phường)\s*:\s*(.+)$", entry, re.I)
+    batch = re.match(r"^(Các\s+Ban\s+QLDA|Các\s+[Ss]ở(?:\s*,\s*(?:ban\s*,\s*)?ngành)?|[Ss]ở|UBND các xã|UBND các phường)\s*:\s*(.+)$", entry, re.I)
     if batch:
         prefix = batch.group(1).lower()
         if "ban qlda" in prefix:
@@ -164,12 +190,38 @@ def _split_recipient(entry, page, section, scope):
                 output.append(make_mention(token, "unit", page, section, entry, references=[entry], qualifier=qualifier, organization_scope=scope))
         return output
 
+    if ";" in entry and ":" not in entry:
+        parts = [p.strip() for p in re.split(r"\s*;\s*", entry) if p.strip()]
+        parts = [p for p in parts if not re.fullmatch(r"(?:để\s+)?(?:b/c|báo\s+cáo|biết|thực\s+hiện|phối\s+hợp)", p, re.I)]
+        if len(parts) > 1 or (len(parts) == 1 and parts[0] != entry):
+            results = []
+            for part in parts:
+                for item in _split_recipient(part, page, section, scope):
+                    item.evidence[0].raw = normalized(entry)
+                    item.mention_id = stable_id(item.raw, item.kind, item.evidence, item.references)
+                    results.append(item)
+            return results
+
     if GROUP.search(entry):
         # Chủ tịch, các PCT are two selectors, not one bare PCT.
         if re.match(r"^(?:CT|Chủ tịch)\s*,", entry, re.I):
             first, second = entry.split(",", 1)
             return [make_mention(first, "role", page, section, entry, organization_scope=scope), make_mention(second, "group", page, section, entry, quantifier="all", organization_scope=scope)]
         return [make_mention(entry, "group", page, section, quantifier="all", organization_scope=scope)]
+
+    prefixed_roles = re.match(r"^(PVP|PCVP)\s*[:：]?\s+(.+)$", entry, re.I)
+    if prefixed_roles and "," in prefixed_roles.group(2):
+        role_prefix = prefixed_roles.group(1).upper()
+        tokens = []
+        for raw_tok in prefixed_roles.group(2).split(","):
+            tok = normalized(raw_tok).strip(" ;.")
+            if not tok:
+                continue
+            if not ROLE_START.match(tok):
+                tok = f"{role_prefix} {tok}"
+            tokens.append(make_mention(tok, "role", page, section, entry, organization_scope=scope))
+        if tokens:
+            return tokens
 
     if ROLE_START.match(entry) and "," in entry:
         return [make_mention(token, "role", page, section, entry, organization_scope=scope) for token in entry.split(",") if token.strip()]
@@ -191,7 +243,7 @@ def extract_rule_mentions(pages, metadata=None):
     for page in pages:
         text = unicodedata.normalize("NFC", page.get("text", ""))
         for section, pattern in HEADERS.items():
-            source = page.get("recipient_text", text) if section == "noi_nhan" else text
+            source = unicodedata.normalize("NFC", (page.get("recipient_text") or text) if section == "noi_nhan" else text)
             match = pattern.search(source)
             if not match:
                 continue
@@ -202,7 +254,7 @@ def extract_rule_mentions(pages, metadata=None):
             entries = _entries(tail, section)
             sections.append(section)
             for entry in entries:
-                if re.fullmatch(r"Như\s+trên", entry, re.I):
+                if re.fullmatch(r"Như\s+trên(?:\s*\([^)]*\))?", entry, re.I):
                     reference_pages.append(page["page"])
                     continue
                 expanded = expand_article_reference(entry, page["page"], pages, scope) if section == "noi_nhan" else None

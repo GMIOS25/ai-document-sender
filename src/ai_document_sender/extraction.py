@@ -29,6 +29,99 @@ class ExtractionError(RuntimeError):
         super().__init__(message)
 
 
+def _format_merged_row(row_words, sub_word_ids=()):
+    ordered = sorted(row_words, key=lambda w: w["x0"])
+    parts = []
+    prev_x1 = None
+    for w in ordered:
+        txt = w["text"]
+        if prev_x1 is not None:
+            gap = w["x0"] - prev_x1
+            is_sub_digit = id(w) in sub_word_ids and bool(re.fullmatch(r"\d{1,2}[.,;]?", txt))
+            prev_prefix = bool(parts and re.search(r"(?:^|[\s,(/])[TVNCX]$", parts[-1]))
+            # Glue subscript tokens tightly onto preceding token (e.g., N + 1 -> N1) or punctuation.
+            if gap <= 1.2 or txt in {",", ".", ";", ":"} or (is_sub_digit and prev_prefix and gap <= 12.0):
+                parts.append(txt)
+            else:
+                parts.append(" " + txt)
+        else:
+            parts.append(txt)
+        prev_x1 = w["x1"]
+    return "".join(parts)
+
+
+def _merge_luu_subscripts(raw_text, words, max_x=None):
+    """Merge PDF subscript tokens (e.g. N_1,4, X_5) dropped by y_tolerance onto the Lưu line."""
+    if not raw_text or "Lưu" not in unicodedata.normalize("NFC", raw_text) or not words:
+        return raw_text
+    filtered = [w for w in words if max_x is None or w["x0"] < max_x]
+    rows = []
+    for w in sorted(filtered, key=lambda item: (round(item["top"], 1), item["x0"])):
+        if rows and abs(w["top"] - rows[-1]["top"]) <= 3.0:
+            rows[-1]["words"].append(w)
+            rows[-1]["bottom"] = max(rows[-1]["bottom"], w["bottom"])
+        else:
+            rows.append({"top": w["top"], "bottom": w["bottom"], "height": w["bottom"] - w["top"], "words": [w]})
+    merged_luu = []
+    for idx, row in enumerate(rows):
+        row_text = _format_merged_row(row["words"])
+        if not re.search(r"Lưu\s*(?::|VT)", unicodedata.normalize("NFC", row_text), re.I):
+            continue
+        base_top = row["top"]
+        base_bottom = row["bottom"]
+        base_h = max(1.0, row["height"])
+        sub_words = []
+        sub_texts = set()
+        for cand in rows[idx + 1:]:
+            if cand["top"] - base_top > 8.0:
+                break
+            all_tiny = all(
+                0.5 < w["top"] - base_top <= 8.0
+                and abs(w["bottom"] - base_bottom) <= 2.6
+                and (w["bottom"] - w["top"]) <= base_h * 0.88
+                and not re.search(r"[a-zA-ZÀ-ỹ]{2,}", w["text"])
+                for w in cand["words"]
+            )
+            if all_tiny:
+                sub_words.extend(cand["words"])
+                for w in cand["words"]:
+                    sub_texts.add(w["text"].strip())
+        if sub_words:
+            merged_luu.append((_format_merged_row(row["words"] + sub_words, {id(w) for w in sub_words}), sub_texts))
+    if not merged_luu:
+        return raw_text
+    lines = raw_text.splitlines()
+    for merged_line, sub_texts in merged_luu:
+        out_lines = []
+        i = 0
+        replaced = False
+        while i < len(lines):
+            cur = lines[i]
+            cur_nfc = unicodedata.normalize("NFC", cur).strip()
+            if not replaced and re.search(r"Lưu\s*(?::|VT)", cur_nfc, re.I):
+                j = i + 1
+                # Consume any adjacent lines made solely of split subscript/punctuation fragments.
+                while j < len(lines):
+                    nxt = unicodedata.normalize("NFC", lines[j]).strip()
+                    if not nxt or len(nxt) > 25:
+                        break
+                    if re.search(r"[a-zA-ZÀ-ỹ]{2,}", nxt):
+                        break
+                    if re.fullmatch(r"[\d,.;\sTVNCX]+", nxt):
+                        j += 1
+                    else:
+                        break
+                if j > i + 1 or any(tok in cur for tok in sub_texts):
+                    out_lines.append(merged_line)
+                    i = j
+                    replaced = True
+                    continue
+            out_lines.append(cur)
+            i += 1
+        lines = out_lines
+    return "\n".join(lines)
+
+
 def _read_pages(path, settings):
     filename = str(Path(path).resolve())
     if os.name == "nt" and not filename.startswith("\\\\?\\"):
@@ -48,15 +141,16 @@ def _read_pages(path, settings):
         pages = []
         with pdfplumber.open(io.BytesIO(data)) as document:
             for index, page in enumerate(document.pages, 1):
-                text = page.extract_text(x_tolerance=2, y_tolerance=3) or ""
+                words = page.extract_words(x_tolerance=2, y_tolerance=3)
+                text = _merge_luu_subscripts(page.extract_text(x_tolerance=2, y_tolerance=3) or "", words, max_x=page.width * 0.55)
                 record = {"page": index, "text": text, "width": page.width, "height": page.height,
                           "images": [{"bbox": [image.get("x0", 0), image.get("top", 0), image.get("x1", page.width), image.get("bottom", page.height)]} for image in page.images]}
                 # Extract the left recipient column without interleaved signature headings.
-                words = page.extract_words(x_tolerance=2, y_tolerance=3)
                 headers = [word for word in words if unicodedata.normalize("NFC", word["text"]).casefold() == "nơi"]
                 for header in headers:
                     following = sorted((word for word in words if abs(word["top"]-header["top"]) < 5 and word["x0"] > header["x0"]), key=lambda word: word["x0"])
-                    if not following or not HEADERS["noi_nhan"].search(header["text"]+" "+" ".join(word["text"] for word in following[:4])):
+                    header_probe = unicodedata.normalize("NFC", header["text"]+" "+" ".join(word["text"] for word in following[:4]))
+                    if not following or not HEADERS["noi_nhan"].search(header_probe):
                         continue
                     top = max(0, header["top"]-3)
                     sig_words = [word for word in words if word["top"] >= top and word["x0"] > page.width*0.5 and re.fullmatch(r"(?:TL\.|KT\.|TM\.|TUQ\.|CHỦ|PHÓ|CHÁNH|Q\.)", word["text"])]
@@ -76,7 +170,9 @@ def _read_pages(path, settings):
                     right = max(page.width*0.53, right)
                     bbox = [0, top, min(page.width, right), page.height]
                     record["recipient_bbox"] = bbox
-                    record["recipient_text"] = page.crop(tuple(bbox)).extract_text(x_tolerance=2, y_tolerance=3) or ""
+                    cropped = page.crop(tuple(bbox))
+                    cropped_words = cropped.extract_words(x_tolerance=2, y_tolerance=3)
+                    record["recipient_text"] = _merge_luu_subscripts(cropped.extract_text(x_tolerance=2, y_tolerance=3) or "", cropped_words)
                     break
                 if not text.strip() and not page.images and not page.curves and not page.rects and len(page.lines) < 3:
                     record["blank"] = True
@@ -92,12 +188,17 @@ def _read_pages(path, settings):
 
 def select_vision_pages(pages, limit=6):
     required = []
+    low_conf_secondary = []
     reasons = []
-    for page in pages:
-        if page.get("local_ocr_complete") or page.get("blank"):
+    last_page_num = pages[-1]["page"] if pages else 0
+    for idx, page in enumerate(pages):
+        if page.get("blank"):
+            continue
+        low_conf = bool(page.get("local_ocr_low_confidence"))
+        if page.get("local_ocr_complete") and not low_conf:
             continue
         text = unicodedata.normalize("NFC", page.get("text", ""))
-        recipient = unicodedata.normalize("NFC", page.get("recipient_text", text))
+        recipient = unicodedata.normalize("NFC", page.get("recipient_text") or text)
         header = HEADERS["noi_nhan"].search(recipient)
         width, height = page.get("width", 595), page.get("height", 842)
         region_top = page.get("recipient_bbox", [0, height*0.55, width*0.65, height])[1]
@@ -105,13 +206,17 @@ def select_vision_pages(pages, limit=6):
         left_image = any(min(image.get("bbox", [0,0,0,0])[2], region_right)-max(image.get("bbox", [0,0,0,0])[0], 0) > width*0.20 and image.get("bbox", [0,0,0,0])[3] > region_top and image.get("bbox", [0,0,0,0])[3]-image.get("bbox", [0,0,0,0])[1] > 45 for image in page.get("images", []))
         broken = len(text.strip()) < 40 or text.count("\ufffd") > max(2, len(text)*0.02)
         empty_region = bool(header) and not _entries(recipient[header.end():], "noi_nhan")
-        if broken or empty_region or left_image:
+        is_recipient_or_boundary = bool(header or HEADERS["kinh_gui"].search(text) or idx == 0 or page["page"] == last_page_num)
+        if broken or empty_region or left_image or (low_conf and is_recipient_or_boundary):
             required.append(page["page"])
+        elif low_conf:
+            low_conf_secondary.append(page["page"])
     all_text = "\n".join(unicodedata.normalize("NFC", page.get("text", "")) for page in pages)
-    if pages and not pages[-1].get("local_ocr_complete") and not HEADERS["noi_nhan"].search(all_text):
+    if pages and (not pages[-1].get("local_ocr_complete") or pages[-1].get("local_ocr_low_confidence")) and not HEADERS["noi_nhan"].search(all_text):
         required.append(pages[-1]["page"])
-    if pages and not pages[0].get("local_ocr_complete") and re.search(r"Như\s+trên", all_text, re.I) and not HEADERS["kinh_gui"].search(all_text):
+    if pages and (not pages[0].get("local_ocr_complete") or pages[0].get("local_ocr_low_confidence")) and re.search(r"Như\s+trên", all_text, re.I) and not HEADERS["kinh_gui"].search(all_text):
         required.append(pages[0]["page"])
+    required.extend(low_conf_secondary)
     required = list(dict.fromkeys(required))
     if len(required) > limit:
         reasons.append("vision_page_limit")
@@ -138,7 +243,7 @@ def _render_pages(path, page_numbers, settings):
 
 
 def _section_source(page, section):
-    text = unicodedata.normalize("NFC", page.get("recipient_text", page.get("text", "")) if section == "noi_nhan" else page.get("text", ""))
+    text = unicodedata.normalize("NFC", (page.get("recipient_text") or page.get("text", "")) if section == "noi_nhan" else page.get("text", ""))
     if section == "luu":
         return "\n".join(line for line in text.splitlines() if re.search(r"Lưu\s*(?::|VT)", line, re.I))
     if section in HEADERS:
@@ -164,13 +269,23 @@ def _ground_model(payload, pages, images):
             reasons.append("ungrounded_ocr_page")
             continue
         page = by_page[transcription.page]
-        page["text"] += "\n" + transcription.text
-        recipient = unicodedata.normalize("NFC", page.get("recipient_text", ""))
-        header = HEADERS["noi_nhan"].search(recipient)
-        clean_column = header and _entries(recipient[header.end():], "noi_nhan") and "\ufffd" not in recipient
-        # Whole-page OCR supplies article/list bodies; retain a readable layout crop.
-        if HEADERS["noi_nhan"].search(unicodedata.normalize("NFC", transcription.text)) and not clean_column:
-            page["recipient_text"] = transcription.text
+        trans_nfc = unicodedata.normalize("NFC", transcription.text)
+        if page.get("local_ocr_low_confidence"):
+            orig_nfc = unicodedata.normalize("NFC", page.get("text", ""))
+            if HEADERS["kinh_gui"].search(trans_nfc) or not HEADERS["kinh_gui"].search(orig_nfc):
+                page["text"] = transcription.text
+            else:
+                page["text"] += "\n" + transcription.text
+            if HEADERS["noi_nhan"].search(trans_nfc) or not HEADERS["noi_nhan"].search(unicodedata.normalize("NFC", page.get("recipient_text") or "")):
+                page["recipient_text"] = transcription.text
+        else:
+            page["text"] += "\n" + transcription.text
+            recipient = unicodedata.normalize("NFC", page.get("recipient_text") or "")
+            header = HEADERS["noi_nhan"].search(recipient)
+            clean_column = header and _entries(recipient[header.end():], "noi_nhan") and "\ufffd" not in recipient
+            # Whole-page OCR supplies article/list bodies; retain a readable layout crop.
+            if HEADERS["noi_nhan"].search(trans_nfc) and not clean_column:
+                page["recipient_text"] = transcription.text
         page["ocr_text"] = transcription.text
     rules, _ = extract_rule_mentions(pages)
     linked = [m for m in rules if any(e.section == "body_reference" for e in m.evidence) and m.kind != "reference"]
@@ -233,10 +348,13 @@ async def extract_document(path, provider, metadata, settings):
     rules, rule_reasons = extract_rule_mentions(pages, metadata)
     chosen, vision_reasons = select_vision_pages(pages, settings.max_vision_pages)
     if settings.ocr_backend == "vietocr":
-        # Explicit local OCR never silently falls back to slow cloud OCR on failure.
-        if missing_text.intersection(chosen):
+        low_conf_pages = {page["page"] for page in pages if page.get("local_ocr_low_confidence")}
+        # Explicit local OCR never silently falls back to cloud OCR on engine failure,
+        # but low-confidence scanned pages escalate to Vision LLM (hybrid mode).
+        blocked = missing_text - low_conf_pages
+        if blocked.intersection(chosen):
             local_reasons.append("unreadable_region")
-        chosen = [page for page in chosen if page not in missing_text]
+        chosen = [page for page in chosen if page not in blocked]
     audit = {"extractor_version": VERSION, "prompt_version": PROMPT_VERSION, "vision_pages_requested": chosen, "provider_used": False}
     if local_audit is not None:
         audit["local_ocr"] = local_audit

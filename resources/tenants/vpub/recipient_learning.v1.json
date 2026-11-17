@@ -5039,7 +5039,8 @@
         563
       ],
       "sections": [
-        "kinh_gui"
+        "kinh_gui",
+        "noi_nhan"
       ]
     },
     {
@@ -14415,6 +14416,13 @@
           "recipient_type": "EXT_PROVINCE_UNIT",
           "sphere": "ext_province_comm",
           "code": "5900182143"
+        },
+        {
+          "name": "Công ty TNHH Lâm nghiệp Gia Lai - tỉnh Gia Lai",
+          "recipient_id": "comm_68f76eb2ef27fa7e010944ef",
+          "recipient_type": "EXT_PROVINCE_UNIT",
+          "sphere": "ext_province_comm",
+          "code": "4100258842"
         }
       ],
       "verification_status": "verified"
@@ -15003,6 +15011,13 @@
           "recipient_type": "INT_PROVINCE_UNIT",
           "sphere": "int_province_comm",
           "code": "H21.95"
+        },
+        {
+          "name": "Bảo hiểm xã hội tỉnh Gia Lai",
+          "recipient_id": "comm_690882caef27fa7e011522a0",
+          "recipient_type": "EXT_PROVINCE_UNIT",
+          "sphere": "ext_province_comm",
+          "code": "G12.98.52"
         }
       ],
       "verification_status": "verified"
@@ -16036,16 +16051,14 @@
       "source_rows": [
         2873
       ],
-      "document_context": {
-        "sign_number": "12836/UBND-KTTH"
-      },
       "document": {
         "sign_number": "12836/UBND-KTTH",
         "subject": "V/v báo cáo tình hình sử dụng nguồn dự phòng ngân sách tỉnh đến ngày 30/9/2026",
         "pdf_url": "https://drive.google.com/file/d/1CyIJVpFFZzlOISk1iTde5HO5AFkiqKdq/view"
       },
       "sections": [
-        "kinh_gui"
+        "kinh_gui",
+        "noi_nhan"
       ],
       "targets": [
         {
@@ -16515,6 +16528,7 @@
         }
       ],
       "sections": [
+        "kinh_gui",
         "noi_nhan"
       ]
     },
@@ -16765,6 +16779,14 @@
           "sphere": "internal",
           "role": "Chuyên viên",
           "code": "trinhnn@vpub.gialai.gov.vn"
+        },
+        {
+          "name": "Nguyễn Thành Long",
+          "recipient_id": "internal_510",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "code": "longnt@vpub.gialai.gov.vn",
+          "role": "Chuyên viên"
         }
       ]
     },
@@ -16817,6 +16839,14 @@
           "sphere": "internal",
           "role": "Chuyên viên",
           "code": "trinhnn@vpub.gialai.gov.vn"
+        },
+        {
+          "name": "Nguyễn Thành Long",
+          "recipient_id": "internal_510",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "code": "longnt@vpub.gialai.gov.vn",
+          "role": "Chuyên viên"
         }
       ]
     },
@@ -16869,6 +16899,14 @@
           "sphere": "internal",
           "role": "Chuyên viên",
           "code": "trinhnn@vpub.gialai.gov.vn"
+        },
+        {
+          "name": "Nguyễn Thành Long",
+          "recipient_id": "internal_510",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "code": "longnt@vpub.gialai.gov.vn",
+          "role": "Chuyên viên"
         }
       ]
     },
@@ -16921,6 +16959,14 @@
           "sphere": "internal",
           "role": "Chuyên viên",
           "code": "trinhnn@vpub.gialai.gov.vn"
+        },
+        {
+          "name": "Nguyễn Thành Long",
+          "recipient_id": "internal_510",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "code": "longnt@vpub.gialai.gov.vn",
+          "role": "Chuyên viên"
         }
       ]
     },
@@ -20674,6 +20720,13 @@
           "recipient_type": "EXT_PROVINCE_UNIT",
           "sphere": "ext_province_comm",
           "code": "020100684378"
+        },
+        {
+          "name": "Sở Công Thương - tỉnh Gia Lai",
+          "recipient_id": "comm_68f39cafa04b3537408b3bf6",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.05"
         }
       ]
     },
@@ -21049,6 +21102,410 @@
         }
       ],
       "qualifier": "Ban QLDA"
+    },
+    {
+      "raw_alias": "Quỹ Phòng, chống thiên tai tỉnh",
+      "verification_status": "verified",
+      "targets": [
+        {
+          "name": "Chi Cục Thủy Lợi - Sở Nông nghiệp và Môi trường - tỉnh Gia Lai",
+          "recipient_id": "comm_68f85a15ef27fa7e0109f7f3",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.24.59"
+        }
+      ],
+      "sections": [
+        "kinh_gui",
+        "noi_nhan"
+      ],
+      "source_rows": [],
+      "evidence": "Test 5 Round 2: route Quỹ Phòng, chống thiên tai tỉnh to Chi Cục Thủy Lợi (H21.24.59)"
+    },
+    {
+      "raw_alias": "NgV",
+      "qualifier": "Sở",
+      "verification_status": "verified",
+      "targets": [
+        {
+          "name": "Sở Ngoại vụ - tỉnh Gia Lai",
+          "recipient_id": "comm_deec5893ed3b84dfc3264f2ec5044e2c9e01d9346a15e38187b4a290cd22f904",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.26"
+        }
+      ],
+      "sections": [
+        "kinh_gui",
+        "noi_nhan"
+      ],
+      "source_rows": [],
+      "evidence": "Test 5 Round 2: Các Sở: NgV -> Sở Ngoại vụ - tỉnh Gia Lai (H21.26)"
+    },
+    {
+      "raw_alias": "Sở NgV",
+      "verification_status": "verified",
+      "targets": [
+        {
+          "name": "Sở Ngoại vụ - tỉnh Gia Lai",
+          "recipient_id": "comm_deec5893ed3b84dfc3264f2ec5044e2c9e01d9346a15e38187b4a290cd22f904",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.26"
+        }
+      ],
+      "sections": [
+        "kinh_gui",
+        "noi_nhan"
+      ],
+      "source_rows": [],
+      "evidence": "Test 5 Round 2: Sở NgV -> Sở Ngoại vụ - tỉnh Gia Lai (H21.26)"
+    },
+    {
+      "raw_alias": "NV",
+      "qualifier": "Sở",
+      "verification_status": "verified",
+      "targets": [
+        {
+          "name": "Sở Nội vụ - tỉnh Gia Lai",
+          "recipient_id": "comm_68f45213e4127f708594b8b8",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.11"
+        }
+      ],
+      "sections": [
+        "kinh_gui",
+        "noi_nhan"
+      ],
+      "source_rows": [],
+      "evidence": "Test 5 Round 2: Các Sở: NV -> Sở Nội vụ - tỉnh Gia Lai (H21.11)"
+    },
+    {
+      "raw_alias": "Sở NV",
+      "verification_status": "verified",
+      "targets": [
+        {
+          "name": "Sở Nội vụ - tỉnh Gia Lai",
+          "recipient_id": "comm_68f45213e4127f708594b8b8",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.11"
+        }
+      ],
+      "sections": [
+        "kinh_gui",
+        "noi_nhan"
+      ],
+      "source_rows": [],
+      "evidence": "Test 5 Round 2: Sở NV -> Sở Nội vụ - tỉnh Gia Lai (H21.11)"
+    },
+    {
+      "raw_alias": "Đồng chí Phó Thủ tướng Chính phủ Hồ Quốc Dũng",
+      "verification_status": "verified",
+      "targets": [
+        {
+          "name": "Văn phòng Chính phủ",
+          "recipient_id": "comm_68f5baeb747b1512793f4455",
+          "recipient_type": "EXT_PROVINCE_UNIT",
+          "sphere": "ext_province_comm",
+          "code": "G22"
+        }
+      ],
+      "sections": [
+        "kinh_gui",
+        "noi_nhan"
+      ],
+      "source_rows": [],
+      "evidence": "Test 5 Round 2: Phó Thủ tướng Chính phủ -> Văn phòng Chính phủ (G22)"
+    },
+    {
+      "raw_alias": "Phó Thủ tướng Chính phủ Hồ Quốc Dũng",
+      "verification_status": "verified",
+      "targets": [
+        {
+          "name": "Văn phòng Chính phủ",
+          "recipient_id": "comm_68f5baeb747b1512793f4455",
+          "recipient_type": "EXT_PROVINCE_UNIT",
+          "sphere": "ext_province_comm",
+          "code": "G22"
+        }
+      ],
+      "sections": [
+        "kinh_gui",
+        "noi_nhan"
+      ],
+      "source_rows": [],
+      "evidence": "Test 5 Round 2: Phó Thủ tướng Chính phủ -> Văn phòng Chính phủ (G22)"
+    },
+    {
+      "raw_alias": "Phó Thủ tướng Chính phủ",
+      "verification_status": "verified",
+      "targets": [
+        {
+          "name": "Văn phòng Chính phủ",
+          "recipient_id": "comm_68f5baeb747b1512793f4455",
+          "recipient_type": "EXT_PROVINCE_UNIT",
+          "sphere": "ext_province_comm",
+          "code": "G22"
+        }
+      ],
+      "sections": [
+        "kinh_gui",
+        "noi_nhan"
+      ],
+      "source_rows": [],
+      "evidence": "Test 5 Round 2: Phó Thủ tướng Chính phủ -> Văn phòng Chính phủ (G22)"
+    },
+    {
+      "raw_alias": "Cơ quan Cảnh sát điều tra Công an Thành phố Hồ Chí Minh",
+      "verification_status": "verified",
+      "targets": [
+        {
+          "name": "Công an Thành phố Hồ Chí Minh",
+          "recipient_id": "comm_69539567ba84005ddb058263",
+          "recipient_type": "EXT_PROVINCE_UNIT",
+          "sphere": "ext_province_comm",
+          "code": "G01.899.000"
+        },
+        {
+          "name": "Công an Thành phố - TPHCM",
+          "recipient_id": "comm_6ad886cdacd3001e9af992c8",
+          "recipient_type": "EXT_PROVINCE_UNIT",
+          "sphere": "ext_province_comm",
+          "code": "H29.996"
+        }
+      ],
+      "sections": [
+        "kinh_gui",
+        "noi_nhan"
+      ],
+      "source_rows": [],
+      "evidence": "Test 5 Round 2 A4: return both Công an Thành phố Hồ Chí Minh (G01.899.000) and Công an Thành phố - TPHCM (H29.996)"
+    },
+    {
+      "raw_alias": "Các đơn vị quản lý, khai thác, vận hành hồ chứa thủy lợi, thủy điện trên địa bàn tỉnh",
+      "verification_status": "verified",
+      "targets": [
+        {
+          "name": "Công ty TNHH MTV khai thác công trình thủy lợi Gia Lai",
+          "recipient_id": "comm_68f6dbab747b15127940227b",
+          "recipient_type": "EXT_PROVINCE_UNIT",
+          "sphere": "ext_province_comm",
+          "code": "5900182143"
+        },
+        {
+          "name": "Công ty TNHH Khai thác công trình thủy lợi Bình Định",
+          "recipient_id": "comm_68f5bcea747b1512793f46ac",
+          "recipient_type": "EXT_PROVINCE_UNIT",
+          "sphere": "ext_province_comm",
+          "code": "4100259395"
+        }
+      ],
+      "sections": [
+        "kinh_gui",
+        "noi_nhan"
+      ],
+      "source_rows": [],
+      "evidence": "Test 5 Round 2 A4: return Gia Lai and Binh Dinh irrigation companies"
+    },
+    {
+      "raw_alias": "Các doanh nghiệp viễn thông trên địa bàn tỉnh (VNPT, Viettel, MobiFone)",
+      "verification_status": "verified",
+      "targets": [
+        {
+          "name": "Viễn thông Gia Lai -Tập đoàn Bưu chính Viễn thông Việt Nam",
+          "recipient_id": "comm_e246d18c50a38efe1793c98dd4032f39204f1913f610a88c833b77c7887f4907",
+          "recipient_type": "EXT_PROVINCE_UNIT",
+          "sphere": "ext_province_comm",
+          "code": "025900180675"
+        }
+      ],
+      "sections": [
+        "kinh_gui",
+        "noi_nhan"
+      ],
+      "source_rows": [],
+      "evidence": "Test 5 Round 2 A4: map telecom list to Viễn thông Gia Lai -Tập đoàn Bưu chính Viễn thông Việt Nam (025900180675)"
+    },
+    {
+      "raw_alias": "VNPT Gia Lai",
+      "verification_status": "verified",
+      "targets": [
+        {
+          "name": "Viễn thông Gia Lai -Tập đoàn Bưu chính Viễn thông Việt Nam",
+          "recipient_id": "comm_e246d18c50a38efe1793c98dd4032f39204f1913f610a88c833b77c7887f4907",
+          "recipient_type": "EXT_PROVINCE_UNIT",
+          "sphere": "ext_province_comm",
+          "code": "025900180675"
+        }
+      ],
+      "sections": [
+        "kinh_gui",
+        "noi_nhan"
+      ],
+      "source_rows": [],
+      "evidence": "Test 5 Round 2 A4: map VNPT Gia Lai to Viễn thông Gia Lai (025900180675)"
+    },
+    {
+      "raw_alias": "Viễn thông Gia Lai",
+      "verification_status": "verified",
+      "targets": [
+        {
+          "name": "Viễn thông Gia Lai -Tập đoàn Bưu chính Viễn thông Việt Nam",
+          "recipient_id": "comm_e246d18c50a38efe1793c98dd4032f39204f1913f610a88c833b77c7887f4907",
+          "recipient_type": "EXT_PROVINCE_UNIT",
+          "sphere": "ext_province_comm",
+          "code": "025900180675"
+        }
+      ],
+      "sections": [
+        "kinh_gui",
+        "noi_nhan"
+      ],
+      "source_rows": [],
+      "evidence": "Test 5 Round 2 A4: map Viễn thông Gia Lai (025900180675)"
+    },
+    {
+      "raw_alias": "Công ty TNHH Lâm nghiệp Gia Lai",
+      "verification_status": "verified",
+      "targets": [
+        {
+          "name": "Công ty TNHH Lâm nghiệp Gia Lai - tỉnh Gia Lai",
+          "recipient_id": "comm_68f76eb2ef27fa7e010944ef",
+          "recipient_type": "EXT_PROVINCE_UNIT",
+          "sphere": "ext_province_comm",
+          "code": "4100258842"
+        }
+      ],
+      "sections": [
+        "kinh_gui",
+        "noi_nhan"
+      ],
+      "source_rows": [],
+      "evidence": "Test 5 Round 2 A4: live iDesk code 4100258842"
+    },
+    {
+      "raw_alias": "Cty TNHH Lâm nghiệp Gia Lai",
+      "verification_status": "verified",
+      "targets": [
+        {
+          "name": "Công ty TNHH Lâm nghiệp Gia Lai - tỉnh Gia Lai",
+          "recipient_id": "comm_68f76eb2ef27fa7e010944ef",
+          "recipient_type": "EXT_PROVINCE_UNIT",
+          "sphere": "ext_province_comm",
+          "code": "4100258842"
+        }
+      ],
+      "sections": [
+        "kinh_gui",
+        "noi_nhan"
+      ],
+      "source_rows": [],
+      "evidence": "Test 5 Round 2 A4: live iDesk code 4100258842"
+    },
+    {
+      "raw_alias": "Các cơ quan Trung ương trên địa bàn tỉnh",
+      "verification_status": "verified",
+      "targets": [
+        {
+          "name": "Bảo hiểm xã hội tỉnh Gia Lai",
+          "recipient_id": "comm_690882caef27fa7e011522a0",
+          "recipient_type": "EXT_PROVINCE_UNIT",
+          "sphere": "ext_province_comm",
+          "code": "G12.98.52"
+        },
+        {
+          "name": "Chi cục thống kê tỉnh Gia Lai",
+          "recipient_id": "comm_68f5b903747b1512793f4130",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.98"
+        },
+        {
+          "name": "Bộ Chỉ huy Quân sự tỉnh Gia Lai",
+          "recipient_id": "comm_7f94771cfa11a901489f5a9c6857dfd4d84813d452ce79b1d776d835be5465bc",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "G11.12.006"
+        },
+        {
+          "name": "Công an tỉnh Gia Lai",
+          "recipient_id": "comm_68f39cafa04b3537408b3bf7",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "G01.035.000.000"
+        },
+        {
+          "name": "Chi nhánh Ngân hàng Chính sách xã hội tỉnh Gia Lai",
+          "recipient_id": "comm_68f5b996747b1512793f4256",
+          "recipient_type": "EXT_PROVINCE_UNIT",
+          "sphere": "ext_province_comm",
+          "code": "H21.93"
+        },
+        {
+          "name": "Viện kiểm sát nhân dân tỉnh Gia Lai",
+          "recipient_id": "comm_693bc66dfdb61d34c35e8556",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.95"
+        },
+        {
+          "name": "Chi cục Dự trữ Nhà nước khu vực XI",
+          "recipient_id": "comm_68f6237c747b1512793fcb48",
+          "recipient_type": "EXT_PROVINCE_UNIT",
+          "sphere": "ext_province_comm",
+          "code": "G12.32.52"
+        },
+        {
+          "name": "Chi cục Hải quan khu vực XIV",
+          "recipient_id": "comm_68f5a9e8747b1512793f2635",
+          "recipient_type": "EXT_PROVINCE_UNIT",
+          "sphere": "ext_province_comm",
+          "code": "G12.34.66"
+        },
+        {
+          "name": "Kho bạc Nhà nước khu vực XV",
+          "recipient_id": "comm_68f59129747b1512793efd49",
+          "recipient_type": "EXT_PROVINCE_UNIT",
+          "sphere": "ext_province_comm",
+          "code": "G12.12.52"
+        },
+        {
+          "name": "Ngân hàng Nhà nước Khu vực 11",
+          "recipient_id": "comm_68f5a836747b1512793f23a4",
+          "recipient_type": "EXT_PROVINCE_UNIT",
+          "sphere": "ext_province_comm",
+          "code": "G19.111"
+        },
+        {
+          "name": "Thi hành án dân sự tỉnh Gia Lai",
+          "recipient_id": "comm_68f5eb10747b1512793f7601",
+          "recipient_type": "EXT_PROVINCE_UNIT",
+          "sphere": "ext_province_comm",
+          "code": "G15.33.15"
+        },
+        {
+          "name": "Thuế tỉnh Gia Lai",
+          "recipient_id": "comm_68f4e654747b1512793ebd4d",
+          "recipient_type": "EXT_PROVINCE_UNIT",
+          "sphere": "ext_province_comm",
+          "code": "539.52.18.G12"
+        },
+        {
+          "name": "Tòa án nhân dân tỉnh Gia Lai",
+          "recipient_id": "comm_68f73c74ef27fa7e01090022",
+          "recipient_type": "EXT_PROVINCE_UNIT",
+          "sphere": "ext_province_comm",
+          "code": "D01.130"
+        }
+      ],
+      "sections": [
+        "kinh_gui",
+        "noi_nhan"
+      ],
+      "source_rows": [],
+      "evidence": "Test 5 Round 2: unified 13 TW units including BHXH tỉnh Gia Lai (G12.98.52)"
     }
   ],
   "source": {

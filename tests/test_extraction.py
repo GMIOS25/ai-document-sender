@@ -385,3 +385,91 @@ def test_extract_ban_qlda_batch_enumeration_stt353():
     ]
     noi_nhan = [m.raw for m in mentions_out if m.evidence[0].section == "noi_nhan"]
     assert "PCTTT UBND tỉnh" in noi_nhan
+
+
+def test_extract_handles_wraps_semicolons_pvp_nfd_and_luu_subscripts():
+    from reportlab.pdfgen import canvas
+    from reportlab.pdfbase import pdfmetrics
+    from reportlab.pdfbase.ttfonts import TTFont
+    import pytest
+
+    # 1. STT 422 / 490 lowercase continuation + STT 379 Các sở, ngành + STT 383 Như trên (thực hiện)
+    # 2. STT 179 semicolon wrap & split in noi_nhan + STT 35/214 PVP: NN, XD + N1,4 shorthand + STT 466 NFD header
+    text = (
+        "Kính gửi:\n"
+        "- Công ty cổ phần Đào tạo và Dịch vụ\n"
+        "giao thông vận tải Bình Định.\n"
+        "- Các sở, ngành: Văn hóa, Thể thao và Du lịch; Xây dựng.\n"
+        "Nơi nh\u00e2\u0323n:\n"
+        "- Như trên (thực hiện);\n"
+        "- Sở Tư pháp; Sở Tài chính;\n"
+        "Sở Nông nghiệp và Môi trường;\n"
+        "- PVP: NN, XD;\n"
+        "- Lưu: VT, N1, 4, X5\n"
+        "Văn bản số 10139/STC-QLGCS ngày 06/10/2026"
+    )
+    mentions, reasons = extract_rule_mentions(pages(text))
+    raws = {m.raw for m in mentions}
+    assert "Công ty cổ phần Đào tạo và Dịch vụ giao thông vận tải Bình Định" in raws
+    assert {"Sở Tư pháp", "Sở Tài chính", "Sở Nông nghiệp và Môi trường"} <= raws
+    assert {"PVP NN", "PVP XD", "VT", "N1", "N4", "X5"} <= raws
+    assert ("Văn hóa, Thể thao và Du lịch", "Sở") in {(m.raw, m.qualifier) for m in mentions}
+    assert "unsupported_reference" not in reasons
+    assert not any("10139" in m.raw or m.raw == "XD" for m in mentions)
+
+    # 3. Reportlab PDF with lowered subscript digits on Lưu: line (-4.2pt)
+    font = next((path for path in [Path("C:/Windows/Fonts/arial.ttf"), Path("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf")] if path.exists()), None)
+    if font is None:
+        pytest.skip("Unicode test font is unavailable")
+    pdfmetrics.registerFont(TTFont("SubscriptTestFont", str(font)))
+    with tempfile.TemporaryDirectory() as tmp:
+        path = Path(tmp) / "subscript.pdf"
+        pdf = canvas.Canvas(str(path), pagesize=(595, 842))
+        pdf.setFont("SubscriptTestFont", 10)
+        pdf.drawString(85, 760, "Kính gửi: Sở Công Thương.")
+        pdf.drawString(85, 250, "Nơi nhận:")
+        pdf.drawString(85, 235, "- Như trên;")
+        pdf.drawString(85, 220, "- Lưu: VT, N")
+        pdf.setFont("SubscriptTestFont", 6.5)
+        pdf.drawString(148, 217.5, "1")
+        pdf.setFont("SubscriptTestFont", 10)
+        pdf.drawString(152, 220, ",    , X")
+        pdf.setFont("SubscriptTestFont", 6.5)
+        pdf.drawString(157, 217.5, "4")
+        pdf.drawString(182, 217.5, "5.")
+        pdf.save()
+        res = asyncio.run(extract_document(path, None, DocumentMetadata(document_id="sub"), Settings(runtime_dir=Path(tmp))))
+    luu_raws = {m.raw for m in res.mentions if m.evidence[0].section == "luu"}
+    assert {"VT", "N1", "N4", "X5"} <= luu_raws
+
+
+def test_vietocr_low_confidence_escalates_to_hybrid_vision_fallback(settings):
+    scan = pages("")
+    scan[0]["images"] = [{"bbox": [0, 0, 595, 842]}]
+    configured = replace(settings, ocr_backend="vietocr")
+
+    def noisy_ocr(path, records, active_settings):
+        records[0].update(
+            text="Kính gửi: UBND\nNơi nhận:\n- Lưu: VT, T475",
+            ocr_text="Kính gửi: UBND\nNơi nhận:\n- Lưu: VT, T475",
+            recipient_text="Nơi nhận:\n- Lưu: VT, T475",
+            local_ocr_complete=True,
+            local_ocr_low_confidence=True,
+        )
+        return {"backend": "vietocr", "pages": [1]}, ["local_ocr_low_confidence"]
+
+    vision_text = "Kính gửi: Sở Tài chính.\nNơi nhận:\n- Như trên;\n- Lưu: VT, T4, T5."
+    provider = FakeProvider({
+        "mentions": [{"raw": "Sở Tài chính", "kind": "unit", "evidence": [{"page": 1, "section": "kinh_gui", "raw": "Sở Tài chính"}]}],
+        "status": "complete",
+        "review_reasons": [],
+        "ocr_pages": [{"page": 1, "text": vision_text}],
+    })
+    with patch("ai_document_sender.extraction._read_pages", return_value=scan), \
+            patch("ai_document_sender.extraction.ocr_missing_pages", side_effect=noisy_ocr), \
+            patch("ai_document_sender.extraction._render_pages", return_value=[{"page": 1, "data_url": "data:image/png;base64,AA=="}]):
+        result = asyncio.run(extract_document(Path("lowconf.pdf"), provider, DocumentMetadata(document_id="hybrid-lowconf"), configured))
+    assert provider.calls[0]
+    raws = {m.raw for m in result.mentions}
+    assert {"Sở Tài chính", "VT", "T4", "T5"} <= raws
+    assert "T475" not in raws

@@ -60,23 +60,36 @@ def test_vpub_learning_rules_bind_cleanly_with_complete_metadata():
 async def test_vpub_btcd_ldcv_and_20_unit_rules():
     settings = vpub_settings()
     registry = Registry(settings)
+    registry.tenant_id = "vpub"
     expected_50 = expected_50_vpub_member_ids(settings.lookup_db)
     assert len(expected_50) == 50
 
-    for alias in ("BTCD", "Ban TCD tỉnh", "Ban Tiếp công dân tỉnh", "Ban Tiếp công dân"):
+    for alias in ("BTCD", "Ban TCD tỉnh", "Ban Tiếp công dân tỉnh", "Ban Tiếp công dân", "HSVV-TD", "HSVV, Vinh", "Long, , HSVV-TD"):
         for sec in ("kinh_gui", "noi_nhan", "luu"):
             mention = make_mention(alias, "unit", 1, sec, organization_scope="UBND tỉnh Gia Lai")
             result = await resolve_mentions(
                 Extraction(mentions=[mention], status="complete"),
                 registry,
-                DocumentMetadata(document_id="doc-btcd", issuer="UBND tỉnh Gia Lai"),
+                DocumentMetadata(document_id="doc-btcd-td", sign_number="13027/UBND-TD", issuer="UBND tỉnh Gia Lai"),
                 "job",
                 "sha",
             )
             assert {r.recipient_id for r in result.people} == {
-                "internal_504", "internal_516", "internal_508", "internal_514", "internal_1163053"
+                "internal_504", "internal_516", "internal_510", "internal_508", "internal_514", "internal_1163053"
             }, f"{alias} ({sec}) got people {[r.recipient_id for r in result.people]}"
             assert not result.units, f"{alias} ({sec}) unexpectedly matched units {[r.code for r in result.units]}"
+
+    for alias in ("BTCD", "Ban TCD tỉnh", "Ban Tiếp công dân tỉnh", "Ban Tiếp công dân"):
+        mention = make_mention(alias, "unit", 1, "noi_nhan", organization_scope="UBND tỉnh Gia Lai")
+        result = await resolve_mentions(
+            Extraction(mentions=[mention], status="complete"),
+            registry,
+            DocumentMetadata(document_id="doc-btcd-unit", sign_number="13021/UBND-NC", issuer="UBND tỉnh Gia Lai"),
+            "job",
+            "sha",
+        )
+        assert [r.code for r in result.units] == ["H21.21.01"], f"{alias} non-TD got units {result.units}"
+        assert {r.recipient_id for r in result.people} == {"internal_397"}, f"{alias} non-TD unexpectedly matched people {[r.recipient_id for r in result.people]}"
 
     for alias, sec in [
         ("LĐ và CV Văn phòng UBND tỉnh", "noi_nhan"),
@@ -312,3 +325,107 @@ def test_vpub_muc5_qlda_boards_and_pcttt_rules():
         assert {u.code for u in result.units} == {"H21.40", "H21.41", "H21.38"}
         assert {p.recipient_id for p in result.people} == {"internal_272"}
         assert result.unresolved == []
+
+
+async def test_vpub_test5_round2_policy_and_unit_mappings():
+    settings = vpub_settings()
+    registry = Registry(settings)
+    registry.tenant_id = "vpub"
+
+    # A4 + Learning updates: unit mappings, NgV/NV qualifiers, dual HCMC police, TW BHXH
+    for alias, qualifier, expected_codes in [
+        ("Quỹ Phòng, chống thiên tai tỉnh", None, {"H21.24.59"}),
+        ("Chi cục Kiểm lâm", None, {"H21.24.08"}),
+        ("Thường trực Hội đồng nhân dân tỉnh", None, {"K21"}),
+        ("NgV", "Sở", {"H21.26"}),
+        ("NV", "Sở", {"H21.11"}),
+        ("Đồng chí Phó Thủ tướng Chính phủ Hồ Quốc Dũng", None, {"G22"}),
+        ("Cơ quan Cảnh sát điều tra Công an Thành phố Hồ Chí Minh", None, {"G01.899.000", "H29.996"}),
+        ("Các đơn vị quản lý, khai thác, vận hành hồ chứa thủy lợi, thủy điện trên địa bàn tỉnh", None, {"5900182143", "4100259395"}),
+        ("Công ty TNHH Lâm nghiệp Gia Lai", None, {"4100258842"}),
+        ("Cty TNHH Lâm nghiệp Gia Lai", None, {"4100258842"}),
+        ("VNPT Gia Lai", None, {"025900180675"}),
+        ("Các doanh nghiệp viễn thông trên địa bàn tỉnh (VNPT, Viettel, MobiFone)", None, {"025900180675"}),
+        ("Chủ tịch UBND phường Hội Phú", None, {"H21.105"}),
+        ("UBND xã Ya Hội", None, {"H21.175"}),
+    ]:
+        for sec in (("kinh_gui",) if qualifier else ("kinh_gui", "noi_nhan")):
+            m = make_mention(alias, "unit", 1, sec, qualifier=qualifier, organization_scope="UBND tỉnh Gia Lai")
+            res = await resolve_mentions(
+                Extraction(mentions=[m], status="complete"),
+                registry,
+                DocumentMetadata(document_id="doc-r2", issuer="UBND tỉnh Gia Lai"),
+                "job",
+                "sha",
+            )
+            assert {u.code for u in res.units} == expected_codes, f"{alias} ({sec}) got {[u.code for u in res.units]}"
+
+    # TW agencies include BHXH (G12.98.52) on both 12843/UBND-NC and Các cơ quan Trung ương trên địa bàn tỉnh
+    for alias, sign in [
+        ("Các cơ quan Trung ương trên địa bàn tỉnh", "12890/UBND-KTTH"),
+        ("Các cơ quan TW đóng trên địa bàn tỉnh", "12843/UBND-NC"),
+    ]:
+        m = make_mention(alias, "group", 1, "noi_nhan" if "TW" in alias else "kinh_gui", organization_scope="UBND tỉnh Gia Lai")
+        res = await resolve_mentions(
+            Extraction(mentions=[m], status="complete"),
+            registry,
+            DocumentMetadata(document_id="doc-tw", sign_number=sign, issuer="UBND tỉnh Gia Lai"),
+            "job",
+            "sha",
+        )
+        assert "G12.98.52" in {u.code for u in res.units}, f"{alias} missing G12.98.52"
+
+    # A2 + A3: Phạm Anh Tuấn signer adds Lê Huy Vũ; foreign letters add Sở Ngoại vụ + Hoài + Hằng + signer
+    res_pat = await resolve_mentions(
+        Extraction(
+            mentions=[make_mention("Chủ tịch UBND tỉnh", "role", 2, "noi_nhan")],
+            pages=[{"page": 1, "text": "Kính gửi: Sở Nội vụ.\nNơi nhận:\n- Như trên;\nCHỦ TỊCH\nPhạm Anh Tuấn"}],
+            status="complete",
+        ),
+        registry,
+        DocumentMetadata(document_id="doc-pat", sign_number="13020/UBND-NC", issuer="UBND tỉnh Gia Lai"),
+        "job",
+        "sha",
+    )
+    assert "internal_289" in {p.recipient_id for p in res_pat.people}
+
+    res_inv = await resolve_mentions(
+        Extraction(
+            mentions=[make_mention("Đồng chí", "role", 1, "kinh_gui")],
+            pages=[{"page": 1, "text": "Kính gửi: Đồng chí\nMời tham dự Lễ Khánh thành.\nTM. ỦY BAN NHÂN DÂN\nCHỦ TỊCH\nPhạm Anh Tuấn"}],
+            status="complete",
+        ),
+        registry,
+        DocumentMetadata(document_id="doc-194", sign_number="12916/UBND-XDCT", issuer="UBND tỉnh Gia Lai"),
+        "job",
+        "sha",
+    )
+    assert "internal_289" not in {p.recipient_id for p in res_inv.people}
+
+    res_foreign = await resolve_mentions(
+        Extraction(
+            mentions=[make_mention("Ngài Peter Styles, Thị trưởng thành phố Darwin, AUSTRALIA", "unit", 1, "kinh_gui")],
+            pages=[{"page": 1, "text": "Kính gửi: Ngài Peter Styles\nAUSTRALIA"}, {"page": 2, "text": "Trân trọng!\nNGUYỄN HỮU QUẾ\nPhó Chủ tịch Ủy ban nhân dân tỉnh"}],
+            status="complete",
+        ),
+        registry,
+        DocumentMetadata(document_id="doc-429", sign_number="12680A/UBND-KTTH", issuer="UBND tỉnh Gia Lai"),
+        "job",
+        "sha",
+    )
+    assert {"H21.26"} <= {u.code for u in res_foreign.units}
+    assert {"internal_297", "internal_479", "internal_280"} <= {p.recipient_id for p in res_foreign.people}
+
+    res_coop = await resolve_mentions(
+        Extraction(
+            mentions=[make_mention("Sở Ngoại vụ", "unit", 2, "noi_nhan")],
+            pages=[{"page": 1, "text": "Kính gửi: Ông X.\nCộng hòa Pháp\nĐSQ Pháp tại Việt Nam\nNơi nhận:\n- ĐSQ Pháp tại Việt Nam;\nCHỦ TỊCH\nPhạm Anh Tuấn"}],
+            status="complete",
+        ),
+        registry,
+        DocumentMetadata(document_id="doc-164", sign_number="12946/UBND-KGVX", issuer="UBND tỉnh Gia Lai"),
+        "job",
+        "sha",
+    )
+    assert {"internal_270", "internal_289"} <= {p.recipient_id for p in res_coop.people}
+    assert {"H21.26"} <= {u.code for u in res_coop.units}

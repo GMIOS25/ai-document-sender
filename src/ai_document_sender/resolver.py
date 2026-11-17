@@ -16,6 +16,24 @@ VPUB_DEPARTMENT_HEADS = {
     "NC": "oanhh@vpub.gialai.gov.vn",
     "KGVX": "danhnh@vpub.gialai.gov.vn",
 }
+BTCD_STAFF_EMAILS = (
+    "canhvm@vpub.gialai.gov.vn",
+    "thinhrcy@vpub.gialai.gov.vn",
+    "longnt@vpub.gialai.gov.vn",
+    "vinhpv@vpub.gialai.gov.vn",
+    "songn@vpub.gialai.gov.vn",
+    "trinhnn@vpub.gialai.gov.vn",
+)
+BTCD_UNIT_CODE = "H21.21.01"
+SO_NGOAI_VU_CODE = "H21.26"
+FOREIGN_SIGNAL_RE = re.compile(
+    r"AUSTRALIA|Hàn Quốc|Cộng hòa Pháp|Yours sincerely|Kwon Hee|Charles Darwin|Darwin|Sydney|AgTech|HanaTour|ĐSQ\s+Pháp|Đại sứ quán",
+    re.I,
+)
+COOPERATION_SIGNAL_RE = re.compile(
+    r"ĐSQ|Đại sứ quán|Tổng Lãnh sự|Cộng hòa Pháp|HanaTour",
+    re.I,
+)
 # Explicit DFS parent->child expansion applies ONLY to these two VPUB leadership nodes.
 LEADERSHIP_PARENT_MAP = {
     "internal_269": "internal_269",
@@ -79,6 +97,7 @@ def expand_lexical(raw):
     expansions = [
         (r"^PCT\b", "Phó Chủ tịch UBND tỉnh"), (r"^CT\s+UBND\s+tỉnh\b", "Chủ tịch UBND tỉnh"),
         (r"^CVP\b", "Chánh Văn phòng UBND tỉnh"), (r"^PCVP\b", "Phó Chánh Văn phòng"),
+        (r"\bCty\b", "Công ty"),
         (r"^Sở\s+VH\s*[,.-]?\s*TT\s*[&,. -]*\s*DL\b", "Sở Văn hóa Thể thao và Du lịch"),
         (r"^Sở\s+VHTTDL\b", "Sở Văn hóa Thể thao và Du lịch"),
         (r"^Sở\s+NN\s*[&,. -]*\s*MT\b", "Sở Nông nghiệp và Môi trường"),
@@ -95,6 +114,55 @@ def expand_lexical(raw):
         raw = re.sub(pattern, full, raw, flags=re.I)
     # PCT UBND tỉnh must not produce duplicated jurisdiction text.
     return re.sub(r"(UBND tỉnh)\s+UBND tỉnh", r"\1", raw, flags=re.I).strip(" ;:-")
+
+
+BTCD_SELECTORS = {
+    "btcd", "ban tiep cong dan", "ban tiep cong dan tinh", "ban tiep cong dan tinh gia lai",
+    "ban tcd", "ban tcd tinh", "hsvv td", "hsvv vinh", "long hsvv td",
+}
+
+
+def _btcd_policy_candidates(raw, metadata, registry):
+    if getattr(registry, "tenant_id", None) != "vpub":
+        return None
+    cleaned = re.sub(r"\s+", " ", re.sub(r"[,.;/]+", " ", normalize(raw))).strip()
+    if cleaned not in BTCD_SELECTORS:
+        return None
+    if re.search(r"/UBND-TD\b", metadata.sign_number or "", re.I):
+        staff = []
+        for email in BTCD_STAFF_EMAILS:
+            matches = [r for r in registry.exact_code(email) if r.sphere == "internal" and r.recipient_type == "INTERNAL_PERSON"]
+            if len(matches) == 1:
+                staff.append(matches[0])
+        return staff, "vpub_btcd_td_staff"
+    if cleaned in {"btcd", "ban tiep cong dan", "ban tiep cong dan tinh", "ban tiep cong dan tinh gia lai", "ban tcd", "ban tcd tinh"}:
+        units = [r for r in registry.exact_code(BTCD_UNIT_CODE) if r.sphere == "int_province_comm"]
+        if units:
+            return units, "vpub_btcd_unit"
+    return None
+
+
+def _signed_by(extraction, full_name):
+    pattern = re.compile(r"\b" + r"\s+".join(re.escape(part) for part in full_name.split()) + r"\b", re.I)
+    for page in extraction.pages or []:
+        text = unicodedata.normalize("NFC", page.get("text", ""))
+        if not text:
+            continue
+        if pattern.search(text[-400:]) and not re.search(r"\b(?:KT|TL|TUQ)\.\s*CHỦ\s*TỊCH", text[-1000:], re.I):
+            return True
+    return False
+
+
+def _add_internal_by_email(chosen, registry, email, method):
+    matches = [r for r in registry.exact_code(email) if r.sphere == "internal" and r.recipient_type == "INTERNAL_PERSON"]
+    if len(matches) == 1 and matches[0].recipient_id not in chosen:
+        chosen[matches[0].recipient_id] = matches[0].model_copy(update={"match_method": method}, deep=True)
+
+
+def _add_unit_by_code(chosen, registry, code, sphere, method):
+    matches = [r for r in registry.exact_code(code) if r.sphere == sphere]
+    if len(matches) == 1 and matches[0].recipient_id not in chosen:
+        chosen[matches[0].recipient_id] = matches[0].model_copy(update={"match_method": method}, deep=True)
 
 
 async def resolve_mentions(extraction, registry, metadata, job_id, input_sha256, provider=None):
@@ -150,6 +218,7 @@ async def resolve_mentions(extraction, registry, metadata, job_id, input_sha256,
         group = (native_group(combined, registry) if recipient_scope and mention.kind in {"group", "unit", "unknown"} and geography is None and
                  is_gl_context else None)
         service_center = explicit_service_center(mention, registry)
+        btcd_policy = _btcd_policy_candidates(raw, metadata, registry) if mention.kind != "reference" else None
         if not mention.evidence:
             reason = "unreadable_region"
         elif (group is not None or geography is not None) and conflicting_group_scope(mention, combined, extraction):
@@ -167,6 +236,8 @@ async def resolve_mentions(extraction, registry, metadata, job_id, input_sha256,
                     group_selections[selection.group_id] = selection
             elif not candidates:
                 reason = "missing_group_membership"
+        elif btcd_policy is not None:
+            candidates, method = btcd_policy
         elif learned and learned.get('member_ids') and mention.kind != 'reference' and learned.get('verification_status') == 'verified':
             candidates = [registry.by_id[rid] for rid in learned['member_ids']]
             method = 'verified_sheet_alias'
@@ -233,7 +304,10 @@ async def resolve_mentions(extraction, registry, metadata, job_id, input_sha256,
                     if candidates:
                         method = "exact_local_unit"
                 if not candidates and is_gl_context:
-                    prefix_match = re.match(r"^(?:Truong|Giam doc|Chanh|Thu truong|Chu tich)\s+(.+)$", query, re.I)
+                    prefix_match = re.match(
+                        r"^(?:truong|giam doc|chanh|thu truong|chu tich|bi thu dang uy,?\s*chu tich)\s+(.+)$",
+                        normalize(query),
+                    )
                     if prefix_match:
                         stripped_query = prefix_match.group(1).strip()
                         candidates = registry.local_unit_name(stripped_query, metadata.issuer or "Gia Lai")
@@ -333,12 +407,33 @@ async def resolve_mentions(extraction, registry, metadata, job_id, input_sha256,
     if getattr(registry, "tenant_id", None) == "vpub":
         suffix_match = re.search(r"/UBND-(KTTH|NNMT|XDCT|NC|KGVX)\b", metadata.sign_number or "", re.I)
         if suffix_match:
-            head_email = VPUB_DEPARTMENT_HEADS[suffix_match.group(1).upper()]
-            heads = [r for r in registry.exact_code(head_email) if r.sphere == "internal" and r.recipient_type == "INTERNAL_PERSON"]
-            if len(heads) == 1 and heads[0].recipient_id not in chosen:
-                chosen[heads[0].recipient_id] = heads[0].model_copy(
-                    update={"match_method": "vpub_department_head_default"}, deep=True
-                )
+            _add_internal_by_email(chosen, registry, VPUB_DEPARTMENT_HEADS[suffix_match.group(1).upper()], "vpub_department_head_default")
+        all_text = "\n".join(unicodedata.normalize("NFC", p.get("text", "")) for p in (extraction.pages or []))
+        has_noi_nhan = (
+            any(e.section == "noi_nhan" for m in extraction.mentions for e in m.evidence)
+            or bool(re.search(r"N\s*ơ\s*i\s+n\s*h\s*ậ\s*n\s*[:：]", all_text, re.I))
+        )
+        has_kinh_gui = (
+            any(e.section == "kinh_gui" for m in extraction.mentions for e in m.evidence)
+            or bool(re.search(r"K\s*í\s*n\s*h\s+g\s*[ửở]\s*i\s*[:：]?", all_text, re.I))
+        )
+        is_foreign_letter = bool(extraction.pages) and not has_noi_nhan and has_kinh_gui and bool(FOREIGN_SIGNAL_RE.search(all_text))
+        is_coop_doc = bool(extraction.pages) and has_noi_nhan and bool(COOPERATION_SIGNAL_RE.search(all_text))
+        signed_pat = _signed_by(extraction, "Phạm Anh Tuấn")
+        if signed_pat and (has_noi_nhan or is_foreign_letter):
+            _add_internal_by_email(chosen, registry, "vulh@vpub.gialai.gov.vn", "vpub_chairman_secretary_default")
+        if is_foreign_letter:
+            _add_unit_by_code(chosen, registry, SO_NGOAI_VU_CODE, "int_province_comm", "vpub_foreign_letter_default")
+            _add_internal_by_email(chosen, registry, "hoaitc@vpub.gialai.gov.vn", "vpub_foreign_letter_default")
+            _add_internal_by_email(chosen, registry, "hangnt@vpub.gialai.gov.vn", "vpub_foreign_letter_default")
+            if signed_pat:
+                _add_internal_by_email(chosen, registry, "tuanpa@vpub.gialai.gov.vn", "vpub_foreign_letter_default")
+            elif _signed_by(extraction, "Nguyễn Hữu Quế"):
+                _add_internal_by_email(chosen, registry, "quenh@vpub.gialai.gov.vn", "vpub_foreign_letter_default")
+        elif is_coop_doc:
+            _add_unit_by_code(chosen, registry, SO_NGOAI_VU_CODE, "int_province_comm", "vpub_cooperation_default")
+            if signed_pat:
+                _add_internal_by_email(chosen, registry, "tuanpa@vpub.gialai.gov.vn", "vpub_cooperation_default")
     result.people = [r for r in chosen.values() if r.recipient_type == "INTERNAL_PERSON"]
     result.units = [r for r in chosen.values() if r.recipient_type != "INTERNAL_PERSON"]
     unit_codes = {r.code for r in result.units if r.sphere == "int_province_comm" and r.code}

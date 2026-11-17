@@ -149,13 +149,14 @@ class Registry:
                                 variants.add(v[5:].strip())
                             else:
                                 variants.add(f"ubnd {v}".strip())
-                        clean_commune = re.sub(r'\s*(?:-|ubnd\s+huyen|huyen|thi\s+xa|thanh\s+pho|tp)\s+[a-z0-9\s]+tinh\s+gia\s+lai$', '', base).strip()
-                        if clean_commune and clean_commune != base:
-                            variants.add(clean_commune)
-                            if clean_commune.startswith('ubnd '):
-                                variants.add(clean_commune[5:].strip())
-                            else:
-                                variants.add(f"ubnd {clean_commune}".strip())
+                        if r.sphere == "int_province_comm":
+                            clean_commune = re.sub(r'\s*(?:-|ubnd\s+huyen|huyen|thi\s+xa|thanh\s+pho|tp)\s+[a-z0-9\s]+tinh\s+gia\s+lai$', '', base).strip()
+                            if clean_commune and clean_commune != base:
+                                variants.add(clean_commune)
+                                if clean_commune.startswith('ubnd '):
+                                    variants.add(clean_commune[5:].strip())
+                                else:
+                                    variants.add(f"ubnd {clean_commune}".strip())
                         for v in variants:
                             if v:
                                 self._local_names.setdefault(v, []).append(r)
