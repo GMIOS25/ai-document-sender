@@ -143,6 +143,16 @@ class Registry:
                         cleaned = re.sub(r'\s*[-–—:]*\s*tinh$', '', mid).strip()
                         variants = {base, mid, cleaned}
                         for v in list(variants):
+                            if "ban qlda " in v:
+                                variants.add(v.replace("ban qlda ", "ban quan ly du an ", 1))
+                                variants.add(v.replace("ban qlda ", "bql ", 1))
+                            elif "ban quan ly du an " in v:
+                                variants.add(v.replace("ban quan ly du an ", "ban qlda ", 1))
+                                variants.add(v.replace("ban quan ly du an ", "bql ", 1))
+                        for v in list(variants):
+                            if "cong trinh giao thong" in v:
+                                variants.add(v.replace("cong trinh giao thong", "ctgt"))
+                        for v in list(variants):
                             if v.startswith('so '):
                                 variants.add(v[3:].strip())
                             if v.startswith('ubnd '):

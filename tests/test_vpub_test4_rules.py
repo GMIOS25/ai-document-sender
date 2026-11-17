@@ -6,7 +6,7 @@ import pytest
 from ai_document_sender.config import Settings
 from ai_document_sender.contracts import DocumentMetadata, Extraction
 from ai_document_sender.learning import bind_targets, learned_alias
-from ai_document_sender.mentions import make_mention
+from ai_document_sender.mentions import extract_rule_mentions, make_mention
 from ai_document_sender.registry import Registry
 from ai_document_sender.resolver import resolve_mentions
 
@@ -299,7 +299,7 @@ def test_vpub_muc5_qlda_boards_and_pcttt_rules():
     import asyncio
     from ai_document_sender.config import Settings
     from ai_document_sender.contracts import DocumentMetadata, Extraction
-    from ai_document_sender.mentions import make_mention
+    from ai_document_sender.mentions import extract_rule_mentions, make_mention
     from ai_document_sender.resolver import resolve_mentions
     from ai_document_sender.tenants import TenantManager
 
@@ -454,3 +454,45 @@ async def test_stt367_ld_cv_and_chu_dau_tu_rules_resolve_cleanly():
     assert {"H21.02", "H21.19.32", "H21.19.20", "H21.24.65", "H08.70", "G01.035.000.000"} <= unit_codes
     assert len(res_367.people) >= 48
     assert not res_367.unresolved
+
+
+async def test_stt490_ban_qlda_and_colonless_communes_resolve_cleanly():
+    settings = vpub_settings()
+    registry = Registry(settings)
+    registry.tenant_id = "vpub"
+
+    text_490 = (
+        "Kính gửi:\n"
+        "- Sở Công Thương;\n"
+        "- Ban Quản lý dự án các công trình\n"
+        "giao thông và dân dụng tỉnh;\n"
+        "- UBND các xã Ia Pa, Ia Tul.\n"
+        "Xét đề nghị của Sở Công Thương tại Văn bản số 5251/SCT-ĐCKS.\n"
+        "2. Giao Sở Công Thương chủ trì, phối hợp với Ban Quản lý dự án các công trình giao thông và dân dụng tỉnh hướng dẫn các đơn vị.\n"
+        "Nơi nhận:\n"
+        "- Như trên;\n"
+        "- Các Ban QLDA thuộc tỉnh;\n"
+        "- UBND các xã, phường có liên quan;\n"
+        "- CT, PCT UBND tỉnh;\n"
+        "- CVP, PVP XD;\n"
+        "- Lưu: VT, N4, X2.\n"
+    )
+    mentions, _ = extract_rule_mentions([{"page": 1, "text": text_490}], {"issuer": "UBND tỉnh Gia Lai"})
+    by_raw = {m.raw: m for m in mentions}
+    assert by_raw["Ban Quản lý dự án các công trình giao thông và dân dụng tỉnh"].kind == "unit"
+    assert by_raw["Các Ban QLDA thuộc tỉnh"].kind == "group"
+
+    res_490 = await resolve_mentions(
+        Extraction(mentions=mentions, pages=[{"page": 1, "text": text_490}], status="complete"),
+        registry,
+        DocumentMetadata(document_id="doc-490", sign_number="12620/UBND-NNMT", issuer="UBND tỉnh Gia Lai"),
+        "job",
+        "sha",
+    )
+    unit_codes = {u.code for u in res_490.units}
+    assert {"H21.05", "H21.40", "H21.149", "H21.158"} <= unit_codes
+    unresolved_raws = {u.raw for u in res_490.unresolved}
+    assert "Ban Quản lý dự án các công trình giao thông và dân dụng tỉnh" not in unresolved_raws
+    assert "UBND các xã Ia Pa, Ia Tul" not in unresolved_raws
+    assert "UBND các xã, phường có liên quan" not in unresolved_raws
+    assert "commune_list_unverified" not in {u.reason for u in res_490.unresolved}

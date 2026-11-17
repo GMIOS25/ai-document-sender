@@ -31,6 +31,7 @@ SENTENCE_BODY_CUES = re.compile(
 CODE = re.compile(r"(?<![\w])[TVNCX]\d{1,2}(?![\w])", re.I)
 ROLE_START = re.compile(r"^(?:CT\b|CVP\b|PCT\b|PCTTT\b|PCVP\b|PVP\w*\b|Chủ tịch\b|Chánh Văn phòng\b|Phó Chủ tịch\b)", re.I)
 GROUP = re.compile(r"\b(?:các|toàn bộ|lãnh đạo\s+VP\s*\+|lãnh đạo.*chuyên viên)\b", re.I)
+SINGLE_UNIT_CAC = re.compile(r"^(?:Ban\s+(?:Quản\s+lý|QL)(?:\s+dự\s+án)?|BQL)\s+(?:dự\s+án\s+)?các\b", re.I)
 BODY_LIST_HEADING = re.compile(r"(?im)^[ \t]*(?:[-–—•][ \t]*)?(?:[A-ZĐ]{1,12}[ \t]+){0,2}(?:DANH SÁCH|PHỤ LỤC(?:[ \t]+\d+)?)\b")
 BODY_TASK_HEAD = re.compile(r"(?m)^[ \t]*(\d+)\.[ \t]+([^\n:;]{2,120}):(?:\s|$)")
 BODY_TASK_UNIT = re.compile(
@@ -210,7 +211,7 @@ def _split_recipient(entry, page, section, scope):
                     results.append(item)
             return results
 
-    if GROUP.search(entry):
+    if GROUP.search(entry) and not SINGLE_UNIT_CAC.match(entry):
         # Chủ tịch, các PCT are two selectors, not one bare PCT.
         if re.match(r"^(?:CT|Chủ tịch)\s*,", entry, re.I):
             first, second = entry.split(",", 1)

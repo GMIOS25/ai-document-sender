@@ -12,14 +12,31 @@ COMMUNE_SELECTORS = {
 }
 LIST_HEADS = {"ubnd cac xa": "xa", "uy ban nhan dan cac xa": "xa", "cac xa": "xa",
               "ubnd cac phuong": "phuong", "uy ban nhan dan cac phuong": "phuong", "cac phuong": "phuong"}
+COLONLESS_LIST_PREFIX = re.compile(
+    r"^\s*(?P<head>(?:(?:Toàn\s+bộ|Tất\s+cả)\s+)?(?:(?:Ủy\s+ban\s+nhân\s+dân|UBND)\s+)?các\s+"
+    r"(?:xã\s*,?\s*phường|phường\s*,?\s*xã|xã|phường))\s+(?P<tail>.+)$",
+    re.I,
+)
 
 
 def local_commune_list(raw, registry):
     head, sep, tail = raw.partition(":")
     selector = normalize(head)
-    if not sep or (selector not in COMMUNE_SELECTORS and selector not in LIST_HEADS):
+    if sep:
+        if selector not in COMMUNE_SELECTORS and selector not in LIST_HEADS:
+            return None
+        return _communes(tail, registry.by_id.values(), LIST_HEADS.get(selector))
+    match = COLONLESS_LIST_PREFIX.match(unicodedata.normalize("NFC", raw))
+    if not match:
         return None
-    return _communes(tail, registry.by_id.values(), LIST_HEADS.get(selector))
+    tail_clean = match.group("tail").strip()
+    if re.match(r"^(?:ngoại\s+)?trừ\b", tail_clean, re.I):
+        return None
+    norm_head = normalize(match.group("head"))
+    if norm_head not in COMMUNE_SELECTORS and norm_head not in LIST_HEADS:
+        return None
+    matched = _communes(tail_clean, registry.by_id.values(), LIST_HEADS.get(norm_head))
+    return matched or None
 
 
 def _communes(tail, recipients, commune_type=None):
