@@ -13,7 +13,7 @@ import unicodedata
 import pdfplumber
 from pypdf import PdfReader
 from pydantic import ValidationError
-from .contracts import Extraction, Mention
+from .contracts import Evidence, Extraction, Mention
 from .mentions import HEADERS, _entries, compact, extract_rule_mentions, normalized, stable_id
 from .article_references import reference_target
 from .provider import GeneratedExtraction, ProviderError, PROMPT_VERSION
@@ -316,6 +316,7 @@ def _ground_model(payload, pages, images):
             output.append(verified.model_copy(deep=True))
             continue
         valid = True
+        grounded_evidence = []
         for evidence in item.evidence:
             page = by_page.get(evidence.page)
             source = _section_source(page, evidence.section) if page else ""
@@ -324,15 +325,15 @@ def _ground_model(payload, pages, images):
             # Model offsets are untrusted. Only retain exact source positions.
             if page and evidence.raw in page["text"]:
                 start = page["text"].index(evidence.raw)
-                evidence.span = [start, start+len(evidence.raw)]
+                span = [start, start+len(evidence.raw)]
             else:
-                evidence.span = None
-            evidence.bbox = None
+                span = None
+            grounded_evidence.append(Evidence(page=evidence.page, section=evidence.section, raw=evidence.raw, span=span, bbox=None))
         if not valid:
             reasons.append("ungrounded_model_mention")
             continue
-        data = item.model_dump()
-        output.append(Mention(mention_id=stable_id(item.raw, item.kind, item.evidence, item.references), **data))
+        data = item.model_dump(exclude={"evidence"})
+        output.append(Mention(mention_id=stable_id(item.raw, item.kind, grounded_evidence, item.references), evidence=grounded_evidence, **data))
     if image_pages - {item.page for item in payload.ocr_pages if item.text.strip() and item.page in image_pages}:
         reasons.append("unreadable_region")
     return output, list(dict.fromkeys(reasons))
@@ -390,11 +391,15 @@ async def extract_document(path, provider, metadata, settings):
         reasons += rule_reasons + [error.code]
         if chosen:
             reasons.append("unreadable_region")
+        if getattr(provider, "last_audit", None):
+            audit["provider"] = provider.last_audit
     except (ValidationError, ValueError, TypeError):
         mentions = rules
         reasons += rule_reasons + ["invalid_model_output"]
         if chosen:
             reasons.append("unreadable_region")
+        if getattr(provider, "last_audit", None):
+            audit["provider"] = provider.last_audit
     # Missing structural sections need review even if a provider claims complete.
     reasons = list(dict.fromkeys(reasons))
     audit["duration_ms"] = round((time.monotonic()-started)*1000, 2)

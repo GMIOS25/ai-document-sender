@@ -40,7 +40,7 @@ def test_idempotency_conflict_and_lease_recovery(settings):
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("change", ["extractor", "resolver", "publication", "prompt", "model", "vision_limit", "ocr", "legacy"])
+@pytest.mark.parametrize("change", ["extractor", "resolver", "publication", "prompt", "model", "provider_tuning", "vision_limit", "ocr", "legacy"])
 async def test_same_request_reprocesses_after_processing_change(settings, monkeypatch, change):
     from ai_document_sender import extraction, provider, publication, resolver
 
@@ -68,6 +68,8 @@ async def test_same_request_reprocesses_after_processing_change(settings, monkey
         monkeypatch.setattr(provider, "PROMPT_VERSION", "new-prompt")
     elif change == "model":
         settings = replace(settings, openrouter_text_model="new-model")
+    elif change == "provider_tuning":
+        settings = replace(settings, provider_reasoning="low", provider_schema_mode="prompt")
     elif change == "vision_limit":
         settings = replace(settings, max_vision_pages=settings.max_vision_pages + 1)
     elif change == "ocr":

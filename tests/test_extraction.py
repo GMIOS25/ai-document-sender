@@ -501,3 +501,20 @@ def test_numbered_body_task_headings_extracted_when_nhu_tren_present():
     for m in mentions:
         if m.evidence[0].section == "body_reference":
             assert "Như trên" in m.references
+
+
+def test_failed_provider_keeps_provider_used_false_and_retains_provider_audit(settings):
+    from ai_document_sender.provider import ProviderError
+
+    class FailingProvider:
+        last_audit = {"provider": "openrouter", "duration_ms": 60000.0, "error_code": "provider_timeout"}
+
+        async def extract_mentions(self, pages, metadata, images=None):
+            raise ProviderError("provider_timeout", "timed out")
+
+    with tempfile.TemporaryDirectory() as tmp, patch("ai_document_sender.extraction._read_pages", return_value=pages()):
+        result = asyncio.run(extract_document(Path(tmp) / "main.pdf", FailingProvider(), DocumentMetadata(document_id="timeout"), settings))
+    assert result.audit["provider_used"] is False
+    assert result.audit["provider"]["error_code"] == "provider_timeout"
+    assert result.audit["provider"]["duration_ms"] == 60000.0
+    assert "provider_timeout" in result.review_reasons

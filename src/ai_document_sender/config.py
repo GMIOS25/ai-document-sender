@@ -8,6 +8,17 @@ from dotenv import dotenv_values
 ROOT = Path(__file__).resolve().parents[2]
 
 
+def _parse_bool(value: str | bool) -> bool:
+    if isinstance(value, bool):
+        return value
+    norm = value.strip().lower()
+    if norm in {"1", "true", "yes", "on"}:
+        return True
+    if norm in {"0", "false", "no", "off"}:
+        return False
+    raise ValueError(f"Invalid boolean setting value: {value!r}")
+
+
 @dataclass(frozen=True)
 class Settings:
     lookup_db: Path = ROOT / "resources/data/lookup.db"
@@ -25,6 +36,10 @@ class Settings:
     openrouter_url: str = "https://openrouter.ai/api/v1"
     provider_timeout_seconds: float = 60
     provider_max_retries: int = 2
+    provider_schema_mode: str = "auto"
+    provider_reasoning: str = "off"
+    provider_max_tokens: int = 2048
+    provider_compact_input: bool = True
     max_file_bytes: int = 20 * 1024 * 1024
     max_pages: int = 100
     max_vision_pages: int = 6
@@ -56,6 +71,12 @@ class Settings:
             raise ValueError("Limits must be positive")
         if self.provider_timeout_seconds <= 0 or self.provider_max_retries < 0 or self.max_vision_pages < 0:
             raise ValueError("Provider limits must be bounded positive values")
+        if self.provider_schema_mode not in {"auto", "response_format", "prompt"}:
+            raise ValueError("SENDER_PROVIDER_SCHEMA_MODE must be auto, response_format or prompt")
+        if self.provider_reasoning not in {"auto", "off", "none", "minimal", "low", "medium", "high"}:
+            raise ValueError("SENDER_PROVIDER_REASONING must be auto, off, none, minimal, low, medium or high")
+        if not 128 <= self.provider_max_tokens <= 32768:
+            raise ValueError("SENDER_PROVIDER_MAX_TOKENS must be between 128 and 32768")
         if self.ocr_backend not in {"disabled", "vietocr"}:
             raise ValueError("SENDER_OCR_BACKEND must be disabled or vietocr")
         if self.ocr_device not in {"auto", "cpu", "cuda", "cuda:0"}:
@@ -81,7 +102,12 @@ class Settings:
             "openrouter_api_key": ("OPENROUTER_API_KEY", str), "openrouter_text_model": ("OPENROUTER_TEXT_MODEL", str),
             "openrouter_vision_model": ("OPENROUTER_VISION_MODEL", str), "openrouter_url": ("OPENROUTER_URL", str),
             "provider_timeout_seconds": ("SENDER_PROVIDER_TIMEOUT_SECONDS", float),
-            "provider_max_retries": ("SENDER_PROVIDER_MAX_RETRIES", int), "max_file_bytes": ("SENDER_MAX_FILE_BYTES", int),
+            "provider_max_retries": ("SENDER_PROVIDER_MAX_RETRIES", int),
+            "provider_schema_mode": ("SENDER_PROVIDER_SCHEMA_MODE", lambda v: v.strip().lower()),
+            "provider_reasoning": ("SENDER_PROVIDER_REASONING", lambda v: v.strip().lower()),
+            "provider_max_tokens": ("SENDER_PROVIDER_MAX_TOKENS", int),
+            "provider_compact_input": ("SENDER_PROVIDER_COMPACT_INPUT", _parse_bool),
+            "max_file_bytes": ("SENDER_MAX_FILE_BYTES", int),
             "max_pages": ("SENDER_MAX_PAGES", int), "max_vision_pages": ("SENDER_MAX_VISION_PAGES", int),
             "poppler_path": ("SENDER_POPPLER_PATH", str), "lease_seconds": ("SENDER_LEASE_SECONDS", int),
             "ocr_backend": ("SENDER_OCR_BACKEND", str), "ocr_device": ("SENDER_OCR_DEVICE", str),

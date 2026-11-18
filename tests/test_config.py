@@ -36,3 +36,35 @@ def test_local_ocr_env_and_validation(tmp_path, monkeypatch):
         replace(configured, ocr_backend="unknown").validate()
     with pytest.raises(ValueError):
         replace(configured, ocr_batch_size=0).validate()
+
+
+def test_provider_optimization_env_and_validation(tmp_path, monkeypatch):
+    path = tmp_path / "provider.env"
+    path.write_text(
+        "SENDER_PROVIDER_SCHEMA_MODE=PROMPT\n"
+        "SENDER_PROVIDER_REASONING=low\n"
+        "SENDER_PROVIDER_MAX_TOKENS=1024\n"
+        "SENDER_PROVIDER_COMPACT_INPUT=false\n",
+        encoding="utf-8",
+    )
+    for key in (
+        "SENDER_PROVIDER_SCHEMA_MODE",
+        "SENDER_PROVIDER_REASONING",
+        "SENDER_PROVIDER_MAX_TOKENS",
+        "SENDER_PROVIDER_COMPACT_INPUT",
+    ):
+        monkeypatch.delenv(key, raising=False)
+    configured = Settings.from_env(path)
+    assert configured.provider_schema_mode == "prompt"
+    assert configured.provider_reasoning == "low"
+    assert configured.provider_max_tokens == 1024
+    assert configured.provider_compact_input is False
+    with pytest.raises(ValueError):
+        replace(configured, provider_schema_mode="invalid").validate()
+    with pytest.raises(ValueError):
+        replace(configured, provider_reasoning="turbo").validate()
+    with pytest.raises(ValueError):
+        replace(configured, provider_max_tokens=64).validate()
+    path.write_text("SENDER_PROVIDER_COMPACT_INPUT=maybe\n", encoding="utf-8")
+    with pytest.raises(ValueError):
+        Settings.from_env(path)
