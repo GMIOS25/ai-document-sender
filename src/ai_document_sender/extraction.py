@@ -122,6 +122,64 @@ def _merge_luu_subscripts(raw_text, words, max_x=None):
     return "\n".join(lines)
 
 
+def _has_interleaved_lines(raw_text: str) -> bool:
+    return sum(
+        1 for ln in raw_text.splitlines()
+        if len(ln.strip()) == 1 and not ln.strip().isdigit() and ln.strip() not in {"-", "–", "—", "•"}
+    ) >= 4
+
+
+def _colon_compact(value: str) -> str:
+    return re.sub(r"[^\w:]", "", normalized(value).replace("：", ":").casefold())
+
+
+_PURPOSE_QUAL_RE = re.compile(
+    r"\s*\((?:để\s+)?(?:b/c|báo\s+cáo|thay\s+(?:b/c|báo\s+cáo)|biết|thực\s+hiện|phối\s+hợp|p/h|t/h|để\s+biết|kèm\s+theo[^)]*)\)\s*$",
+    re.I,
+)
+_LUU_LINE_RE = re.compile(r"Lưu\s*(?::|VT)", re.I)
+_LUU_TOK = r"(?:[TVNCX]{1,2}\d{0,2}|VT|BTCD|PVHCC|TT\.?PVHCC|KSTT|HSVV(?:-TD)?|HCTC|HCQT|QTTV|P\.?\s*QT-?TV|P\.?QTTV|XDCT|NNMT|KTTH|KGVX|NC|LĐVP|CVP|PVP\w*|\d{1,2})"
+_LUU_CONT_RE = re.compile(
+    rf"[\s,.;()/\-]+|(?:[\s,.;()/\-]*{_LUU_TOK}(?:[\s,;().\-/]+{_LUU_TOK})*[\s,.;()]*)",
+    re.I,
+)
+
+
+def _deduplicate_mentions(model_mentions: list[Mention], rules: list[Mention]) -> list[Mention]:
+    def _keys(mention: Mention) -> set[str]:
+        stripped_luu = re.sub(r"^Lưu\s*[:：]?\s*", "", mention.raw, flags=re.I)
+        stripped_qual = _PURPOSE_QUAL_RE.sub("", mention.raw).strip()
+        full_prefix = " ".join(filter(None, (mention.qualifier, mention.raw)))
+        full_suffix = " ".join(filter(None, (mention.raw, mention.qualifier)))
+        return {
+            compact(mention.raw),
+            compact(stripped_luu),
+            compact(stripped_qual),
+            compact(full_prefix),
+            compact(full_suffix),
+        } - {""}
+
+    has_resolved_nhu_tren = any(compact(ref) == "nhưtrên" for r in rules for ref in r.references)
+    filtered_model: list[Mention] = []
+    for item in model_mentions:
+        if has_resolved_nhu_tren and compact(item.raw) == "nhưtrên":
+            continue
+        sections = {e.section for e in item.evidence}
+        item_keys = _keys(item)
+        same_section_rules = [r for r in rules if sections & {e.section for e in r.evidence}]
+        if any(item_keys & _keys(r) for r in same_section_rules):
+            continue
+        item_compact = compact(item.raw)
+        if ("," in item.raw or ";" in item.raw) and sum(
+            1 for r in same_section_rules
+            if compact(r.raw) and compact(r.raw) != item_compact and compact(r.raw) in item_compact
+        ) >= 2:
+            continue
+        filtered_model.append(item)
+    unique = {mention.mention_id: mention for mention in filtered_model + rules}
+    return list(unique.values())
+
+
 def _read_pages(path, settings):
     filename = str(Path(path).resolve())
     if os.name == "nt" and not filename.startswith("\\\\?\\"):
@@ -142,7 +200,11 @@ def _read_pages(path, settings):
         with pdfplumber.open(io.BytesIO(data)) as document:
             for index, page in enumerate(document.pages, 1):
                 words = page.extract_words(x_tolerance=2, y_tolerance=3)
-                text = _merge_luu_subscripts(page.extract_text(x_tolerance=2, y_tolerance=3) or "", words, max_x=page.width * 0.55)
+                raw_page = page.extract_text(x_tolerance=2, y_tolerance=3) or ""
+                if _has_interleaved_lines(raw_page):
+                    words = page.extract_words(x_tolerance=2, y_tolerance=1)
+                    raw_page = page.extract_text(x_tolerance=2, y_tolerance=1) or ""
+                text = _merge_luu_subscripts(raw_page, words, max_x=page.width * 0.55)
                 record = {"page": index, "text": text, "width": page.width, "height": page.height,
                           "images": [{"bbox": [image.get("x0", 0), image.get("top", 0), image.get("x1", page.width), image.get("bottom", page.height)]} for image in page.images]}
                 # Extract the left recipient column without interleaved signature headings.
@@ -172,7 +234,11 @@ def _read_pages(path, settings):
                     record["recipient_bbox"] = bbox
                     cropped = page.crop(tuple(bbox))
                     cropped_words = cropped.extract_words(x_tolerance=2, y_tolerance=3)
-                    record["recipient_text"] = _merge_luu_subscripts(cropped.extract_text(x_tolerance=2, y_tolerance=3) or "", cropped_words)
+                    raw_cropped = cropped.extract_text(x_tolerance=2, y_tolerance=3) or ""
+                    if _has_interleaved_lines(raw_cropped):
+                        cropped_words = cropped.extract_words(x_tolerance=2, y_tolerance=1)
+                        raw_cropped = cropped.extract_text(x_tolerance=2, y_tolerance=1) or ""
+                    record["recipient_text"] = _merge_luu_subscripts(raw_cropped, cropped_words)
                     break
                 if not text.strip() and not page.images and not page.curves and not page.rects and len(page.lines) < 3:
                     record["blank"] = True
@@ -242,10 +308,98 @@ def _render_pages(path, page_numbers, settings):
     return images
 
 
+def _luu_lines(text):
+    from .mentions import SIGNATURE
+
+    blocks, current = [], ""
+    for raw_line in unicodedata.normalize("NFC", text or "").splitlines():
+        line = normalized(raw_line)
+        if not line:
+            if current:
+                blocks.append(current)
+                current = ""
+            continue
+        if _LUU_LINE_RE.search(line):
+            if current:
+                blocks.append(current)
+            current = line
+            continue
+        if current:
+            if SIGNATURE.match(line) or re.match(r"^\d+\s+\S", line):
+                blocks.append(current)
+                current = ""
+                continue
+            if current.rstrip().endswith((",", ";", "/")) or _LUU_CONT_RE.fullmatch(line):
+                current += " " + line
+                continue
+            blocks.append(current)
+            current = ""
+    if current:
+        blocks.append(current)
+    return blocks
+
+
+def _has_signature_bleed(tail: str) -> bool:
+    from .mentions import SIGNATURE
+
+    for line in unicodedata.normalize("NFC", tail or "").splitlines():
+        s = normalized(line)
+        if not s:
+            continue
+        if SIGNATURE.match(s) or re.search(
+            r";\s*(?:[-–—•]\s*)?(?:KT|TL|TM|T\s*M|TUQ|PH[OÓ]\s+CH[ỦU]\s+T[ỊI]CH|CH[ỦU]\s+T[ỊI]CH|CH[ÁA]NH\s+V[ĂA]N)\b",
+            s,
+            re.I,
+        ):
+            return True
+    return False
+
+
+def _extract_clean_noi_nhan_tail(trans_nfc: str) -> str:
+    from .mentions import SIGNATURE
+
+    match = HEADERS["noi_nhan"].search(trans_nfc)
+    if not match:
+        return ""
+    lines = []
+    for raw_line in trans_nfc[match.start():].splitlines():
+        s = normalized(raw_line)
+        if lines and s and SIGNATURE.match(s):
+            break
+        lines.append(raw_line)
+    return "\n".join(lines).strip()
+
+
+def _recipient_crop_is_clean(page) -> bool:
+    recipient = unicodedata.normalize("NFC", page.get("recipient_text") or "")
+    header = HEADERS["noi_nhan"].search(recipient)
+    if not header or not _entries(recipient[header.end():], "noi_nhan") or "\ufffd" in recipient:
+        return False
+    if _has_signature_bleed(recipient[header.end():]):
+        return False
+    ocr_lines = page.get("ocr_lines")
+    rbbox = page.get("recipient_bbox")
+    if isinstance(ocr_lines, list) and rbbox and len(rbbox) == 4:
+        in_crop = [
+            ln for ln in ocr_lines
+            if isinstance(ln, dict) and ln.get("bbox") and ln.get("confidence") is not None
+            and len(ln.get("text", "").strip()) > 2
+            and ln["bbox"][1] >= rbbox[1] - 2 and ln["bbox"][0] < rbbox[2] + 2
+        ]
+        if not in_crop or any(float(ln["confidence"]) < 0.80 for ln in in_crop):
+            return False
+        return True
+    return not page.get("local_ocr_low_confidence")
+
+
 def _section_source(page, section):
-    text = unicodedata.normalize("NFC", (page.get("recipient_text") or page.get("text", "")) if section == "noi_nhan" else page.get("text", ""))
     if section == "luu":
-        return "\n".join(line for line in text.splitlines() if re.search(r"Lưu\s*(?::|VT)", line, re.I))
+        parts = []
+        for src in (page.get("recipient_text"), page.get("text")):
+            if src:
+                parts.extend(_luu_lines(src))
+        return "\n".join(dict.fromkeys(parts))
+    text = unicodedata.normalize("NFC", (page.get("recipient_text") or page.get("text", "")) if section == "noi_nhan" else page.get("text", ""))
     if section in HEADERS:
         match = HEADERS[section].search(text)
         if not match:
@@ -264,28 +418,39 @@ def _ground_model(payload, pages, images):
     output, reasons = [], []
     by_page = {page["page"]: page for page in pages}
     image_pages = {image["page"] for image in images}
+    accepted_ocr_pages = set()
     for transcription in payload.ocr_pages:
-        if transcription.page not in image_pages or not transcription.text.strip():
+        if (
+            transcription.page not in image_pages
+            or not transcription.text.strip()
+            or re.search(r"[\u4e00-\u9fff]|\bUnauthorized\b", transcription.text)
+        ):
             reasons.append("ungrounded_ocr_page")
             continue
+        accepted_ocr_pages.add(transcription.page)
         page = by_page[transcription.page]
         trans_nfc = unicodedata.normalize("NFC", transcription.text)
+        clean_crop = _recipient_crop_is_clean(page)
+        trans_nn_clean = _extract_clean_noi_nhan_tail(trans_nfc)
+        trans_has_bleed = bool((m := HEADERS["noi_nhan"].search(trans_nfc)) and _has_signature_bleed(trans_nfc[m.end():]))
         if page.get("local_ocr_low_confidence"):
             orig_nfc = unicodedata.normalize("NFC", page.get("text", ""))
-            if HEADERS["kinh_gui"].search(trans_nfc) or not HEADERS["kinh_gui"].search(orig_nfc):
+            body_match = re.search(r"(?m)^\s*(?:Điều\s+\d+|DANH\s+SÁCH|PHỤ\s+LỤC|\d+\.\s+\S+.*:)", orig_nfc, re.I)
+            trans_has_body = bool(re.search(r"(?m)^\s*(?:Điều\s+\d+|DANH\s+SÁCH|PHỤ\s+LỤC|\d+\.\s+\S+.*:)", trans_nfc, re.I))
+            if (HEADERS["kinh_gui"].search(trans_nfc) or not HEADERS["kinh_gui"].search(orig_nfc)) and (not body_match or trans_has_body):
                 page["text"] = transcription.text
+            elif HEADERS["kinh_gui"].search(trans_nfc) and body_match:
+                page["text"] = transcription.text + "\n" + orig_nfc[body_match.start():]
             else:
                 page["text"] += "\n" + transcription.text
-            if HEADERS["noi_nhan"].search(trans_nfc) or not HEADERS["noi_nhan"].search(unicodedata.normalize("NFC", page.get("recipient_text") or "")):
-                page["recipient_text"] = transcription.text
+            if trans_nn_clean and not clean_crop and not trans_has_bleed:
+                page["recipient_text"] = trans_nn_clean
+            elif HEADERS["noi_nhan"].search(trans_nfc) and not clean_crop and not trans_has_bleed:
+                page["recipient_text"] = trans_nn_clean or transcription.text
         else:
             page["text"] += "\n" + transcription.text
-            recipient = unicodedata.normalize("NFC", page.get("recipient_text") or "")
-            header = HEADERS["noi_nhan"].search(recipient)
-            clean_column = header and _entries(recipient[header.end():], "noi_nhan") and "\ufffd" not in recipient
-            # Whole-page OCR supplies article/list bodies; retain a readable layout crop.
-            if HEADERS["noi_nhan"].search(trans_nfc) and not clean_column:
-                page["recipient_text"] = transcription.text
+            if HEADERS["noi_nhan"].search(trans_nfc) and not clean_crop and not trans_has_bleed:
+                page["recipient_text"] = trans_nn_clean or transcription.text
         page["ocr_text"] = transcription.text
     rules, _ = extract_rule_mentions(pages)
     linked = [m for m in rules if any(e.section == "body_reference" for e in m.evidence) and m.kind != "reference"]
@@ -320,7 +485,20 @@ def _ground_model(payload, pages, images):
         for evidence in item.evidence:
             page = by_page.get(evidence.page)
             source = _section_source(page, evidence.section) if page else ""
-            if not source or compact(evidence.raw) not in compact(source) or compact(item.raw) not in compact(evidence.raw):
+            ev_body = re.sub(r"^\s*(?:Kính\s+gửi|Nơi\s+nhận)\s*[:：.]?\s*", "", normalized(evidence.raw), flags=re.I)
+            if (
+                not source
+                or compact(ev_body) not in compact(source)
+                or compact(item.raw) not in compact(ev_body)
+                or (
+                    ":" not in item.raw
+                    and "：" not in item.raw
+                    and (
+                        compact(item.raw) not in _colon_compact(ev_body)
+                        or compact(item.raw) not in _colon_compact(source)
+                    )
+                )
+            ):
                 valid = False
             # Model offsets are untrusted. Only retain exact source positions.
             if page and evidence.raw in page["text"]:
@@ -334,7 +512,7 @@ def _ground_model(payload, pages, images):
             continue
         data = item.model_dump(exclude={"evidence"})
         output.append(Mention(mention_id=stable_id(item.raw, item.kind, grounded_evidence, item.references), evidence=grounded_evidence, **data))
-    if image_pages - {item.page for item in payload.ocr_pages if item.text.strip() and item.page in image_pages}:
+    if image_pages - accepted_ocr_pages:
         reasons.append("unreadable_region")
     return output, list(dict.fromkeys(reasons))
 
@@ -377,7 +555,6 @@ async def extract_document(path, provider, metadata, settings):
         model_mentions, grounding_reasons = _ground_model(payload, pages, images)
         # Include clear rule tokens the model might omit; all retain source evidence.
         rules, rule_reasons = extract_rule_mentions(pages, metadata)
-        unique = {mention.mention_id: mention for mention in model_mentions+rules}
         reasons += grounding_reasons + rule_reasons + payload.review_reasons
         if not model_mentions:
             reasons.append("invalid_model_output" if rules else "recipient_sections_missing")
@@ -385,7 +562,7 @@ async def extract_document(path, provider, metadata, settings):
             reasons.append("model_extraction_partial" if payload.status == "partial" else "model_extraction_failed")
         # A complete model cannot certify a recipient reference it never explained.
         audit.update({"provider_used": True, "provider": getattr(provider, "last_audit", {}), "vision_pages_rendered": [image["page"] for image in images]})
-        mentions = list(unique.values())
+        mentions = _deduplicate_mentions(model_mentions, rules)
     except ProviderError as error:
         mentions = rules
         reasons += rule_reasons + [error.code]

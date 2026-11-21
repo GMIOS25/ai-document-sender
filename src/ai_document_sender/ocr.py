@@ -11,6 +11,7 @@ import importlib.util
 import math
 import os
 from pathlib import Path
+import re
 import threading
 import time
 import unicodedata
@@ -63,22 +64,49 @@ class VietOCRReader:
         import numpy as np
         from PIL import Image
         rgb = cv2.cvtColor(np.asarray(image.convert("RGB")), cv2.COLOR_RGB2BGR)
-        boxes = _detect_lines(rgb, self.detector)
+        clean = _suppress_colored_ink(rgb)
+        boxes = _detect_lines(clean, self.detector)
         if not boxes:
             return []
-        crops = [_crop_line(rgb, box) for box in boxes]
+        crops = [_crop_line(clean, box) for box in boxes]
         crops = [Image.fromarray(cv2.cvtColor(crop, cv2.COLOR_BGR2RGB)) for crop in crops]
         texts, scores = [], []
         for start in range(0, len(crops), batch_size):
             words, probabilities = self.predictor.predict_batch(crops[start:start + batch_size], return_prob=True)
             texts.extend(words)
             scores.extend(probabilities)
-        return [{"text": ("- " if _has_bullet_prefix(rgb, box) and not text.lstrip().startswith(("-", "–", "—", "•")) else "")
+        return [{"text": ("- " if _has_bullet_prefix(clean, box) and not text.lstrip().startswith(("-", "–", "—", "•")) else "")
                          + unicodedata.normalize("NFC", text).strip(),
                  "confidence": float(score) if math.isfinite(float(score)) else 0.0,
                  "bbox": [min(p[0] for p in box), min(p[1] for p in box),
                           max(p[0] for p in box), max(p[1] for p in box)]}
                 for box, text, score in zip(boxes, texts, scores) if text.strip()]
+
+
+def _suppress_colored_ink(bgr):
+    """Erase colored ink strokes/seals (e.g. blue initials, bright red seals) while keeping black print."""
+    import cv2
+    import numpy as np
+
+    if bgr.ndim != 3 or bgr.shape[2] < 3:
+        return bgr
+    b = bgr[:, :, 0].astype(np.int16)
+    g = bgr[:, :, 1].astype(np.int16)
+    r = bgr[:, :, 2].astype(np.int16)
+    max_ch = np.maximum(np.maximum(b, g), r)
+    min_ch = np.minimum(np.minimum(b, g), r)
+    chroma = max_ch - min_ch
+    blue_ink = (b - r >= 22) & (b >= g - 5) & (max_ch >= 45)
+    red_ink = (r >= 115) & (r - g >= 30) & (r - b >= 30)
+    ink = (blue_ink | red_ink).astype(np.uint8)
+    if not ink.any():
+        return bgr
+    dilated = cv2.dilate(ink, np.ones((3, 3), np.uint8), iterations=1) > 0
+    fringe = dilated & (chroma >= 14) & ((b - r >= 12) | ((r >= 115) & (r - b >= 16)))
+    mask = (ink > 0) | fringe
+    out = bgr.copy()
+    out[mask] = (255, 255, 255)
+    return out
 
 
 def _has_bullet_prefix(image, box):
@@ -245,14 +273,30 @@ def _layout_text(lines):
 
 def _apply_page_text(page, lines):
     lines = _normalize_ocr_lines(lines)
+    header = next(
+        (line for line in lines if HEADERS["noi_nhan"].search(unicodedata.normalize("NFC", line["text"]))),
+        None,
+    )
+    if header is None:
+        header = next(
+            (
+                line for line in lines
+                if line["bbox"][0] < page["width"] * 0.45
+                and re.fullmatch(r"N\s*ơ\s*i\s+n\s*h\s*ậ\s*n\s*[:：.]?", unicodedata.normalize("NFC", line["text"]).strip(), re.I)
+            ),
+            None,
+        )
+    if header:
+        header_nfc = unicodedata.normalize("NFC", header["text"])
+        header["text"] = header_nfc if HEADERS["noi_nhan"].search(header_nfc) else "Nơi nhận:"
     text = _layout_text(lines)
     low_conf = any(line["confidence"] < 0.85 for line in lines if len(line["text"].strip()) > 2)
     page.update(text=text, ocr_text=text, ocr_lines=lines, local_ocr_complete=True, local_ocr_low_confidence=low_conf)
-    header = next((line for line in lines if HEADERS["noi_nhan"].search(line["text"])), None)
     if header:
         top = header["bbox"][1] - 3
         signatures = [line["bbox"][0] for line in lines if line["bbox"][1] >= top
-                      and line["bbox"][0] > page["width"] * 0.5 and SIGNATURE.match(line["text"])]
+                      and line["bbox"][0] > page["width"] * 0.5
+                      and SIGNATURE.match(unicodedata.normalize("NFC", line["text"]).strip())]
         right = max(page["width"] * 0.53, min(page["width"] * 0.58, min(signatures) - 6)) if signatures else page["width"] * 0.58
         page["recipient_bbox"] = [0, max(0, top), right, page["height"]]
         page["recipient_text"] = _layout_text([line for line in lines if line["bbox"][1] >= top
@@ -290,8 +334,7 @@ def ocr_missing_pages(path, pages, settings):
                                         for i, v in enumerate(line["bbox"])]
                     _apply_page_text(page, lines)
                     audit["pages"].append(page["page"])
-                    if any(line["confidence"] < 0.85 for line in lines if len(line["text"]) > 2):
-                        page["local_ocr_low_confidence"] = True
+                    if page.get("local_ocr_low_confidence"):
                         reasons.append("local_ocr_low_confidence")
                 except Exception as error:
                     audit.setdefault("failed_pages", []).append({"page": page["page"], "error_type": type(error).__name__})

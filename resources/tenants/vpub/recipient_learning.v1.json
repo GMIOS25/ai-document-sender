@@ -698,7 +698,8 @@
         83
       ],
       "sections": [
-        "kinh_gui"
+        "kinh_gui",
+        "noi_nhan"
       ]
     },
     {
@@ -4156,6 +4157,7 @@
         4811
       ],
       "sections": [
+        "kinh_gui",
         "noi_nhan"
       ]
     },
@@ -5378,6 +5380,7 @@
         4326
       ],
       "sections": [
+        "kinh_gui",
         "noi_nhan"
       ]
     },
@@ -15257,6 +15260,7 @@
       ],
       "document_context": {},
       "sections": [
+        "kinh_gui",
         "noi_nhan"
       ],
       "targets": [
@@ -15571,6 +15575,7 @@
       ],
       "document_context": {},
       "sections": [
+        "kinh_gui",
         "noi_nhan"
       ],
       "targets": [
@@ -16151,16 +16156,15 @@
       "source_rows": [
         3437
       ],
-      "document_context": {
-        "sign_number": "12780/UBND-KTTH"
-      },
+      "document_context": {},
       "document": {
         "sign_number": "12780/UBND-KTTH",
         "subject": "triển khai thực hiện Nghị định số 379/2026/NĐ-CP của Chính phủ quy định tiêu chuẩn, định mức sử dụng xe ô tô",
         "pdf_url": "https://drive.google.com/file/d/1CH1tV4nLdJ2bae7Y-JNlX9GJbprWNtRC/view"
       },
       "sections": [
-        "luu"
+        "luu",
+        "noi_nhan"
       ],
       "targets": [
         {
@@ -16181,16 +16185,15 @@
       "source_rows": [
         3555
       ],
-      "document_context": {
-        "sign_number": "12769/UBND-KTTH"
-      },
+      "document_context": {},
       "document": {
         "sign_number": "12769/UBND-KTTH",
         "subject": "triển khai Công điện số 68/CĐ-TTg ngày 07/10/2026 của Thủ tướng Chính phủ về việc đẩy nhanh tiến độ thực hiện xử lý, khai thác nhà, đất dôi dư sau khi sắp xếp, tinh gọn tổ chức bộ máy, sắp xếp đơn vị hành chính",
         "pdf_url": "https://drive.google.com/file/d/1lvqlLsHzDtXgKGRXzwwzbhN2eSlQa2j4/view"
       },
       "sections": [
-        "luu"
+        "luu",
+        "noi_nhan"
       ],
       "targets": [
         {
@@ -16303,7 +16306,8 @@
       ],
       "document_context": {},
       "sections": [
-        "kinh_gui"
+        "kinh_gui",
+        "noi_nhan"
       ],
       "targets": [
         {
@@ -22106,6 +22110,382 @@
       ],
       "source_rows": [],
       "evidence": "Test 5 STT 367: Các sở, ban, ngành, Chủ đầu tư -> 20 standard Các Sở, ban, ngành units + 4 Phụ lục 1 Chủ đầu tư units (H21.19.32, H21.19.20, H21.24.65, H08.70)"
+    },
+    {
+      "raw_alias": "P.QTTV",
+      "verification_status": "verified",
+      "targets": [
+        {
+          "name": "Nguyễn Trung Chiến",
+          "recipient_id": "internal_355",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "role": "Trưởng phòng",
+          "code": "chiennt@vpub.gialai.gov.vn"
+        }
+      ],
+      "sections": [
+        "luu",
+        "noi_nhan"
+      ],
+      "source_rows": []
+    },
+    {
+      "raw_alias": "QTTV",
+      "verification_status": "verified",
+      "targets": [
+        {
+          "name": "Nguyễn Trung Chiến",
+          "recipient_id": "internal_355",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "role": "Trưởng phòng",
+          "code": "chiennt@vpub.gialai.gov.vn"
+        }
+      ],
+      "sections": [
+        "luu"
+      ],
+      "source_rows": []
+    },
+    {
+      "raw_alias": "HCTC",
+      "verification_status": "verified",
+      "targets": [
+        {
+          "name": "Nguyễn Ngọc Nguyên",
+          "recipient_id": "internal_584",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "role": "Trưởng phòng",
+          "code": "nguyennn@vpub.gialai.gov.vn"
+        }
+      ],
+      "sections": [
+        "luu"
+      ],
+      "source_rows": []
+    },
+    {
+      "raw_alias": "PCVNN",
+      "verification_status": "verified",
+      "targets": [
+        {
+          "name": "Trần Đình Triết",
+          "recipient_id": "internal_299",
+          "recipient_type": "INTERNAL_PERSON",
+          "sphere": "internal",
+          "role": "Phó Chánh Văn phòng",
+          "code": "triettd@vpub.gialai.gov.vn"
+        }
+      ],
+      "sections": [
+        "noi_nhan",
+        "kinh_gui"
+      ],
+      "source_rows": []
+    },
+    {
+      "raw_alias": "Các sở, ban, ngành có liên quan",
+      "verification_status": "verified",
+      "targets": [
+        {
+          "name": "Sở Dân tộc và Tôn giáo - tỉnh Gia Lai",
+          "recipient_id": "comm_422b0d8cda70c39b2150451e0261b22c3580b1ad5fdae8bdef3a27451ba270e4",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.01"
+        },
+        {
+          "name": "Sở Công Thương - tỉnh Gia Lai",
+          "recipient_id": "comm_68f39cafa04b3537408b3bf6",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.05"
+        },
+        {
+          "name": "Sở Giáo dục và Đào tạo - tỉnh Gia Lai",
+          "recipient_id": "comm_68f39cafa04b3537408b3bf8",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.06"
+        },
+        {
+          "name": "Sở Khoa học và Công nghệ - tỉnh Gia Lai",
+          "recipient_id": "comm_68f48d8ae4127f708594d292",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.09"
+        },
+        {
+          "name": "Sở Nội vụ - tỉnh Gia Lai",
+          "recipient_id": "comm_68f45213e4127f708594b8b8",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.11"
+        },
+        {
+          "name": "Sở Tài chính - tỉnh Gia Lai",
+          "recipient_id": "comm_68f39cafa04b3537408b3bf5",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.13"
+        },
+        {
+          "name": "Sở Tư pháp - tỉnh Gia Lai",
+          "recipient_id": "comm_68f48d8ae4127f708594d290",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.16"
+        },
+        {
+          "name": "Sở Văn hóa, Thể thao và Du lịch - tỉnh Gia Lai",
+          "recipient_id": "comm_68f45213e4127f708594b8ba",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.17"
+        },
+        {
+          "name": "Sở Xây dựng - tỉnh Gia Lai",
+          "recipient_id": "comm_68f39cafa04b3537408b3bf1",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.18"
+        },
+        {
+          "name": "Sở Y tế - tỉnh Gia Lai",
+          "recipient_id": "comm_68f48d8ae4127f708594d291",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.19"
+        },
+        {
+          "name": "Thanh tra tỉnh Gia Lai",
+          "recipient_id": "comm_08a982ef4cbf34ff9457f47db3a3f767a56b4f3c8fec44f94465a4eb746ce542",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.20"
+        },
+        {
+          "name": "Sở Nông nghiệp và Môi trường - tỉnh Gia Lai",
+          "recipient_id": "comm_68f399d1a04b3537408b389c",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.24"
+        },
+        {
+          "name": "Sở Ngoại vụ - tỉnh Gia Lai",
+          "recipient_id": "comm_deec5893ed3b84dfc3264f2ec5044e2c9e01d9346a15e38187b4a290cd22f904",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.26"
+        },
+        {
+          "name": "Ban Quản lý Khu kinh tế - tỉnh Gia Lai",
+          "recipient_id": "comm_68f454d2e4127f708594bab5",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.02"
+        },
+        {
+          "name": "Ban Quản lý các dự án đầu tư xây dựng tỉnh Gia Lai",
+          "recipient_id": "comm_68f4f2c3747b1512793ec530",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.38"
+        },
+        {
+          "name": "Ban QLDA các công trình Giao thông và Dân dụng tỉnh Gia Lai",
+          "recipient_id": "comm_68f39cafa04b3537408b3bf9",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.40"
+        },
+        {
+          "name": "Ban Quản lý Dự án Nông nghiệp và Phát triển nông thôn tỉnh Gia Lai",
+          "recipient_id": "comm_68f596f6747b1512793f0773",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.41"
+        },
+        {
+          "name": "Trung tâm Phát triển Quỹ đất - tỉnh Gia Lai",
+          "recipient_id": "comm_68f39cafa04b3537408b3bfa",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.49"
+        },
+        {
+          "name": "Công an tỉnh Gia Lai",
+          "recipient_id": "comm_68f39cafa04b3537408b3bf7",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "G01.035.000.000"
+        },
+        {
+          "name": "Bộ Chỉ huy Quân sự tỉnh Gia Lai",
+          "recipient_id": "comm_7f94771cfa11a901489f5a9c6857dfd4d84813d452ce79b1d776d835be5465bc",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "G11.12.006"
+        }
+      ],
+      "sections": [
+        "kinh_gui",
+        "noi_nhan"
+      ],
+      "source_rows": []
+    },
+    {
+      "raw_alias": "Thủ trưởng các sở, ban, ngành thuộc tỉnh",
+      "verification_status": "verified",
+      "targets": [
+        {
+          "name": "Sở Dân tộc và Tôn giáo - tỉnh Gia Lai",
+          "recipient_id": "comm_422b0d8cda70c39b2150451e0261b22c3580b1ad5fdae8bdef3a27451ba270e4",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.01"
+        },
+        {
+          "name": "Sở Công Thương - tỉnh Gia Lai",
+          "recipient_id": "comm_68f39cafa04b3537408b3bf6",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.05"
+        },
+        {
+          "name": "Sở Giáo dục và Đào tạo - tỉnh Gia Lai",
+          "recipient_id": "comm_68f39cafa04b3537408b3bf8",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.06"
+        },
+        {
+          "name": "Sở Khoa học và Công nghệ - tỉnh Gia Lai",
+          "recipient_id": "comm_68f48d8ae4127f708594d292",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.09"
+        },
+        {
+          "name": "Sở Nội vụ - tỉnh Gia Lai",
+          "recipient_id": "comm_68f45213e4127f708594b8b8",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.11"
+        },
+        {
+          "name": "Sở Tài chính - tỉnh Gia Lai",
+          "recipient_id": "comm_68f39cafa04b3537408b3bf5",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.13"
+        },
+        {
+          "name": "Sở Tư pháp - tỉnh Gia Lai",
+          "recipient_id": "comm_68f48d8ae4127f708594d290",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.16"
+        },
+        {
+          "name": "Sở Văn hóa, Thể thao và Du lịch - tỉnh Gia Lai",
+          "recipient_id": "comm_68f45213e4127f708594b8ba",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.17"
+        },
+        {
+          "name": "Sở Xây dựng - tỉnh Gia Lai",
+          "recipient_id": "comm_68f39cafa04b3537408b3bf1",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.18"
+        },
+        {
+          "name": "Sở Y tế - tỉnh Gia Lai",
+          "recipient_id": "comm_68f48d8ae4127f708594d291",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.19"
+        },
+        {
+          "name": "Thanh tra tỉnh Gia Lai",
+          "recipient_id": "comm_08a982ef4cbf34ff9457f47db3a3f767a56b4f3c8fec44f94465a4eb746ce542",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.20"
+        },
+        {
+          "name": "Sở Nông nghiệp và Môi trường - tỉnh Gia Lai",
+          "recipient_id": "comm_68f399d1a04b3537408b389c",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.24"
+        },
+        {
+          "name": "Sở Ngoại vụ - tỉnh Gia Lai",
+          "recipient_id": "comm_deec5893ed3b84dfc3264f2ec5044e2c9e01d9346a15e38187b4a290cd22f904",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.26"
+        },
+        {
+          "name": "Ban Quản lý Khu kinh tế - tỉnh Gia Lai",
+          "recipient_id": "comm_68f454d2e4127f708594bab5",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.02"
+        },
+        {
+          "name": "Ban Quản lý các dự án đầu tư xây dựng tỉnh Gia Lai",
+          "recipient_id": "comm_68f4f2c3747b1512793ec530",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.38"
+        },
+        {
+          "name": "Ban QLDA các công trình Giao thông và Dân dụng tỉnh Gia Lai",
+          "recipient_id": "comm_68f39cafa04b3537408b3bf9",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.40"
+        },
+        {
+          "name": "Ban Quản lý Dự án Nông nghiệp và Phát triển nông thôn tỉnh Gia Lai",
+          "recipient_id": "comm_68f596f6747b1512793f0773",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.41"
+        },
+        {
+          "name": "Trung tâm Phát triển Quỹ đất - tỉnh Gia Lai",
+          "recipient_id": "comm_68f39cafa04b3537408b3bfa",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "H21.49"
+        },
+        {
+          "name": "Công an tỉnh Gia Lai",
+          "recipient_id": "comm_68f39cafa04b3537408b3bf7",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "G01.035.000.000"
+        },
+        {
+          "name": "Bộ Chỉ huy Quân sự tỉnh Gia Lai",
+          "recipient_id": "comm_7f94771cfa11a901489f5a9c6857dfd4d84813d452ce79b1d776d835be5465bc",
+          "recipient_type": "INT_PROVINCE_UNIT",
+          "sphere": "int_province_comm",
+          "code": "G11.12.006"
+        }
+      ],
+      "sections": [
+        "kinh_gui",
+        "noi_nhan"
+      ],
+      "source_rows": []
     }
   ],
   "source": {

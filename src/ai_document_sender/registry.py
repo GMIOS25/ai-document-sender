@@ -19,6 +19,30 @@ def words(value):
     return re.sub(r"[^a-z0-9]+", " ", normalize(value)).split()
 
 
+def _ubnd_forms(value):
+    base = normalize(value)
+    if not base:
+        return set()
+    forms = {base}
+    forms.add(re.sub(r"\buy ban nhan dan\b", "ubnd", base))
+    forms.add(re.sub(r"\bubnd\b", "uy ban nhan dan", base))
+    return {f for f in forms if f}
+
+
+def _append_unique(bucket, key, recipient):
+    items = bucket.setdefault(key, [])
+    if all(existing.recipient_id != recipient.recipient_id for existing in items):
+        items.append(recipient)
+
+
+def _is_local_jurisdiction(item):
+    return (
+        item.sphere == "internal"
+        or "gia lai" in normalize(item.name)
+        or item.code.startswith(("H21", "A21", "K21"))
+    )
+
+
 def digest(value):
     return "sha256:" + hashlib.sha256(json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 
@@ -122,12 +146,14 @@ class Registry:
         self._names, self._codes, self._roles, self._local_names = {}, {}, {}, {}
         self._search_tokens = {}
         for r in self.by_id.values():
-            for name in {normalize(r.name), normalize(r.display_name)}:
-                self._names.setdefault(name, []).append(r)
+            for raw_name in {r.name, r.display_name}:
+                for key in _ubnd_forms(raw_name):
+                    _append_unique(self._names, key, r)
             if r.code:
-                self._codes.setdefault(normalize(r.code), []).append(r)
+                _append_unique(self._codes, normalize(r.code), r)
             if r.recipient_type == 'INTERNAL_PERSON':
-                self._roles.setdefault(normalize(r.role), []).append(r)
+                for key in _ubnd_forms(r.role):
+                    _append_unique(self._roles, key, r)
             else:
                 is_local = (r.sphere in {'internal', 'int_province_comm'} or
                             r.code.startswith(('H21', 'A21', 'K21')) or
@@ -167,10 +193,15 @@ class Registry:
                                     variants.add(clean_commune[5:].strip())
                                 else:
                                     variants.add(f"ubnd {clean_commune}".strip())
-                        for v in variants:
-                            if v:
-                                self._local_names.setdefault(v, []).append(r)
-            self._search_tokens[r.recipient_id] = set(words(' '.join([r.name, r.role or '', r.parent_name, r.code])))
+                        for v in list(variants):
+                            for form in _ubnd_forms(v):
+                                _append_unique(self._local_names, form, r)
+            tokens = set(words(' '.join([r.name, r.role or '', r.parent_name, r.code])))
+            if "ubnd" in tokens:
+                tokens.update({"uy", "ban", "nhan", "dan"})
+            if {"uy", "ban", "nhan", "dan"} <= tokens:
+                tokens.add("ubnd")
+            self._search_tokens[r.recipient_id] = tokens
         index_learning(self)
 
     def alias_effective(self, alias):
@@ -248,26 +279,37 @@ class Registry:
             return None
         return [self.by_id[rid] for rid in ids]
 
-    def search(self, query, limit=10, *, include_learning=True):
+    def search(self, query, limit=10, *, include_learning=True, local_only=False):
         # Require meaningful lexical overlap. Missing Ngoại vụ never becomes Nội vụ.
         q = set(words(query))
         if not q:
             return []
+        if "ubnd" in q:
+            q.update({"uy", "ban", "nhan", "dan"})
+        if {"uy", "ban", "nhan", "dan"} <= q:
+            q.add("ubnd")
         stops = {"so", "tinh", "gia", "lai", "ubnd", "uy", "ban", "nhan", "dan", "van", "phong", "va", "cac", "ong", "ba"}
         meaningful = q - stops
         exact = self.exact_code(query) or self.exact_name(query) or self.exact_role(query) or self.internal_node_candidates(query)
         if exact:
+            if local_only:
+                exact = [r for r in exact if _is_local_jurisdiction(r)]
             return exact[:limit]
         from .learning import bind_targets
         learned = {}
-        for rule in self._learned_aliases.get(normalize(query), []) if include_learning else []:
-            members, reason = bind_targets(rule, self)
-            if not reason:
-                learned.update((r.recipient_id, r) for r in members)
+        for form in _ubnd_forms(query) if include_learning else ():
+            for rule in self._learned_aliases.get(form, []):
+                members, reason = bind_targets(rule, self)
+                if not reason:
+                    for r in members:
+                        if not local_only or _is_local_jurisdiction(r):
+                            learned[r.recipient_id] = r
         if learned:
             return list(learned.values())[:limit]
         ranked = []
         for r in self.by_id.values():
+            if local_only and not _is_local_jurisdiction(r):
+                continue
             tokens = self._search_tokens[r.recipient_id]
             overlap = meaningful & tokens
             if not meaningful or not overlap:
@@ -277,8 +319,16 @@ class Registry:
             if substantial and not substantial <= tokens:
                 continue
             ranked.append((len(overlap) / len(meaningful), r))
-        ranked.sort(key=lambda x:(-x[0], x[1].recipient_id))
-        return [r for _,r in ranked[:limit]]
+        ranked.sort(
+            key=lambda x: (
+                -x[0],
+                0 if _is_local_jurisdiction(x[1]) else 1,
+                0 if x[1].sphere in {"internal", "int_province_comm"} else 1,
+                len(self._search_tokens[x[1].recipient_id]),
+                x[1].recipient_id,
+            )
+        )
+        return [r for _, r in ranked[:limit]]
 
     def serialize(self):
         return {rid:r.model_dump(mode="json") for rid,r in self.by_id.items()}

@@ -88,11 +88,18 @@ def _apply_ct_policy(mention, candidates, registry, ct_count, has_qualified_so_c
     return candidates
 
 
+_PURPOSE_SUFFIX_RE = re.compile(
+    r"\s*\((?:để\s+)?(?:b/c|báo\s+cáo|thay\s+(?:b/c|báo\s+cáo)|biết|thực\s+hiện|phối\s+hợp|p/h|t/h)\)\s*$",
+    re.I,
+)
+
+
 def expand_lexical(raw):
     raw = unicodedata.normalize("NFC", raw)
     raw = re.sub(r"\s+", " ", raw).strip()
     raw = re.sub(r"^(?:Đ\s*/\s*c\.?|Đồng\s+chí|Ông|Bà)\s+", "", raw, flags=re.I)
-    raw = re.sub(r"\s*\((?:để\s+)?(?:b/c|báo\s+cáo|biết|thực\s+hiện|phối\s+hợp)\)\s*$", "", raw, flags=re.I)
+    raw = _PURPOSE_SUFFIX_RE.sub("", raw)
+    raw = re.sub(r"\bDA\b", "dự án", raw)
     raw = re.sub(r"Ủy\s+ban\s+nhân\s+dân", "UBND", raw, flags=re.I)
     expansions = [
         (r"^PCT\b", "Phó Chủ tịch UBND tỉnh"), (r"^CT\s+UBND\s+tỉnh\b", "Chủ tịch UBND tỉnh"),
@@ -201,6 +208,23 @@ async def resolve_mentions(extraction, registry, metadata, job_id, input_sha256,
         else:
             learned = learned_alias(registry, raw, metadata, mention)
             pending = learned or registry.alias(raw, metadata)
+        stripped_raw = _PURPOSE_SUFFIX_RE.sub("", raw).strip(" ;:-")
+        stripped_combined = _PURPOSE_SUFFIX_RE.sub("", combined).strip(" ;:-")
+        if pending is None and (stripped_raw != raw or stripped_combined != combined):
+            if stripped_combined != stripped_raw:
+                learned = (
+                    learned_alias(registry, stripped_combined, metadata, mention)
+                    or learned_alias(registry, stripped_raw, metadata, mention, require_qualifier=True)
+                )
+                pending = learned or registry.alias(stripped_combined, metadata)
+                if pending is None and not (
+                    is_gl_context and (registry.local_unit_name(stripped_combined, metadata.issuer or "Gia Lai") or registry.exact_name(stripped_combined))
+                ):
+                    learned = learned_alias(registry, stripped_raw, metadata, mention)
+                    pending = learned or registry.alias(stripped_raw, metadata)
+            else:
+                learned = learned_alias(registry, stripped_raw, metadata, mention)
+                pending = learned or registry.alias(stripped_raw, metadata)
         if pending is None:
             # Jurisdiction suffixes do not make an unverified portfolio alias safe.
             prefix = re.match(r"^(PVPQT|PVPVX|PCVP\s*XD)\b", combined, re.I)
@@ -215,7 +239,8 @@ async def resolve_mentions(extraction, registry, metadata, job_id, input_sha256,
         # precedence over whole-phrase aliases learned from older snapshots.
         geography = (local_commune_list(raw, registry) if recipient_scope and mention.kind != "reference" and
                      is_gl_context else None)
-        group = (native_group(combined, registry) if recipient_scope and mention.kind in {"group", "unit", "unknown"} and geography is None and
+        group = ((native_group(combined, registry) or native_group(stripped_combined, registry))
+                 if recipient_scope and mention.kind in {"group", "unit", "unknown"} and geography is None and
                  is_gl_context else None)
         service_center = explicit_service_center(mention, registry)
         btcd_policy = _btcd_policy_candidates(raw, metadata, registry) if mention.kind != "reference" else None
@@ -362,7 +387,10 @@ async def resolve_mentions(extraction, registry, metadata, job_id, input_sha256,
                 else:
                     reason = "ambiguous_registry_identity"
             if not candidates and not reason:
-                candidates = [r for r in registry.search(query, include_learning=False) if within_jurisdiction(r)]
+                candidates = [
+                    r for r in registry.search(query, include_learning=False, local_only=local_province)
+                    if within_jurisdiction(r)
+                ]
                 # Generic role/known portfolio never delegates identity guessing to LLM.
                 roleish = mention.kind == "role" or normalize(query).startswith(("chu tich ", "pho chu tich ", "pho chanh ", "chanh van "))
                 if roleish:

@@ -115,6 +115,26 @@ class Settings:
             "max_pending_jobs": ("SENDER_MAX_PENDING_JOBS", int), "retention_days": ("SENDER_RETENTION_DAYS", int),
         }
         kwargs = {field: cast(values[key]) for field, (key, cast) in mapping.items() if values.get(key)}
+        # Support GROQ_* env keys and auto-route gsk_ keys to Groq's OpenAI-compatible endpoint.
+        if not kwargs.get("openrouter_api_key") and values.get("GROQ_API_KEY"):
+            kwargs["openrouter_api_key"] = str(values["GROQ_API_KEY"]).strip()
+        elif values.get("GROQ_API_KEY") and str(values.get("GROQ_API_KEY")).strip().startswith("gsk_"):
+            kwargs["openrouter_api_key"] = str(values["GROQ_API_KEY"]).strip()
+        if values.get("GROQ_TEXT_MODEL") and not values.get("OPENROUTER_TEXT_MODEL"):
+            kwargs["openrouter_text_model"] = str(values["GROQ_TEXT_MODEL"]).strip()
+        if values.get("GROQ_VISION_MODEL") and not values.get("OPENROUTER_VISION_MODEL"):
+            kwargs["openrouter_vision_model"] = str(values["GROQ_VISION_MODEL"]).strip()
+        if values.get("GROQ_URL") and not values.get("OPENROUTER_URL"):
+            kwargs["openrouter_url"] = str(values["GROQ_URL"]).strip()
+        api_key_val = kwargs.get("openrouter_api_key", "")
+        if api_key_val.startswith("gsk_") and kwargs.get("openrouter_url", cls.openrouter_url).rstrip("/") == "https://openrouter.ai/api/v1":
+            kwargs["openrouter_url"] = "https://api.groq.com/openai/v1"
+        is_groq = "groq.com" in kwargs.get("openrouter_url", "").lower() or api_key_val.startswith("gsk_")
+        if is_groq:
+            for mfield in ("openrouter_text_model", "openrouter_vision_model"):
+                mval = kwargs.get(mfield, "").strip()
+                if mval.lower() in {"qwen 3.8 27b", "qwen3.8-27b", "qwen-3.8-27b", "qwen/qwen3.8-27b:free"}:
+                    kwargs[mfield] = "qwen/qwen3.8-27b"
         for name in ("lookup_db", "tenants_dir", "policy_path", "runtime_dir", "ocr_weights"):
             if name in kwargs and not kwargs[name].is_absolute():
                 kwargs[name] = (ROOT / kwargs[name]).resolve()

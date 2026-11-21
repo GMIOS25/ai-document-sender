@@ -1,5 +1,6 @@
 """Reviewed, tenant-local aliases; names are rebound to the current directory."""
 import json
+import re
 
 from .registry import normalize
 
@@ -68,7 +69,17 @@ def learned_alias(registry, raw, metadata, mention, require_qualifier=False):
         return None
     matches = []
     sign_number = normalize(getattr(metadata, 'sign_number', '') or getattr(metadata, 'document_id', '') or '')
-    for rule in registry._learned_aliases.get(normalize(raw), []):
+    norm_raw = normalize(raw)
+    rules = list(registry._learned_aliases.get(norm_raw, []))
+    if not rules:
+        ubnd_swapped = re.sub(r"\buy ban nhan dan\b", "ubnd", norm_raw)
+        if ubnd_swapped != norm_raw:
+            rules = list(registry._learned_aliases.get(ubnd_swapped, []))
+        if not rules:
+            full_swapped = re.sub(r"\bubnd\b", "uy ban nhan dan", norm_raw)
+            if full_swapped != norm_raw:
+                rules = list(registry._learned_aliases.get(full_swapped, []))
+    for rule in rules:
         if rule.get('document_context'):
             rule_sign = normalize(rule['document_context'].get('sign_number', ''))
             if rule_sign and rule_sign != sign_number:

@@ -13,7 +13,7 @@ const CONFIG = {
   password: process.env.IDESK_PASSWORD || 'Vanthu@123789@',
   exeacode: 'b45656bc-0146-1000-e3f0-150813121982',
   books: 'VPUB-BCH-DI;VPUB-BCD-DI;UBND-BB-DI;UBND-BC-DI;UBND-CTr-DI;UBND-CT-DI;UBND-CCNVBX-DI;UBND-BCĐ-DI;UBND-CV-DI;VPUBND-CV-DI;UBND-CD-DI;VPUB-DM-DI;UBND-GCN-DI;UBND-GM-DI;VPUB-GM-DI;UBND-GP-DI;UBND-GUQ-DI;UBND-HD-DI;UBND-HĐ-DI;UBND-KH-DI;UBND-KL-DI;UBND-PC-DI;UBND-PT-DI;UBND-PA-DI;UBND-QC-DI;UBND-QĐQPPL-DI;VPUBND-QĐ;UBND-QĐ-DI;UBND-SL-DI;UBND-SY-DI;VPUB-SY-DI;SO-KHONG-SO;UBND-TB-DI;UBND-TTr-DI;UBND-DL-DI;ĐCT-ĐKT;UBND-DKT-DI;UBND-DA-DI',
-  outputDir: path.resolve('c:/Workspaces/ai-document-sender/resources/văn bản mẫu/vpub/Hợp lệ'),
+  outputDir: path.resolve('c:/Workspaces/ai-document-sender/resources/văn bản mẫu/vpub/Hợp lệ 2'),
   stateFile: path.resolve('c:/Workspaces/ai-document-sender/tools/crawler_state.json'),
   logFile: path.resolve('c:/Workspaces/ai-document-sender/tools/crawler.log'),
   pageSize: 100,

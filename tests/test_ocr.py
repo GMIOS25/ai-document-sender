@@ -155,3 +155,147 @@ def test_low_confidence_left_dash_artifact_becomes_bullet_prefix():
         "- Sở Xây dựng;",
         "- UBND xã Tuy Phước.",
     ]
+
+
+def test_apply_page_text_normalizes_colonless_left_noi_nhan_and_ignores_right_column():
+    from ai_document_sender.mentions import extract_rule_mentions
+
+    page_no_colon = {"page": 1, "text": "", "width": 600.0, "height": 850.0}
+    ocr._apply_page_text(
+        page_no_colon,
+        [
+            line("Nơi nhận", 60.0, 300.0, 90.0),
+            line("KT. CHỦ TỊCH", 360.0, 301.0, 180.0),
+            line("- Sở Y tế;", 60.0, 330.0),
+            line("Người ký", 360.0, 360.0, 140.0),
+            line("- Lưu: VT.", 60.0, 390.0),
+        ],
+    )
+    assert page_no_colon["recipient_text"].splitlines() == [
+        "Nơi nhận:",
+        "- Sở Y tế;",
+        "- Lưu: VT.",
+    ]
+    assert "recipient_bbox" in page_no_colon
+    mentions, reasons = extract_rule_mentions([page_no_colon])
+    assert "recipient_sections_missing" not in reasons
+    assert {"Sở Y tế", "VT"} <= {m.raw for m in mentions}
+
+    page_nfd_dot = {"page": 1, "text": "", "width": 600.0, "height": 850.0}
+    ocr._apply_page_text(
+        page_nfd_dot,
+        [
+            line("Nơi nhâ\u0323n.", 50.0, 300.0, 95.0),
+            line("- Sở Nội vụ;", 50.0, 330.0),
+        ],
+    )
+    assert page_nfd_dot["recipient_text"].splitlines()[0] == "Nơi nhận:"
+
+    page_right_col = {"page": 1, "text": "", "width": 600.0, "height": 850.0}
+    ocr._apply_page_text(
+        page_right_col,
+        [
+            line("Nơi nhận", 300.0, 300.0, 90.0),
+            line("- Sở Y tế;", 60.0, 330.0),
+        ],
+    )
+    assert "recipient_text" not in page_right_col
+    assert "recipient_bbox" not in page_right_col
+
+
+def test_apply_page_text_updates_page_text_for_body_task_and_prefers_explicit_header():
+    from ai_document_sender.mentions import extract_rule_mentions
+    from ai_document_sender.provider import compact_pages_for_llm
+
+    page_body = {"page": 1, "text": "", "width": 600.0, "height": 850.0}
+    ocr._apply_page_text(
+        page_body,
+        [
+            line("Kính gửi: Sở Tài chính.", 60.0, 100.0),
+            line("1. Sở Xây dựng: Thực hiện.", 60.0, 160.0),
+            line("Nơi nhận", 60.0, 300.0, 90.0),
+            line("KT. CHỦ TỊCH", 360.0, 301.0, 180.0),
+            line("- Như trên;", 60.0, 330.0),
+            line("Nguyễn Văn Ký", 360.0, 360.0, 140.0),
+            line("- Lưu: VT.", 60.0, 390.0),
+        ],
+    )
+    assert "Nơi nhận:" in page_body["text"]
+    assert page_body["ocr_text"] == page_body["text"]
+    mentions, _ = extract_rule_mentions([page_body])
+    assert {"Sở Tài chính", "Sở Xây dựng", "VT"} <= {m.raw for m in mentions}
+
+    # Verify compact_pages_for_llm with nn_has_ref strips signature bleed when colonless header is normalized.
+    page_ref = {"page": 1, "text": "", "width": 600.0, "height": 850.0}
+    ocr._apply_page_text(
+        page_ref,
+        [
+            line("Điều 1. Sở Xây dựng thực hiện.", 60.0, 160.0),
+            line("Nơi nhận", 60.0, 300.0, 90.0),
+            line("KT. CHỦ TỊCH", 360.0, 301.0, 180.0),
+            line("- Như Điều 1;", 60.0, 330.0),
+            line("Nguyễn Văn Ký", 360.0, 360.0, 140.0),
+            line("- Lưu: VT.", 60.0, 390.0),
+        ],
+    )
+    compacted = compact_pages_for_llm([page_ref])
+    assert "Nguyễn Văn Ký" not in compacted[0]["text"]
+    assert "- Như Điều 1;" in compacted[0]["text"]
+
+    # Explicit "Nơi nhận:" footer must win over an earlier colonless body/table "Nơi nhận".
+    page_explicit_wins = {"page": 1, "text": "", "width": 600.0, "height": 850.0}
+    ocr._apply_page_text(
+        page_explicit_wins,
+        [
+            line("Nơi nhận", 60.0, 150.0, 90.0),
+            line("Nội dung bảng biểu", 60.0, 180.0, 200.0),
+            line("Nơi nhâ\u0323n:", 280.0, 400.0, 100.0),
+            line("KT. CHỦ TI\u0323CH", 360.0, 401.0, 180.0),
+            line("- Sở Nội vụ;", 60.0, 430.0),
+        ],
+    )
+    assert page_explicit_wins["recipient_text"].splitlines() == ["Nơi nhận:", "- Sở Nội vụ;"]
+    assert "Nội dung bảng biểu" not in page_explicit_wins["recipient_text"]
+
+
+def test_ocr_missing_pages_low_confidence_ignores_dropped_speckles(settings):
+    records = [{"page": 1, "text": "", "width": 600.0, "height": 850.0}]
+
+    class SpeckleReader:
+        device = "cpu"
+
+        def read(self, image, batch_size):
+            return [
+                {"text": "Nơi nhận:", "bbox": [60.0, 300.0, 160.0, 320.0], "confidence": 0.96},
+                {"text": " x ", "bbox": [310.0, 300.0, 318.0, 315.0], "confidence": 0.20},
+                {"text": "- Sở Y tế;", "bbox": [60.0, 330.0, 200.0, 350.0], "confidence": 0.94},
+            ]
+
+    with patch.object(ocr, "_get_reader", return_value=SpeckleReader()), \
+            patch.object(ocr, "_render_image", return_value=Image.new("RGB", (600, 850))):
+        audit, reasons = ocr.ocr_missing_pages("clean.pdf", records, settings)
+    assert audit["pages"] == [1]
+    assert "local_ocr_low_confidence" not in reasons
+    assert records[0]["local_ocr_low_confidence"] is False
+
+
+def test_suppress_colored_ink_removes_blue_handwriting_and_red_seal_keeps_black_print():
+    import numpy as np
+
+    canvas = np.full((60, 120, 3), 255, dtype=np.uint8)
+    # Dark black printed glyphs (plain and overlapping a red seal)
+    canvas[15:30, 10:20] = (15, 15, 15)
+    canvas[15:30, 40:55] = (45, 45, 210)  # bright red seal background (BGR)
+    canvas[20:26, 44:51] = (10, 10, 10)   # dark print on top of red seal (BGR)
+    # Blue handwritten initials (BGR: high B, low R)
+    canvas[32:50, 75:100] = (210, 70, 20)
+
+    cleaned = ocr._suppress_colored_ink(canvas)
+    assert np.all(cleaned[15:30, 10:20] == (15, 15, 15))
+    assert np.all(cleaned[20:26, 44:51] == (10, 10, 10))
+    assert np.all(cleaned[15:19, 40:55] == (255, 255, 255))
+    assert np.all(cleaned[32:50, 75:100] == (255, 255, 255))
+
+    bw_only = np.full((20, 20, 3), 255, dtype=np.uint8)
+    bw_only[5:10, 5:10] = (20, 20, 20)
+    assert ocr._suppress_colored_ink(bw_only) is bw_only

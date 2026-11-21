@@ -11,7 +11,7 @@ PVHCC_CODE = "H21.21.04"
 PVHCC_NAMES = {
     "trung tam phuc vu hanh chinh cong", "trung tam phuc vu hanh chinh cong tinh",
     "trung tam phuc vu hanh chinh cong tinh gia lai", "trung tam pvhcc", "trung tam pvhcc tinh",
-    "ttpvhcc", "pvhcc kstt",
+    "ttpvhcc", "tt.pvhcc", "tt pvhcc", "pvhcc kstt",
 }
 
 

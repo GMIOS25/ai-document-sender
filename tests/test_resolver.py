@@ -389,3 +389,46 @@ async def test_internal_dept_selection_plan_emits_only_for_complete_child_covera
     assert [(g.group_id, g.sphere, sorted(g.member_codes)) for g in res.selection_plan] == [
         ("286", "internal", ["287", "297"]),
     ]
+
+
+@pytest.mark.asyncio
+async def test_resolver_prioritizes_local_jurisdiction_before_search_slice_for_da_acronym(settings):
+    import sqlite3
+
+    with sqlite3.connect(settings.lookup_db) as conn:
+        for i in range(12):
+            rid = f"comm_000_out_{i:02d}"
+            conn.execute(
+                "INSERT INTO recipients VALUES (?,?,?,?,?,?,?,?,?,0,'{}')",
+                (rid, rid, f"Ban Quản lý các dự án đầu tư xây dựng - Tỉnh {i}", f"Ban Quản lý các dự án đầu tư xây dựng - Tỉnh {i}",
+                 f"Ban Quản lý các dự án đầu tư xây dựng - Tỉnh {i}", f"G88.{i:02d}", "ext_province_comm", "EXT_PROVINCE_UNIT", ""),
+            )
+        conn.execute(
+            "INSERT INTO recipients VALUES (?,?,?,?,?,?,?,?,?,0,'{}')",
+            ("comm_zzz_gl", "comm_zzz_gl", "Ban Quản lý các dự án đầu tư xây dựng tỉnh Gia Lai",
+             "Ban Quản lý các dự án đầu tư xây dựng tỉnh Gia Lai", "Ban Quản lý các dự án đầu tư xây dựng tỉnh Gia Lai",
+             "H21.38", "int_province_comm", "INT_PROVINCE_UNIT", ""),
+        )
+    registry = Registry(settings)
+    registry.tenant_id = "vpub"
+
+    called = []
+
+    class PickingProvider:
+        async def choose_candidate(self, m, candidates, metadata):
+            called.append([c["code"] for c in candidates])
+            assert [c["code"] for c in candidates] == ["H21.38"]
+            return candidates[0]["recipient_id"]
+
+    res = await resolve_mentions(
+        Extraction(mentions=[
+            mention("Ban Quản lý các DA đầu tư xây dựng tỉnh", "unit", "noi_nhan", mid="m_exact"),
+            mention("Ban Quản lý đầu tư xây dựng tỉnh", "unit", "noi_nhan", mid="m_search"),
+        ], status="complete"),
+        registry,
+        DocumentMetadata(document_id="doc-243", issuer="UBND tỉnh Gia Lai"),
+        "job-243", "h-243",
+        provider=PickingProvider(),
+    )
+    assert "H21.38" in {u.code for u in res.units}
+    assert called == [["H21.38"]]

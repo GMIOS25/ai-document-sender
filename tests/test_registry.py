@@ -84,3 +84,44 @@ def test_local_names_preserves_tinh_suffix_without_commune_underscore_collision(
     assert [r.code for r in registry._local_names.get("trung tam phat trien quy dat tinh", [])] == ["H21.49"]
     assert "ban quan ly cac du an dau tu xay dung_tinh" not in registry._local_names
 
+
+def test_search_prioritizes_local_jurisdiction_before_limit_and_normalizes_ubnd(settings):
+    with sqlite3.connect(settings.lookup_db) as conn:
+        cols = {row[1] for row in conn.execute("PRAGMA table_info(recipients)")}
+        for i in range(12):
+            rid = f"comm_000_ext_{i:02d}"
+            name = f"Ban Quản lý các dự án đầu tư xây dựng tỉnh Ngoài {i}"
+            row = {
+                "recipient_id": rid, "source_id": rid, "recipient_type": "EXT_PROVINCE_UNIT",
+                "sphere": "ext_province_comm", "name": name, "full_name": "", "display_name": name,
+                "code": f"G99.{i:02d}", "parent_name": "", "rank_level": "", "email": "",
+                "priority_score": 10, "search_text": name,
+            }
+            use_cols = [c for c in row if c in cols]
+            conn.execute(
+                f"INSERT INTO recipients ({','.join(use_cols)}) VALUES ({','.join('?' * len(use_cols))})",
+                [row[c] for c in use_cols],
+            )
+        for rid, code, sphere, rtype, name in [
+            ("comm_zzz_local", "H21.38", "int_province_comm", "INT_PROVINCE_UNIT", "Ban Quản lý các dự án đầu tư xây dựng tỉnh Gia Lai"),
+            ("comm_dang_uy", "A21.07", "ext_province_comm", "EXT_PROVINCE_UNIT", "Đảng ủy Ủy ban nhân dân tỉnh Gia Lai"),
+        ]:
+            row = {
+                "recipient_id": rid, "source_id": rid, "recipient_type": rtype,
+                "sphere": sphere, "name": name, "full_name": "", "display_name": name,
+                "code": code, "parent_name": "", "rank_level": "", "email": "",
+                "priority_score": 10, "search_text": name,
+            }
+            use_cols = [c for c in row if c in cols]
+            conn.execute(
+                f"INSERT INTO recipients ({','.join(use_cols)}) VALUES ({','.join('?' * len(use_cols))})",
+                [row[c] for c in use_cols],
+            )
+    registry = Registry(settings)
+    local_hits = registry.search("Ban Quản lý các DA đầu tư xây dựng tỉnh", limit=10, local_only=True)
+    assert [r.code for r in local_hits] == ["H21.38"]
+    unfiltered_hits = registry.search("Ban Quản lý các dự án đầu tư xây dựng tỉnh", limit=10)
+    assert unfiltered_hits[0].code == "H21.38"
+    assert [r.code for r in registry.exact_name("Đảng ủy UBND tỉnh Gia Lai")] == ["A21.07"]
+    assert [r.code for r in registry.search("Đảng ủy UBND tỉnh", limit=5)] == ["A21.07"]
+

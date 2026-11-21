@@ -8,10 +8,24 @@ from .registry import normalize
 
 COMMUNE_SELECTORS = {
     "ubnd cac xa phuong", "uy ban nhan dan cac xa phuong",
-    "cac xa phuong", "ubnd xa phuong", "toan bo ubnd cac xa phuong", "tat ca cac xa phuong",
+    "ubnd cac phuong xa", "uy ban nhan dan cac phuong xa",
+    "cac xa phuong", "cac phuong xa",
+    "ubnd xa phuong", "ubnd phuong xa",
+    "toan bo ubnd cac xa phuong", "toan bo ubnd cac phuong xa",
+    "tat ca cac xa phuong", "tat ca cac phuong xa",
+    "chu tich ubnd cac xa phuong", "chu tich uy ban nhan dan cac xa phuong",
+    "chu tich ubnd cac phuong xa", "chu tich uy ban nhan dan cac phuong xa",
 }
-LIST_HEADS = {"ubnd cac xa": "xa", "uy ban nhan dan cac xa": "xa", "cac xa": "xa",
-              "ubnd cac phuong": "phuong", "uy ban nhan dan cac phuong": "phuong", "cac phuong": "phuong"}
+PARTY_COMMUNE_SELECTORS = {
+    "dang uy cac xa phuong", "dang uy cac phuong xa",
+    "dang uy xa phuong", "dang uy phuong xa",
+    "toan bo dang uy cac xa phuong", "toan bo dang uy cac phuong xa",
+    "tat ca dang uy cac xa phuong", "tat ca dang uy cac phuong xa",
+}
+LIST_HEADS = {
+    "ubnd cac xa": "xa", "uy ban nhan dan cac xa": "xa", "ubnd xa": "xa", "uy ban nhan dan xa": "xa", "cac xa": "xa",
+    "ubnd cac phuong": "phuong", "uy ban nhan dan cac phuong": "phuong", "ubnd phuong": "phuong", "uy ban nhan dan phuong": "phuong", "cac phuong": "phuong",
+}
 COLONLESS_LIST_PREFIX = re.compile(
     r"^\s*(?P<head>(?:(?:Toàn\s+bộ|Tất\s+cả)\s+)?(?:(?:Ủy\s+ban\s+nhân\s+dân|UBND)\s+)?các\s+"
     r"(?:xã\s*,?\s*phường|phường\s*,?\s*xã|xã|phường))\s+(?P<tail>.+)$",
@@ -68,9 +82,50 @@ def _communes(tail, recipients, commune_type=None):
     return list(matched.values())
 
 
+def _party_commune_members(registry):
+    members = [
+        r for r in registry.by_id.values()
+        if r.sphere == "ext_province_comm"
+        and re.fullmatch(r"A21\.\d+", r.code)
+        and re.match(r"^dang uy (?:xa|phuong)\b", normalize(r.name))
+    ]
+    if len(members) != 135:
+        return []
+    return sorted(members, key=lambda r: tuple(int(p) if p.isdigit() else p for p in re.split(r"(\d+)", r.code)))
+
+
+def _match_party_communes(tail, members):
+    names = re.split(r"[,;\n]+|\s+và\s+", tail, flags=re.I)
+    names = [name for name in names if name.strip(" .\t")]
+    if not names:
+        return []
+    candidates = {}
+    for r in members:
+        name = re.sub(r"^(?:dang uy )?", "", re.sub(r" (?:tinh )?gia lai$", "", normalize(r.name))).strip()
+        short = re.sub(r"^(?:xa|phuong) ", "", name)
+        for key in {name, short}:
+            candidates.setdefault(key, []).append(r)
+    matched = {}
+    for value in names:
+        key = re.sub(r"^(?:dang uy )?", "", normalize(value).strip("."))
+        hits = candidates.get(key, [])
+        if len(hits) != 1:
+            return []
+        matched[hits[0].recipient_id] = hits[0]
+    return list(matched.values())
+
+
 def native_group(raw, registry):
     terms = re.split(r"\s+(?:ngoại\s+trừ|trừ)\s+", raw, maxsplit=1, flags=re.I)
     selector = normalize(terms[0]).strip(".")
+    if selector in PARTY_COMMUNE_SELECTORS:
+        members = _party_commune_members(registry)
+        if not members:
+            return [], None
+        if len(terms) == 2:
+            excluded = {r.recipient_id for r in _match_party_communes(terms[1], members)}
+            return ([r for r in members if r.recipient_id not in excluded], None) if excluded else ([], None)
+        return members, None
     whole_province = selector in COMMUNE_SELECTORS or selector == "135 xa phuong"
     if whole_province:
         selector = "135 xa phuong"

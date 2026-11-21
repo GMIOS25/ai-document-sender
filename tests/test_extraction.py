@@ -518,3 +518,266 @@ def test_failed_provider_keeps_provider_used_false_and_retains_provider_audit(se
     assert result.audit["provider"]["error_code"] == "provider_timeout"
     assert result.audit["provider"]["duration_ms"] == 60000.0
     assert "provider_timeout" in result.review_reasons
+
+
+def test_entries_single_letter_initial_wrap_and_phat_trien_wrap():
+    text = (
+        "Kính gửi:\n"
+        "- Ban Quản lý dự án Nông nghiệp và\n"
+        "Phát triển nông thôn tỉnh;\n"
+        "- Sở Tài chính.\n"
+        "Nội dung văn bản.\n"
+        "Nơi nhận:\n"
+        "- Như trên;\n"
+        "- CT, PCT N.H. Quế, PCT N.\n"
+        "T. C. Hoàng;\n"
+        "- CVP, PVPNN, PVPXD;\n"
+        "- Lưu: VT, X4.\n"
+    )
+    mentions, _ = extract_rule_mentions([{"page": 1, "text": text, "width": 595, "height": 842, "images": []}])
+    raws = [m.raw for m in mentions]
+    assert "Ban Quản lý dự án Nông nghiệp và Phát triển nông thôn tỉnh" in raws
+    assert "PCT N. T. C. Hoàng" in raws
+    assert "PVPNN" in raws
+    assert "X4" in raws
+
+
+def test_cross_colon_prefix_gluing_cjk_ocr_rejection_and_deduplication(settings):
+    page_data = [
+        {
+            "page": 1,
+            "text": (
+                "Kính gửi:\n"
+                "- Các sở: Công Thương, Xây dựng;\n"
+                "Nơi nhận:\n"
+                "- Như trên;\n"
+                "- CVP, PVPXD;\n"
+                "- Lưu: VT, X4."
+            ),
+            "width": 595,
+            "height": 842,
+            "images": [{"bbox": [0, 0, 100, 100]}],
+        }
+    ]
+
+    class MockGluingProvider:
+        last_audit = {"provider": "groq", "duration_ms": 120.0}
+
+        async def extract_mentions(self, pages, metadata, images=None):
+            return {
+                "mentions": [
+                    # Cross-colon prefix-glued hallucination -> must be rejected as ungrounded
+                    {
+                        "raw": "Sở Công Thương",
+                        "kind": "unit",
+                        "qualifier": None,
+                        "references": [],
+                        "evidence": [{"page": 1, "section": "kinh_gui", "raw": "- Các sở: Công Thương, Xây dựng;"}],
+                    },
+                    # Exact duplicate of rule mention (missing qualifier/references) -> must be deduplicated into rule
+                    {
+                        "raw": "Công Thương",
+                        "kind": "unit",
+                        "qualifier": None,
+                        "references": [],
+                        "evidence": [{"page": 1, "section": "kinh_gui", "raw": "- Các sở: Công Thương, Xây dựng;"}],
+                    },
+                    # Unsplit compound mention already split by rules -> must be deduplicated
+                    {
+                        "raw": "CVP, PVPXD",
+                        "kind": "role",
+                        "qualifier": None,
+                        "references": [],
+                        "evidence": [{"page": 1, "section": "noi_nhan", "raw": "- CVP, PVPXD;"}],
+                    },
+                ],
+                "ocr_pages": [
+                    {"page": 1, "text": "Nơi nhận: Unauthorized委员"}
+                ],
+                "status": "complete",
+                "review_reasons": [],
+            }
+
+    with tempfile.TemporaryDirectory() as tmp, patch("ai_document_sender.extraction._read_pages", return_value=page_data), patch(
+        "ai_document_sender.extraction.select_vision_pages", return_value=([1], [])
+    ), patch(
+        "ai_document_sender.extraction._render_pages", return_value=[{"page": 1, "data_url": "data:image/png;base64,AA=="}]
+    ):
+        result = asyncio.run(extract_document(Path(tmp) / "doc.pdf", MockGluingProvider(), DocumentMetadata(document_id="dedup"), settings))
+
+    raws = [m.raw for m in result.mentions]
+    assert "Sở Công Thương" not in raws
+    assert "CVP, PVPXD" not in raws
+    assert raws.count("Công Thương") == 1
+    assert "CVP" in raws and "PVPXD" in raws
+    assert "ungrounded_model_mention" in result.review_reasons
+    assert "ungrounded_ocr_page" in result.review_reasons
+    assert "Unauthorized" not in result.pages[0]["text"]
+
+
+def test_groq_three_vision_pages_cap_with_ocr_apply_page_text_integration(settings):
+    import json
+    import httpx
+    from PIL import Image
+    from ai_document_sender import ocr
+    from ai_document_sender.provider import OpenRouterProvider
+
+    scan_pages = [{"page": i, "text": "", "width": 600.0, "height": 850.0, "images": [{"bbox": [0, 0, 600, 850]}]} for i in range(1, 6)]
+    configured = replace(
+        settings,
+        provider_mode="cloud",
+        openrouter_api_key="gsk_test_groq_123",
+        openrouter_url="https://api.groq.com/openai/v1",
+        openrouter_text_model="qwen/qwen3.8-27b",
+        openrouter_vision_model="qwen/qwen3.8-27b",
+        provider_schema_mode="prompt",
+        provider_reasoning="off",
+        ocr_backend="vietocr",
+        max_vision_pages=3,
+    )
+
+    class LowConfReader:
+        device = "cpu"
+
+        def read(self, image, batch_size):
+            return [
+                {"text": "Nơi nhận", "bbox": [60.0, 300.0, 140.0, 320.0], "confidence": 0.72},
+                {"text": "KT. CHỦ TỊCH", "bbox": [360.0, 301.0, 520.0, 321.0], "confidence": 0.90},
+                {"text": "- Sở Y tế;", "bbox": [60.0, 330.0, 200.0, 350.0], "confidence": 0.75},
+                {"text": "- Lưu: VT.", "bbox": [60.0, 360.0, 180.0, 380.0], "confidence": 0.78},
+            ]
+
+    captured_requests = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        body = json.loads(request.content.decode("utf-8"))
+        captured_requests.append(body)
+        return httpx.Response(
+            200,
+            json={
+                "choices": [
+                    {
+                        "message": {
+                            "content": json.dumps(
+                                {
+                                    "mentions": [
+                                        {
+                                            "raw": "Sở Y tế",
+                                            "kind": "unit",
+                                            "evidence": [{"page": 1, "section": "noi_nhan", "raw": "- Sở Y tế;"}],
+                                        }
+                                    ],
+                                    "status": "complete",
+                                    "review_reasons": [],
+                                    "ocr_pages": [
+                                        {"page": i, "text": "Nơi nhận:\n- Sở Y tế;\n- Lưu: VT."}
+                                        for i in (1, 2, 3)
+                                    ],
+                                }
+                            )
+                        },
+                        "finish_reason": "stop",
+                    }
+                ]
+            },
+        )
+
+    provider = OpenRouterProvider(configured, client=httpx.AsyncClient(transport=httpx.MockTransport(handler)))
+
+    with tempfile.TemporaryDirectory() as tmp, \
+            patch("ai_document_sender.extraction._read_pages", return_value=scan_pages), \
+            patch.object(ocr, "_get_reader", return_value=LowConfReader()), \
+            patch.object(ocr, "_render_image", return_value=Image.new("RGB", (600, 850))), \
+            patch("ai_document_sender.extraction._render_pages", side_effect=lambda path, chosen, s: [{"page": p, "data_url": "data:image/png;base64,AA=="} for p in chosen]):
+        result = asyncio.run(extract_document(Path(tmp) / "scan5.pdf", provider, DocumentMetadata(document_id="g5"), configured))
+
+    assert "local_ocr_failed" not in result.review_reasons
+    assert "vision_page_limit" in result.review_reasons
+    assert len(result.audit["vision_pages_requested"]) == 3
+    assert len(result.audit["vision_pages_rendered"]) == 3
+    assert len(captured_requests) == 1
+    assert "response_format" not in captured_requests[0]
+    image_parts = [part for part in captured_requests[0]["messages"][1]["content"] if part["type"] == "image_url"]
+    assert len(image_parts) == 3
+    assert result.audit["provider"]["schema_mode"] == "prompt"
+    assert {"Sở Y tế", "VT"} <= {m.raw for m in result.mentions}
+
+
+def test_clean_stage1_recipient_text_preserved_and_wrapped_luu_colon_communes_dedup(settings):
+    from ai_document_sender.extraction import _deduplicate_mentions, _ground_model, _section_source
+    from ai_document_sender.mentions import extract_rule_mentions, make_mention
+    from ai_document_sender.provider import GeneratedExtraction
+
+    # 1. Clean Stage 1 left-column crop is NOT overwritten by full-page OCR transcription with signature bleed.
+    scan_page = {
+        "page": 1,
+        "width": 600.0,
+        "height": 850.0,
+        "text": "Kính gửi: Sở Tài chính\nNơi nhận:\n- Như trên; - PHÓ CHỦ TỊCH\n- Lưu: VT, N4, X5, T3.",
+        "recipient_text": "Nơi nhận:\n- Như trên;\n- Lưu: VT, N4, X5, T3.",
+        "recipient_bbox": [0.0, 300.0, 310.0, 850.0],
+        "local_ocr_low_confidence": True,
+        "ocr_lines": [
+            {"text": "Nơi nhận:", "bbox": [60.0, 305.0, 140.0, 325.0], "confidence": 0.90},
+            {"text": "- Như trên;", "bbox": [60.0, 330.0, 160.0, 350.0], "confidence": 0.89},
+            {"text": "- Lưu: VT, N4, X5, T3.", "bbox": [60.0, 360.0, 260.0, 380.0], "confidence": 0.84},
+        ],
+    }
+    payload = GeneratedExtraction.model_validate({
+        "mentions": [
+            {"raw": "Sở Tài chính", "kind": "unit", "evidence": [{"page": 1, "section": "kinh_gui", "raw": "Sở Tài chính"}]},
+            {"raw": "T3", "kind": "staff_code", "evidence": [{"page": 1, "section": "luu", "raw": "- Lưu: VT, N4, X5, T3."}]},
+        ],
+        "status": "complete",
+        "ocr_pages": [{"page": 1, "text": "Kính gửi: Sở Tài chính\nNơi nhận:\n- Như trên; - PHÓ CHỦ TỊCH\n- Lưu: VT, N4, X5, T3."}],
+    })
+    grounded, reasons = _ground_model(payload, [scan_page], [{"page": 1, "data_url": "data:image/png;base64,AA=="}])
+    assert not reasons
+    assert "PHÓ CHỦ TỊCH" not in scan_page["recipient_text"]
+    rules_after, _ = extract_rule_mentions([scan_page])
+    assert "Như trên" not in {m.raw for m in rules_after}
+    assert {"VT", "N4", "X5", "T3"} <= {m.raw for m in rules_after}
+
+    # 2. Wrapped Lưu continuation & recipient_text fallback + (b/c) dedup + colon-headers + semicolon wrap + HCTC, PVHCC split.
+    wrapped_page = {
+        "page": 1,
+        "text": (
+            "Kính gửi:\n"
+            "- UBND phường: Pleiku, Hội Phú;\n"
+            "- UBND xã: Đức Cơ, Ia Púch;\n"
+            "- Thống kê tỉnh; Thuế tỉnh;\n"
+            "Ngân hàng Nhà nước Chi nhánh Khu vực 11.\n"
+            "3. UBND xã: Đức Cơ, Ia Púch:\n"
+            "Phối hợp thực hiện.\n"
+            "Nơi nhận:\n"
+            "- Như trên;\n"
+            "- Chủ tịch UBND tỉnh (b/c);\n"
+            "- Lưu: VT, X , N ."
+        ),
+        "recipient_text": (
+            "Nơi nhận:\n"
+            "- Như trên;\n"
+            "- Chủ tịch UBND tỉnh (b/c);\n"
+            "- Lưu: VT, X5, N4,8,\n"
+            "X3, N2, N7, HCTC, PVHCC.\n"
+            "1 Ghi chú chân trang."
+        ),
+    }
+    luu_src = _section_source(wrapped_page, "luu")
+    assert "X3, N2, N7" in luu_src and "N4,8" in luu_src and "Ghi chú" not in luu_src
+
+    rules, _ = extract_rule_mentions([wrapped_page])
+    raw_qual = {(m.raw, m.qualifier, m.evidence[0].section) for m in rules}
+    assert ("Pleiku", "UBND phường", "kinh_gui") in raw_qual
+    assert ("Hội Phú", "UBND phường", "kinh_gui") in raw_qual
+    assert ("Đức Cơ", "UBND xã", "kinh_gui") in raw_qual
+    assert ("Ia Púch", "UBND xã", "kinh_gui") in raw_qual
+    assert ("Ngân hàng Nhà nước Chi nhánh Khu vực 11", None, "kinh_gui") in raw_qual
+    assert ("HCTC", None, "luu") in raw_qual
+    assert ("PVHCC", None, "luu") in raw_qual
+    assert ("X3", None, "luu") in raw_qual
+    assert ("UBND xã", None, "body_reference") not in raw_qual
+
+    model_dup = make_mention("Chủ tịch UBND tỉnh", "role", 1, "noi_nhan", "- Chủ tịch UBND tỉnh (b/c);", qualifier="b/c")
+    deduped = _deduplicate_mentions([model_dup], rules)
+    assert sum(1 for m in deduped if "Chủ tịch UBND tỉnh" in m.raw) == 1

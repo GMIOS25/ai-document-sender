@@ -158,3 +158,51 @@ async def test_unit_group_selection_plan_emits_even_via_learned_rule(settings):
     )
     assert {r.code for r in result.units} == {"H21.05", "H21.06", "G01.035.000.000"}
     assert [(g.group_id, g.sphere) for g in result.selection_plan] == [("group-cac-so", "int_province_comm")]
+
+
+@pytest.mark.asyncio
+async def test_dang_uy_cac_xa_phuong_native_group_and_tt_pvhcc(settings):
+    from ai_document_sender.recipient_groups import native_group
+
+    party_units = [
+        Recipient(
+            recipient_id=f"p_{i}",
+            source_id=f"p_{i}",
+            recipient_type="EXT_PROVINCE_UNIT",
+            name=f"Đảng ủy xã Mẫu {i}, tỉnh Gia Lai",
+            sphere="ext_province_comm",
+            code=f"A21.{20 + i}",
+        )
+        for i in range(1, 136)
+    ]
+    pvhcc = recipient("pvhcc", "Trung tâm Phục vụ hành chính công tỉnh Gia Lai", "H21.21.04")
+    comm1 = recipient("c_x1", "Xã Mẫu 1 - tỉnh Gia Lai", "H21.100")
+    registry = setup_registry(settings, pvhcc, comm1, *party_units)
+    members, selection = native_group("Đảng ủy các xã, phường", registry)
+    assert len(members) == 135
+    assert selection is None
+    filtered, _ = native_group("Đảng ủy các xã, phường trừ Mẫu 1", registry)
+    assert len(filtered) == 134 and all(r.code != "A21.21" for r in filtered)
+
+    res = await resolve_mentions(
+        Extraction(
+            mentions=[
+                Mention(mention_id="m_du", raw="Đảng ủy các xã, phường", kind="group", quantifier="all",
+                        evidence=[Evidence(raw="Đảng ủy các xã, phường", page=1, section="noi_nhan")]),
+                Mention(mention_id="m_tt", raw="TT.PVHCC", kind="unit",
+                        evidence=[Evidence(raw="TT.PVHCC", page=1, section="noi_nhan")]),
+            ],
+            status="complete",
+        ),
+        registry,
+        DocumentMetadata(document_id="doc-party", issuer="UBND tỉnh Gia Lai"),
+        "job", "hash",
+    )
+    assert len([u for u in res.units if u.code.startswith("A21.")]) == 135
+    assert "H21.21.04" in {u.code for u in res.units}
+    assert res.selection_plan == []
+    assert not res.unresolved
+
+    incomplete_registry = setup_registry(settings, pvhcc, *party_units[:10])
+    incomplete_members, _ = native_group("Đảng ủy các xã, phường", incomplete_registry)
+    assert incomplete_members == []

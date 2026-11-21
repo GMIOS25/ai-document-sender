@@ -18,7 +18,7 @@ KINH_GUI_PROSE = re.compile(
     r"Giao\s|Yêu cầu|UBND tỉnh\s+(?:nhận|tiếp tục|trân trọng|kính|có\s|đã\s|đề nghị)|"
     r"Ủy ban nhân dân\s+(?:tỉnh|thành phố)\b.*\b(?:nhận|trân trọng|kính|báo cáo|có ý kiến|tiếp tục|đã|đang|đề nghị|phúc đáp|gửi|chỉ đạo|thống nhất)\b|"
     r"Theo\s|Nhằm\s|Về\s|Ngày\s|Kính\s|Nội dung|Sau khi\s|Phúc đáp\b|Thưa\s|Trong thời gian\b|"
-    r"Thời gian\s+(?:qua|tới|gần đây)\b|Được sự\s|Phát triển\s|"
+    r"Thời gian\s+(?:qua|tới|gần đây)\b|Được sự\s|"
     r"Qua\s+(?:rà soát|nghiên cứu|kiểm tra|theo dõi|báo cáo)\b|Hiện nay\b|Triển khai\s|Vừa qua\b|Trân trọng\b|Nhận được\b|"
     r"(?:\d+|[IVXLCDM]+)\.\s)",
     re.I,
@@ -33,7 +33,7 @@ ROLE_START = re.compile(r"^(?:CT\b|CVP\b|PCT\b|PCTTT\b|PCVP\b|PVP\w*\b|Chủ t�
 GROUP = re.compile(r"\b(?:các|toàn bộ|lãnh đạo\s+VP\s*\+|lãnh đạo.*chuyên viên)\b", re.I)
 SINGLE_UNIT_CAC = re.compile(r"^(?:Ban\s+(?:Quản\s+lý|QL)(?:\s+dự\s+án)?|BQL)\s+(?:dự\s+án\s+)?các\b", re.I)
 BODY_LIST_HEADING = re.compile(r"(?im)^[ \t]*(?:[-–—•][ \t]*)?(?:[A-ZĐ]{1,12}[ \t]+){0,2}(?:DANH SÁCH|PHỤ LỤC(?:[ \t]+\d+)?)\b")
-BODY_TASK_HEAD = re.compile(r"(?m)^[ \t]*(\d+)\.[ \t]+([^\n:;]{2,120}):(?:\s|$)")
+BODY_TASK_HEAD = re.compile(r"(?m)^[ \t]*(\d+)\.[ \t]+([^\n:;]{2,120}(?::[ \t]+[^\n:;]{2,120})?):(?:\s|$)")
 BODY_TASK_UNIT = re.compile(
     r"^(?:Đề nghị\s+)?(?:(?:Giám đốc|Thủ trưởng|Chủ tịch)\s+)?"
     r"(?:Sở|Bộ Chỉ huy|Công an|Thanh tra|Thuế|Ban Quản lý|Ban QLDA|Trung tâm|Cục|Chi cục|UBND|Ủy ban nhân dân|Bảo hiểm|Kho bạc)\b",
@@ -118,21 +118,42 @@ def _entries(tail: str, section: str):
             current = ""
             break
         if current and re.match(r"Lưu\s*(?::|VT)", current, re.I):
-            if not re.fullmatch(
-                r"[\s,.;()/\-]+|(?:[\s,.;()/\-]*(?:[TVNCX]{1,2}\d{0,2}|VT|BTCD|PVHCC|KSTT|HSVV(?:-TD)?|\d{1,2})(?:[\s,;().\-/]+(?:[TVNCX]{1,2}\d{0,2}|VT|BTCD|PVHCC|KSTT|HSVV(?:-TD)?|\d{1,2}))*[\s,.;()]*)",
-                line,
-                re.I,
+            _luu_tok = r"(?:[TVNCX]{1,2}\d{0,2}|VT|BTCD|PVHCC|TT\.?PVHCC|KSTT|HSVV(?:-TD)?|HCTC|HCQT|QTTV|P\.?\s*QT-?TV|P\.?QTTV|XDCT|NNMT|KTTH|KGVX|NC|LĐVP|CVP|PVP\w*|\d{1,2})"
+            if not (
+                (current.rstrip().endswith(",") and not re.match(r"^\d+\s+\S", line) and not is_prose and len(line) <= 60)
+                or re.fullmatch(
+                    rf"[\s,.;()/\-]+|(?:[\s,.;()/\-]*{_luu_tok}(?:[\s,;().\-/]+{_luu_tok})*[\s,.;()]*)",
+                    line,
+                    re.I,
+                )
             ):
                 entries.append(current)
                 current = ""
                 break
-        if current and not re.search(r"[.;]$", current):
+        if current and (
+            not re.search(r"[.;]$", current)
+            or (
+                section in {"kinh_gui", "noi_nhan"}
+                and current.endswith(".")
+                and re.search(r"(?:^|[\s.:,;-])[A-ZĐ]\.$", current)
+                and not is_prose
+            )
+        ):
             current += " " + line
         elif section in {"kinh_gui", "noi_nhan"} and current and current.endswith(";") and not is_prose and not re.match(r"Lưu\s*(?::|VT)", current, re.I):
             next_is_bullet = index + 1 < len(lines) and bool(re.match(r"^[-–—•]\s*", normalized(lines[index + 1])))
             if ":" in current and (line.endswith((";", ".")) or len(line) <= 85 or next_is_bullet):
                 current += " " + line
             elif line.endswith(";") or next_is_bullet:
+                entries.append(current)
+                current = line
+            elif (
+                line.endswith(".")
+                and not line.endswith(":")
+                and len(line) <= 85
+                and not SENTENCE_BODY_CUES.search(line)
+                and not re.search(r"\b(?:như\s+sau|kính\s+đề\s+nghị|trân\s+trọng|ý\s+kiến|chỉ\s+đạo|thực\s+hiện|triển\s+khai|về\s+việc)\b", line, re.I)
+            ):
                 entries.append(current)
                 current = line
             else:
@@ -167,6 +188,12 @@ def _split_recipient(entry, page, section, scope):
         residual = re.sub(r"(?<!\w)(?:VT|[TVNCX]\d{1,2})(?!\w)", "", expanded_tail, flags=re.I)
         residual = re.sub(r"\([^)]*\)", "", residual).strip(" ,.;")
         if residual:
+            if "," in residual and not re.search(r"\b(?:HSVV|Long)\b", residual, re.I):
+                parts = [p.strip(" .;") for p in residual.split(",") if p.strip(" .;")]
+                if len(parts) >= 2 and all(len(p) >= 2 and not re.fullmatch(r"[IVX]{1,4}", p) for p in parts):
+                    for part in parts:
+                        output.append(make_mention(part, "unknown", page, "luu", entry, organization_scope=scope))
+                    return output
             output.append(make_mention(residual, "unknown", page, "luu", entry, organization_scope=scope))
         return output
 
@@ -174,13 +201,21 @@ def _split_recipient(entry, page, section, scope):
         return [make_mention(entry, "reference", page, section, references=[entry], organization_scope=scope)]
 
     # Expand explicit enumerations but retain the parent phrase as evidence/context.
-    batch = re.match(r"^(Các\s+Ban\s+QLDA|Các\s+[Ss]ở(?:\s*,\s*(?:ban\s*,\s*)?ngành)?|[Ss]ở|UBND các xã|UBND các phường)\s*:\s*(.+)$", entry, re.I)
+    batch = re.match(
+        r"^(Các\s+Ban\s+QLDA|Các\s+[Ss]ở(?:\s*,\s*(?:ban\s*,\s*)?ngành)?|[Ss]ở"
+        r"|Đảng\s+ủy\s+(?:các\s+)?(?:xã|phường)"
+        r"|(?:UBND|Ủy\s+ban\s+nhân\s+dân)\s+(?:các\s+)?(?:xã|phường))\s*:\s*(.+)$",
+        entry,
+        re.I,
+    )
     if batch:
         prefix = batch.group(1).lower()
         if "ban qlda" in prefix:
             qualifier = "Ban QLDA"
         elif "sở" in prefix:
             qualifier = "Sở"
+        elif "đảng ủy" in prefix:
+            qualifier = "Đảng ủy xã" if "xã" in prefix else "Đảng ủy phường"
         elif "xã" in prefix:
             qualifier = "UBND xã"
         else:
@@ -193,11 +228,23 @@ def _split_recipient(entry, page, section, scope):
                 values,
                 flags=re.I,
             )
-        for token in re.split(r"[;,]\s*", values):
-            token = token.replace("\x00", ",")
-            if token.strip():
+        splitter = r"[;,]\s*|\s+và\s+" if qualifier.startswith(("UBND ", "Đảng ủy ")) else r"[;,]\s*"
+        for token in re.split(splitter, values, flags=re.I):
+            token = token.replace("\x00", ",").strip()
+            if qualifier.startswith(("UBND ", "Đảng ủy ")):
+                token = re.sub(r"^(?:xã|phường)\s+", "", token, flags=re.I).strip()
+            if token:
                 output.append(make_mention(token, "unit", page, section, entry, references=[entry], qualifier=qualifier, organization_scope=scope))
         return output
+
+    if re.match(r"^Đảng\s+ủy\s+(?:xã|phường)\s+.+,\s*(?:xã|phường)\s+", entry, re.I):
+        parts = [p.strip(" .;") for p in re.split(r"\s*,\s*", entry) if p.strip(" .;")]
+        if len(parts) >= 2 and all(re.match(r"^(?:Đảng\s+ủy\s+)?(?:xã|phường)\s+\S", p, re.I) for p in parts):
+            results = []
+            for p in parts:
+                val = p if re.match(r"^Đảng\s+ủy\b", p, re.I) else f"Đảng ủy {p}"
+                results.append(make_mention(val, "unit", page, section, entry, references=[entry], organization_scope=scope))
+            return results
 
     if ";" in entry and ":" not in entry:
         parts = [p.strip() for p in re.split(r"\s*;\s*", entry) if p.strip()]
@@ -282,13 +329,26 @@ def _body_task_mentions(pages, source_page, existing_mentions, scope):
         if not BODY_TASK_UNIT.match(actor) or BODY_TASK_DISALLOWED.search(actor):
             continue
         page_no = next((pg for left, right, pg in ranges if left <= match.start() < right), source_page)
+        line_ev = Evidence(page=page_no, section="body_reference", raw=normalized(match.group(0).rstrip()))
+        if re.match(r"^(?:Các\s+Ban\s+QLDA|Các\s+[Ss]ở(?:\s*,\s*(?:ban\s*,\s*)?ngành)?|[Ss]ở|Đảng\s+ủy\s+(?:các\s+)?(?:xã|phường)|(?:UBND|Ủy\s+ban\s+nhân\s+dân)\s+(?:các\s+)?(?:xã|phường))\s*:", actor, re.I):
+            for item in _split_recipient(actor, page_no, "body_reference", scope):
+                k = dedup_key(f"{item.qualifier} {item.raw}" if item.qualifier else item.raw)
+                k_raw = dedup_key(item.raw)
+                if not k or k in seen_keys or k_raw in seen_keys:
+                    continue
+                seen_keys.add(k)
+                seen_keys.add(k_raw)
+                item.evidence = [line_ev, nn_ev]
+                item.references = ["Như trên"]
+                item.mention_id = stable_id(item.raw, item.kind, item.evidence, item.references)
+                results.append(item)
+            continue
         protected = re.sub(r"Văn\s+hóa,\s*Thể\s+thao\s+và\s+Du\s+lịch", lambda m: m[0].replace(",", "\x00"), actor, flags=re.I)
         parts = re.split(
             r"\s*,\s*|\s+và\s+(?=(?:Sở|Ban|UBND|Ủy ban|Công an|Bộ Chỉ huy|Thanh tra|Trung tâm|Cục|Chi cục|xã|phường)\b)",
             protected,
             flags=re.I,
         )
-        line_ev = Evidence(page=page_no, section="body_reference", raw=normalized(match.group(0).rstrip()))
         for part in parts:
             tok = part.replace("\x00", ",").strip()
             tok = re.sub(r"^Đề nghị\s+", "", tok, flags=re.I).strip()

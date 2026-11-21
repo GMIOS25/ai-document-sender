@@ -496,3 +496,72 @@ async def test_stt490_ban_qlda_and_colonless_communes_resolve_cleanly():
     assert "UBND các xã Ia Pa, Ia Tul" not in unresolved_raws
     assert "UBND các xã, phường có liên quan" not in unresolved_raws
     assert "commune_list_unverified" not in {u.reason for u in res_490.unresolved}
+
+
+async def test_four_points_lookup_groups_learning_gates_and_archival_codes_resolve_cleanly():
+    settings = vpub_settings()
+    registry = Registry(settings)
+    registry.tenant_id = "vpub"
+
+    text = (
+        "Kính gửi:\n"
+        "- Đảng ủy UBND tỉnh;\n"
+        "- Thường trực Đảng ủy UBND tỉnh;\n"
+        "- Ban Thường vụ Đảng ủy UBND tỉnh;\n"
+        "- Thủ trưởng các sở, ban, ngành thuộc tỉnh;\n"
+        "- Các sở, ban, ngành có liên quan;\n"
+        "- Chủ tịch UBND các xã, phường;\n"
+        "- UBND phường: Pleiku, Hội Phú;\n"
+        "- UBND xã: Đức Cơ, Ia Púch;\n"
+        "- Đảng ủy các xã: Chư Prông, Ia Boòng;\n"
+        "- Đảng ủy phường Pleiku, phường Quy Nhơn.\n"
+        "3. UBND xã: Đức Cơ, Ia Púch:\n"
+        "Triển khai thực hiện.\n"
+        "Nơi nhận:\n"
+        "- Như trên;\n"
+        "- Đảng ủy UBND tỉnh (báo cáo);\n"
+        "- Ban Thường vụ Đảng ủy UBND tỉnh;\n"
+        "- Đảng ủy các xã, phường;\n"
+        "- UBND các phường, xã;\n"
+        "- CVP, PCVNN;\n"
+        "- Ban Quản lý các DA đầu tư xây dựng tỉnh;\n"
+        "- TT.PVHCC;\n"
+        "- Lưu: VT, QTTV, HCTC, P. QT-TV, P.QTTV.\n"
+    )
+    mentions, _ = extract_rule_mentions([{"page": 1, "text": text}], {"issuer": "UBND tỉnh Gia Lai"})
+    raws = [m.raw for m in mentions]
+    assert "UBND xã" not in raws
+    assert {"Pleiku", "Hội Phú", "Đức Cơ", "Ia Púch", "QTTV", "HCTC", "P. QT-TV", "P.QTTV", "PCVNN"} <= set(raws)
+
+    res = await resolve_mentions(
+        Extraction(mentions=mentions, pages=[{"page": 1, "text": text}], status="complete"),
+        registry,
+        DocumentMetadata(document_id="doc-4points", sign_number="13967/UBND-KTTH", issuer="UBND tỉnh Gia Lai"),
+        "job-4points",
+        "sha-4points",
+    )
+    unit_codes = {u.code for u in res.units}
+    people_ids = {p.recipient_id for p in res.people}
+    unresolved_raws = {u.raw for u in res.unresolved}
+
+    assert "A21.07" in unit_codes
+    assert "H21.38" in unit_codes
+    assert "H21.21.04" in unit_codes
+    assert expected_20_provincial_codes() <= unit_codes
+    assert {"H21.106", "H21.105", "H21.126", "H21.153"} <= unit_codes
+    assert {"A21.32", "A21.33", "A21.96", "A21.98"} <= unit_codes
+    assert len([c for c in unit_codes if c.startswith("A21.") and len(c.split(".")) == 2 and int(c.split(".")[1]) >= 21]) == 135
+    assert len([c for c in unit_codes if c.startswith("H21.") and len(c.split(".")) == 2 and int(c.split(".")[1]) >= 100]) == 135
+    # Nguyễn Ngọc Nguyên (HCTC), Nguyễn Trung Chiến (QTTV/P.QT-TV), Trần Đình Triết (PCVNN)
+    assert {"internal_584", "internal_355", "internal_299"} <= people_ids
+    assert "Đảng ủy UBND tỉnh" not in unresolved_raws
+    assert "Thường trực Đảng ủy UBND tỉnh" not in unresolved_raws
+    assert "Ban Thường vụ Đảng ủy UBND tỉnh" not in unresolved_raws
+    assert "Đảng ủy UBND tỉnh (báo cáo)" not in unresolved_raws
+    assert "Đảng ủy các xã, phường" not in unresolved_raws
+    assert "Chủ tịch UBND các xã, phường" not in unresolved_raws
+    assert "UBND các phường, xã" not in unresolved_raws
+    assert "Ban Quản lý các DA đầu tư xây dựng tỉnh" not in unresolved_raws
+    assert "PCVNN" not in unresolved_raws
+    assert "HCTC" not in unresolved_raws
+    assert "QTTV" not in unresolved_raws
