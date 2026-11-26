@@ -170,6 +170,10 @@ def _deduplicate_mentions(model_mentions: list[Mention], rules: list[Mention]) -
         if any(item_keys & _keys(r) for r in same_section_rules):
             continue
         item_compact = compact(item.raw)
+        if item.raw.count("(") != item.raw.count(")") and item_compact and any(
+            item_compact in compact(r.raw) for r in same_section_rules
+        ):
+            continue
         if ("," in item.raw or ";" in item.raw) and sum(
             1 for r in same_section_rules
             if compact(r.raw) and compact(r.raw) != item_compact and compact(r.raw) in item_compact

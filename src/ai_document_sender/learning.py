@@ -120,6 +120,7 @@ def learned_alias(registry, raw, metadata, mention, require_qualifier=False):
     if reason:
         return {'verification_status': 'pending', 'pending_reason': reason}
     return {'verification_status': 'verified', 'member_ids': [r.recipient_id for r in members],
+            'has_doc_context': bool(rule.get('document_context') and rule['document_context'].get('sign_number')),
             'source_rows': rule.get('source_rows', []), 'source': policy.get('source')}
 
 

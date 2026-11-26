@@ -30,7 +30,7 @@ def expected_50_vpub_member_ids(db_path: Path) -> set[str]:
             f"SELECT id FROM internal_nodes WHERE type='alias' AND parent_id IN ({','.join('?' * len(depts))})",
             depts,
         ).fetchall()
-    return {f"internal_{row[0]}" for row in rows if row[0] != 334}
+    return {f"internal_{row[0]}" for row in rows}
 
 
 def expected_20_provincial_codes() -> set[str]:
@@ -61,8 +61,8 @@ async def test_vpub_btcd_ldcv_and_20_unit_rules():
     settings = vpub_settings()
     registry = Registry(settings)
     registry.tenant_id = "vpub"
-    expected_50 = expected_50_vpub_member_ids(settings.lookup_db)
-    assert len(expected_50) == 50
+    expected_51 = expected_50_vpub_member_ids(settings.lookup_db)
+    assert len(expected_51) == 51
 
     for alias in ("BTCD", "Ban TCD tỉnh", "Ban Tiếp công dân tỉnh", "Ban Tiếp công dân", "HSVV-TD", "HSVV, Vinh", "Long, , HSVV-TD"):
         for sec in ("kinh_gui", "noi_nhan", "luu"):
@@ -106,8 +106,8 @@ async def test_vpub_btcd_ldcv_and_20_unit_rules():
             "job",
             "sha",
         )
-        assert {r.recipient_id for r in result.people} == expected_50, f"{alias} got {len(result.people)}"
-        assert "internal_334" not in {r.recipient_id for r in result.people}
+        assert {r.recipient_id for r in result.people} == expected_51, f"{alias} got {len(result.people)}"
+        assert "internal_334" in {r.recipient_id for r in result.people}
 
     expected_20 = expected_20_provincial_codes()
     for alias in (
@@ -153,6 +153,7 @@ async def test_vpub_btcd_ldcv_and_20_unit_rules():
 async def test_vpub_kho_bac_ct_and_project_boards():
     settings = vpub_settings()
     registry = Registry(settings)
+    registry.tenant_id = "vpub"
 
     m_xiv = make_mention("Kho bạc Nhà nước Khu vực XIV", "unit", 1, "noi_nhan", organization_scope="UBND tỉnh Gia Lai")
     res_xiv = await resolve_mentions(
@@ -219,7 +220,7 @@ async def test_vpub_kho_bac_ct_and_project_boards():
                 "job",
                 "sha",
             )
-            assert {r.code for r in res_tk.units} == {"H21.98", "G12.99.61"}
+            assert {r.code for r in res_tk.units} == {"H21.98"}
 
     res_cuc2 = await resolve_mentions(
         Extraction(mentions=[make_mention("Cục II - Thanh tra Chính phủ", "unit", 1, "noi_nhan", organization_scope="UBND tỉnh Gia Lai")], status="complete"),
@@ -247,8 +248,18 @@ async def test_vpub_kho_bac_ct_and_project_boards():
             "job",
             "sha",
         )
-        assert {r.recipient_id for r in res_pv.people} == {"internal_500"}
+        assert not res_pv.people
         assert [r.code for r in res_pv.units] == ["H21.21.04"]
+
+        res_pv_dept = await resolve_mentions(
+            Extraction(mentions=[make_mention(pvhcc_raw, "unit", 1, sec, organization_scope="UBND tỉnh Gia Lai")], status="complete"),
+            registry,
+            DocumentMetadata(document_id="doc-pv-dept", sign_number="13910/UBND-PVHCC", issuer="UBND tỉnh Gia Lai"),
+            "job",
+            "sha",
+        )
+        assert {r.recipient_id for r in res_pv_dept.people} == {"internal_500"}
+        assert [r.code for r in res_pv_dept.units] == ["H21.21.04"]
 
     res_isom = await resolve_mentions(
         Extraction(mentions=[make_mention("Các thành viên Ban Chỉ đạo phục vụ tổ chức Hội nghị ISOM – APEC 2027 tại Gia Lai", "group", 1, "kinh_gui", organization_scope="UBND tỉnh Gia Lai")], status="complete"),

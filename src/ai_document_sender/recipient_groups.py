@@ -26,21 +26,63 @@ LIST_HEADS = {
     "ubnd cac xa": "xa", "uy ban nhan dan cac xa": "xa", "ubnd xa": "xa", "uy ban nhan dan xa": "xa", "cac xa": "xa",
     "ubnd cac phuong": "phuong", "uy ban nhan dan cac phuong": "phuong", "ubnd phuong": "phuong", "uy ban nhan dan phuong": "phuong", "cac phuong": "phuong",
 }
+COMBINED_PARTY_LIST_HEADS = {
+    "dang uy ubnd cac xa phuong": None, "dang uy ubnd cac phuong xa": None,
+    "dang uy ubnd cac xa": "xa", "dang uy ubnd cac phuong": "phuong",
+    "dang uy ubnd xa": "xa", "dang uy ubnd phuong": "phuong",
+    "bi thu chu tich ubnd cac xa phuong": None, "bi thu chu tich ubnd cac phuong xa": None,
+    "bi thu chu tich ubnd cac xa": "xa", "bi thu chu tich ubnd cac phuong": "phuong",
+    "bi thu chu tich ubnd xa": "xa", "bi thu chu tich ubnd phuong": "phuong",
+    "bi thu dang uy chu tich ubnd cac xa phuong": None, "bi thu dang uy chu tich ubnd cac phuong xa": None,
+    "bi thu dang uy chu tich ubnd cac xa": "xa", "bi thu dang uy chu tich ubnd cac phuong": "phuong",
+    "bi thu dang uy chu tich ubnd xa": "xa", "bi thu dang uy chu tich ubnd phuong": "phuong",
+}
 COLONLESS_LIST_PREFIX = re.compile(
-    r"^\s*(?P<head>(?:(?:Toàn\s+bộ|Tất\s+cả)\s+)?(?:(?:Ủy\s+ban\s+nhân\s+dân|UBND)\s+)?các\s+"
+    r"^\s*(?P<head>(?:(?:Toàn\s+bộ|Tất\s+cả)\s+)?(?:(?:Ủy\s+ban\s+nhân\s+dân|UBND)\s+)?(?:các\s+)?"
     r"(?:xã\s*,?\s*phường|phường\s*,?\s*xã|xã|phường))\s+(?P<tail>.+)$",
+    re.I,
+)
+COMBINED_COLONLESS_PREFIX = re.compile(
+    r"^\s*(?P<head>(?:Đảng\s+ủy|Bí\s+thư(?:\s+Đảng\s+ủy)?)\s*,\s*(?:Chủ\s+tịch\s+)?(?:Ủy\s+ban\s+nhân\s+dân|UBND)\s+"
+    r"(?:(?:các\s+)?(?:xã\s*,?\s*phường|phường\s*,?\s*xã|xã|phường)))\s+(?P<tail>.+)$",
     re.I,
 )
 
 
+def _combined_communes(tail, registry, commune_type=None):
+    ubnd = _communes(tail, registry.by_id.values(), commune_type)
+    party = _match_party_communes(tail, _party_commune_members(registry), commune_type)
+    if not ubnd or not party:
+        return []
+    merged = {r.recipient_id: r for r in ubnd + party}
+    return list(merged.values())
+
+
 def local_commune_list(raw, registry):
-    head, sep, tail = raw.partition(":")
+    cleaned = re.sub(
+        r"^(\s*(?:Ủy\s+ban\s+nhân\s+dân|UBND))\s+tỉnh\s+(?=(?:xã|phường|các\s+(?:xã|phường))\b)",
+        r"\1 ",
+        unicodedata.normalize("NFC", raw),
+        flags=re.I,
+    )
+    head, sep, tail = cleaned.partition(":")
     selector = normalize(head)
     if sep:
+        if selector in COMBINED_PARTY_LIST_HEADS:
+            return _combined_communes(tail, registry, COMBINED_PARTY_LIST_HEADS[selector])
         if selector not in COMMUNE_SELECTORS and selector not in LIST_HEADS:
             return None
         return _communes(tail, registry.by_id.values(), LIST_HEADS.get(selector))
-    match = COLONLESS_LIST_PREFIX.match(unicodedata.normalize("NFC", raw))
+    comb_match = COMBINED_COLONLESS_PREFIX.match(cleaned)
+    if comb_match:
+        tail_clean = comb_match.group("tail").strip()
+        if re.match(r"^(?:(?:ngoại\s+)?trừ|ven\s+biển|liên\s+quan|có\s+liên\s+quan|\d)\b", tail_clean, re.I):
+            return None
+        norm_head = normalize(comb_match.group("head"))
+        if norm_head in COMBINED_PARTY_LIST_HEADS:
+            matched = _combined_communes(tail_clean, registry, COMBINED_PARTY_LIST_HEADS[norm_head])
+            return matched or None
+    match = COLONLESS_LIST_PREFIX.match(cleaned)
     if not match:
         return None
     tail_clean = match.group("tail").strip()
@@ -49,15 +91,41 @@ def local_commune_list(raw, registry):
     norm_head = normalize(match.group("head"))
     if norm_head not in COMMUNE_SELECTORS and norm_head not in LIST_HEADS:
         return None
+    if "cac" not in norm_head.split() and not re.search(r"[,;]|\bvà\b", tail_clean, re.I):
+        return None
     matched = _communes(tail_clean, registry.by_id.values(), LIST_HEADS.get(norm_head))
     return matched or None
 
 
-def _communes(tail, recipients, commune_type=None):
+def _lookup_commune_tokens(tail, candidates, strip_prefix_re):
     names = re.split(r"[,;\n]+|\s+và\s+", tail, flags=re.I)
     names = [name for name in names if name.strip(" .\t")]
     if not names:
         return []
+    matched = {}
+    for value in names:
+        key = re.sub(strip_prefix_re, "", normalize(value).strip(".")).strip()
+        hits = candidates.get(key, [])
+        if len(hits) == 1:
+            matched[hits[0].recipient_id] = hits[0]
+            continue
+        words_list = key.split()
+        split_hits = None
+        for idx in range(1, len(words_list)):
+            k1 = re.sub(strip_prefix_re, "", " ".join(words_list[:idx])).strip()
+            k2 = re.sub(strip_prefix_re, "", " ".join(words_list[idx:])).strip()
+            h1, h2 = candidates.get(k1, []), candidates.get(k2, [])
+            if len(h1) == 1 and len(h2) == 1:
+                split_hits = (h1[0], h2[0])
+                break
+        if split_hits is None:
+            return []
+        for item in split_hits:
+            matched[item.recipient_id] = item
+    return list(matched.values())
+
+
+def _communes(tail, recipients, commune_type=None):
     candidates = {}
     for r in recipients:
         if r.sphere != "int_province_comm":
@@ -72,14 +140,7 @@ def _communes(tail, recipients, commune_type=None):
         short = re.sub(r"^(?:xa|phuong) ", "", full)
         for key in {full, short}:
             candidates.setdefault(key, []).append(r)
-    matched = {}
-    for value in names:
-        key = re.sub(r"^ubnd ", "", normalize(value).strip("."))
-        matches = candidates.get(key, [])
-        if len(matches) != 1:
-            return []
-        matched[matches[0].recipient_id] = matches[0]
-    return list(matched.values())
+    return _lookup_commune_tokens(tail, candidates, r"^ubnd\s+")
 
 
 def _party_commune_members(registry):
@@ -94,25 +155,16 @@ def _party_commune_members(registry):
     return sorted(members, key=lambda r: tuple(int(p) if p.isdigit() else p for p in re.split(r"(\d+)", r.code)))
 
 
-def _match_party_communes(tail, members):
-    names = re.split(r"[,;\n]+|\s+và\s+", tail, flags=re.I)
-    names = [name for name in names if name.strip(" .\t")]
-    if not names:
-        return []
+def _match_party_communes(tail, members, commune_type=None):
     candidates = {}
     for r in members:
         name = re.sub(r"^(?:dang uy )?", "", re.sub(r" (?:tinh )?gia lai$", "", normalize(r.name))).strip()
+        if commune_type and not name.startswith(commune_type + " "):
+            continue
         short = re.sub(r"^(?:xa|phuong) ", "", name)
         for key in {name, short}:
             candidates.setdefault(key, []).append(r)
-    matched = {}
-    for value in names:
-        key = re.sub(r"^(?:dang uy )?", "", normalize(value).strip("."))
-        hits = candidates.get(key, [])
-        if len(hits) != 1:
-            return []
-        matched[hits[0].recipient_id] = hits[0]
-    return list(matched.values())
+    return _lookup_commune_tokens(tail, candidates, r"^dang uy\s+")
 
 
 def native_group(raw, registry):

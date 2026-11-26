@@ -15,7 +15,7 @@ HEADERS = {
 SIGNATURE = re.compile(r"^(?:(?:KT|TL|TM|T\s*M|TUQ)(?:\s*\.|\s*$)|CHỦ TỊCH\b|PHÓ CHỦ TỊCH\b|PHÓ CHÁNH\b|CHÁNH VĂN\b)")
 KINH_GUI_PROSE = re.compile(
     r"^(?:Thực hiện|Xét\s|Căn cứ|Tiếp theo|Tiếp tục\s|Tiếp nối\s|Để\s|Thay mặt|Trên cơ sở|"
-    r"Giao\s|Yêu cầu|UBND tỉnh\s+(?:nhận|tiếp tục|trân trọng|kính|có\s|đã\s|đề nghị)|"
+    r"Giao\s+(?!thông\b)|Yêu cầu|Tôi\s+tên\s*[:：]|Tôi\s+là\b|UBND tỉnh\s+(?:nhận|tiếp tục|trân trọng|kính|có\s|đã\s|đề nghị)|"
     r"Ủy ban nhân dân\s+(?:tỉnh|thành phố)\b.*\b(?:nhận|trân trọng|kính|báo cáo|có ý kiến|tiếp tục|đã|đang|đề nghị|phúc đáp|gửi|chỉ đạo|thống nhất)\b|"
     r"Theo\s|Nhằm\s|Về\s|Ngày\s|Kính\s|Nội dung|Sau khi\s|Phúc đáp\b|Thưa\s|Trong thời gian\b|"
     r"Thời gian\s+(?:qua|tới|gần đây)\b|Được sự\s|"
@@ -84,17 +84,22 @@ def _entries(tail: str, section: str):
             continue
         body_candidate = re.sub(r"^[-–—•]\s*", "", line)
         bullet = re.match(r"^[-–—•]\s*(.*)", line)
+        in_open_paren = bool(current and current.count("(") > current.count(")") and not bullet)
+        outside_open = (
+            re.sub(r"^[^)]*\)", "", line) if (in_open_paren and ")" in line)
+            else ("" if in_open_paren else line)
+        )
+        line_outside_parens = re.sub(r"\([^)]*(?:\)|$)", "", outside_open).strip()
         is_prose = bool(KINH_GUI_PROSE.match(body_candidate))
-        if (
-            is_prose
-            and section == "kinh_gui"
-            and not bullet
-            and body_candidate[:1].islower()
-            and current
-            and not re.search(r"[.;]$", current)
-            and not SENTENCE_BODY_CUES.search(body_candidate)
-        ):
-            is_prose = False
+        if is_prose and section == "kinh_gui" and not bullet and current:
+            if in_open_paren and not SENTENCE_BODY_CUES.search(line_outside_parens):
+                is_prose = False
+            elif (
+                body_candidate[:1].islower()
+                and not re.search(r"[.;]$", current)
+                and not SENTENCE_BODY_CUES.search(body_candidate)
+            ):
+                is_prose = False
         if section == "kinh_gui" and is_prose:
             if current:
                 entries.append(current)
@@ -113,7 +118,12 @@ def _entries(tail: str, section: str):
                 current = ""
                 break
             continue
-        if section == "kinh_gui" and current and not current.endswith((":", ",")) and SENTENCE_BODY_CUES.search(line):
+        if (
+            section == "kinh_gui"
+            and current
+            and not current.endswith((":", ","))
+            and SENTENCE_BODY_CUES.search(line_outside_parens)
+        ):
             entries.append(current)
             current = ""
             break
@@ -168,6 +178,34 @@ def _entries(tail: str, section: str):
     if current:
         entries.append(current)
     return [normalized(entry).strip(" ;.") for entry in entries if entry.strip(" ;.")]
+
+
+_NON_SO_UNIT = re.compile(
+    r"^(?:Công\s+an|Công\s+ty|Cty|Bộ\s+Chỉ\s+huy|Ban\s+|Trung\s+tâm|Chi\s+cục|Cục\s+|"
+    r"Thuế\s+|Kho\s+bạc|Ngân\s+hàng|Trường\s+|Bệnh\s+viện|Báo\s+|Đài\s+|Viện\s+|"
+    r"UBND\b|Ủy\s+ban|Tỉnh\s+đoàn|Hội\s+|Đảng\s+ủy|Văn\s+phòng|Thanh\s+tra\s+tỉnh)\b",
+    re.I,
+)
+
+
+def _split_top_level_commas(value: str) -> list[str]:
+    parts, buf, depth = [], [], 0
+    for ch in value:
+        if ch == "(":
+            depth += 1
+        elif ch == ")" and depth > 0:
+            depth -= 1
+        if ch == "," and depth == 0:
+            tok = "".join(buf).strip()
+            if tok:
+                parts.append(tok)
+            buf = []
+        else:
+            buf.append(ch)
+    tail = "".join(buf).strip()
+    if tail:
+        parts.append(tail)
+    return parts
 
 
 def _split_recipient(entry, page, section, scope):
@@ -234,7 +272,8 @@ def _split_recipient(entry, page, section, scope):
             if qualifier.startswith(("UBND ", "Đảng ủy ")):
                 token = re.sub(r"^(?:xã|phường)\s+", "", token, flags=re.I).strip()
             if token:
-                output.append(make_mention(token, "unit", page, section, entry, references=[entry], qualifier=qualifier, organization_scope=scope))
+                item_qualifier = None if (qualifier == "Sở" and _NON_SO_UNIT.match(token)) else qualifier
+                output.append(make_mention(token, "unit", page, section, entry, references=[entry], qualifier=item_qualifier, organization_scope=scope))
         return output
 
     if re.match(r"^Đảng\s+ủy\s+(?:xã|phường)\s+.+,\s*(?:xã|phường)\s+", entry, re.I):
@@ -280,7 +319,9 @@ def _split_recipient(entry, page, section, scope):
             return tokens
 
     if ROLE_START.match(entry) and "," in entry:
-        return [make_mention(token, "role", page, section, entry, organization_scope=scope) for token in entry.split(",") if token.strip()]
+        top_parts = _split_top_level_commas(entry)
+        if len(top_parts) > 1:
+            return [make_mention(token, "role", page, section, entry, organization_scope=scope) for token in top_parts]
 
     if re.match(r"PCT\b", entry, re.I) and re.search(r"\s+và\s+", entry, re.I):
         chunks = re.split(r"\s+và\s+", entry, flags=re.I)

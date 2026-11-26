@@ -15,6 +15,7 @@ VPUB_DEPARTMENT_HEADS = {
     "XDCT": "dungncq@vpub.gialai.gov.vn",
     "NC": "oanhh@vpub.gialai.gov.vn",
     "KGVX": "danhnh@vpub.gialai.gov.vn",
+    "PVHCC": "linhld@vpub.gialai.gov.vn",
 }
 BTCD_STAFF_EMAILS = (
     "canhvm@vpub.gialai.gov.vn",
@@ -27,7 +28,7 @@ BTCD_STAFF_EMAILS = (
 BTCD_UNIT_CODE = "H21.21.01"
 SO_NGOAI_VU_CODE = "H21.26"
 FOREIGN_SIGNAL_RE = re.compile(
-    r"AUSTRALIA|Hàn Quốc|Cộng hòa Pháp|Yours sincerely|Kwon Hee|Charles Darwin|Darwin|Sydney|AgTech|HanaTour|ĐSQ\s+Pháp|Đại sứ quán",
+    r"AUSTRALIA|Hàn Quốc|Cộng hòa Pháp|Trung Quốc|Cộng hòa Nhân dân Trung Hoa|Bồ Đào Nha|Yours sincerely|Kwon Hee|Charles Darwin|Darwin|Sydney|AgTech|HanaTour|ĐSQ\s+Pháp|Đại sứ quán",
     re.I,
 )
 COOPERATION_SIGNAL_RE = re.compile(
@@ -261,6 +262,12 @@ async def resolve_mentions(extraction, registry, metadata, job_id, input_sha256,
                     group_selections[selection.group_id] = selection
             elif not candidates:
                 reason = "missing_group_membership"
+        elif learned and learned.get("has_doc_context") and learned.get("member_ids") and mention.kind != "reference" and learned.get("verification_status") == "verified":
+            candidates = [registry.by_id[rid] for rid in learned["member_ids"]]
+            method = "verified_sheet_alias"
+            result.audit.setdefault("learned_aliases", []).append({
+                "mention_id": mention.mention_id, "source_rows": learned.get("source_rows", []),
+                "source": learned.get("source")})
         elif btcd_policy is not None:
             candidates, method = btcd_policy
         elif learned and learned.get('member_ids') and mention.kind != 'reference' and learned.get('verification_status') == 'verified':
@@ -433,7 +440,7 @@ async def resolve_mentions(extraction, registry, metadata, job_id, input_sha256,
             recipient.mention_ids.append(mention.mention_id)
             recipient.evidence.extend(mention.evidence)
     if getattr(registry, "tenant_id", None) == "vpub":
-        suffix_match = re.search(r"/UBND-(KTTH|NNMT|XDCT|NC|KGVX)\b", metadata.sign_number or "", re.I)
+        suffix_match = re.search(r"/UBND-(KTTH|NNMT|XDCT|NC|KGVX|PVHCC)\b", metadata.sign_number or "", re.I)
         if suffix_match:
             _add_internal_by_email(chosen, registry, VPUB_DEPARTMENT_HEADS[suffix_match.group(1).upper()], "vpub_department_head_default")
         all_text = "\n".join(unicodedata.normalize("NFC", p.get("text", "")) for p in (extraction.pages or []))
@@ -458,6 +465,8 @@ async def resolve_mentions(extraction, registry, metadata, job_id, input_sha256,
                 _add_internal_by_email(chosen, registry, "tuanpa@vpub.gialai.gov.vn", "vpub_foreign_letter_default")
             elif _signed_by(extraction, "Nguyễn Hữu Quế"):
                 _add_internal_by_email(chosen, registry, "quenh@vpub.gialai.gov.vn", "vpub_foreign_letter_default")
+            elif _signed_by(extraction, "Nguyễn Thị Thanh Lịch"):
+                _add_internal_by_email(chosen, registry, "lichntt@vpub.gialai.gov.vn", "vpub_foreign_letter_default")
         elif is_coop_doc:
             _add_unit_by_code(chosen, registry, SO_NGOAI_VU_CODE, "int_province_comm", "vpub_cooperation_default")
             if signed_pat:
