@@ -126,10 +126,12 @@ class Settings:
             kwargs["openrouter_vision_model"] = str(values["GROQ_VISION_MODEL"]).strip()
         if values.get("GROQ_URL") and not values.get("OPENROUTER_URL"):
             kwargs["openrouter_url"] = str(values["GROQ_URL"]).strip()
+        url_val = kwargs.get("openrouter_url", cls.openrouter_url)
         api_key_val = kwargs.get("openrouter_api_key", "")
-        if api_key_val.startswith("gsk_") and kwargs.get("openrouter_url", cls.openrouter_url).rstrip("/") == "https://openrouter.ai/api/v1":
+        if api_key_val.startswith("gsk_") and url_val.rstrip("/") == "https://openrouter.ai/api/v1":
             kwargs["openrouter_url"] = "https://api.groq.com/openai/v1"
-        is_groq = "groq.com" in kwargs.get("openrouter_url", "").lower() or api_key_val.startswith("gsk_")
+            url_val = kwargs["openrouter_url"]
+        is_groq = "groq.com" in url_val.lower() or ("openrouter.ai" in url_val.lower() and api_key_val.startswith("gsk_"))
         if is_groq:
             for mfield in ("openrouter_text_model", "openrouter_vision_model"):
                 mval = kwargs.get(mfield, "").strip()

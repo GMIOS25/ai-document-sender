@@ -124,3 +124,29 @@ def test_groq_prompt_mode_and_three_vision_pages_from_env(tmp_path, monkeypatch)
     assert configured.provider_schema_mode == "prompt"
     assert configured.provider_reasoning == "off"
     assert configured.max_vision_pages == 3
+
+
+def test_custom_ollama_endpoint_does_not_rewrite_model_or_route_to_groq(tmp_path, monkeypatch):
+    for key in (
+        "SENDER_PROVIDER_MODE",
+        "OPENROUTER_API_KEY",
+        "OPENROUTER_TEXT_MODEL",
+        "OPENROUTER_VISION_MODEL",
+        "OPENROUTER_URL",
+        "GROQ_API_KEY",
+        "GROQ_URL",
+    ):
+        monkeypatch.delenv(key, raising=False)
+    path = tmp_path / "ollama.env"
+    path.write_text(
+        "SENDER_PROVIDER_MODE=cloud\n"
+        "OPENROUTER_API_KEY=gsk_leftover_key\n"
+        "OPENROUTER_TEXT_MODEL=qwen3.8:27b\n"
+        "OPENROUTER_VISION_MODEL=qwen3.8:27b\n"
+        "OPENROUTER_URL=http://127.0.0.1:11434/v1\n",
+        encoding="utf-8",
+    )
+    configured = Settings.from_env(path)
+    assert configured.openrouter_url == "http://127.0.0.1:11434/v1"
+    assert configured.openrouter_text_model == "qwen3.8:27b"
+    assert configured.openrouter_vision_model == "qwen3.8:27b"

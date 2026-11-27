@@ -341,11 +341,18 @@ class OpenRouterProvider:
 
     @property
     def _is_groq(self):
-        return "groq.com" in self.settings.openrouter_url.lower() or self.settings.openrouter_api_key.startswith("gsk_")
+        url = self.settings.openrouter_url.lower()
+        return "groq.com" in url or ("openrouter.ai" in url and self.settings.openrouter_api_key.startswith("gsk_"))
+
+    @property
+    def _is_openrouter(self):
+        return "openrouter.ai" in self.settings.openrouter_url.lower() and not self._is_groq
 
     @property
     def available(self):
-        return self.settings.provider_mode == "cloud" and bool(self.settings.openrouter_api_key and self.settings.openrouter_text_model)
+        if self.settings.provider_mode != "cloud" or not self.settings.openrouter_text_model:
+            return False
+        return bool(self.settings.openrouter_api_key) if (self._is_openrouter or self._is_groq) else True
 
     def capabilities(self):
         return {
@@ -447,15 +454,14 @@ class OpenRouterProvider:
                 "temperature": 0,
                 "max_tokens": max_tokens,
             }
-            if not self._is_groq:
+            if self._is_openrouter:
                 req["provider"] = {"require_parameters": True, "allow_fallbacks": False}
                 req["plugins"] = [{"id": "context-compression", "enabled": False}]
             if with_reasoning:
-                if self._is_groq:
-                    if "qwen" in model.lower():
-                        req["reasoning_effort"] = "none" if self.settings.provider_reasoning in {"off", "none"} else self.settings.provider_reasoning
-                else:
+                if self._is_openrouter:
                     req["reasoning"] = {"enabled": False} if self.settings.provider_reasoning == "off" else {"effort": self.settings.provider_reasoning}
+                elif not self._is_groq or "qwen" in model.lower():
+                    req["reasoning_effort"] = "none" if self.settings.provider_reasoning in {"off", "none"} else self.settings.provider_reasoning
             if not is_prompt:
                 req["response_format"] = {
                     "type": "json_schema",
@@ -554,7 +560,9 @@ class OpenRouterProvider:
 
     async def _request_with_client(self, client, body, deadline):
         url = self.settings.openrouter_url.rstrip("/") + "/chat/completions"
-        headers = {"Authorization": f"Bearer {self.settings.openrouter_api_key}", "Content-Type": "application/json"}
+        headers = {"Content-Type": "application/json"}
+        if self.settings.openrouter_api_key:
+            headers["Authorization"] = f"Bearer {self.settings.openrouter_api_key}"
         retries = max(0, self.settings.provider_max_retries)
         for attempt in range(retries + 1):
             remaining = deadline - time.monotonic()

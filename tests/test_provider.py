@@ -651,3 +651,36 @@ def test_compact_schema_allows_omitted_optionals_and_drops_low_conf_ocr_text_on_
     comp_clean = compact_pages_for_llm([clean_imaged_page], images=[{"page": 1, "data_url": "data:image/png;base64,AA=="}])
     assert "Nguyễn Văn Ký" not in comp_clean[0]["text"]
     assert "- Lưu: VT, T3." in comp_clean[0]["text"]
+
+
+def test_custom_openai_compatible_ollama_payload_uses_reasoning_effort_and_optional_key(settings):
+    from dataclasses import replace
+
+    ollama_settings = replace(
+        settings,
+        provider_mode="cloud",
+        openrouter_api_key="",
+        openrouter_url="http://127.0.0.1:11434/v1",
+        openrouter_text_model="qwen3.8:27b",
+        openrouter_vision_model="qwen3.8:27b",
+        provider_schema_mode="prompt",
+        provider_reasoning="off",
+    )
+    captured = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        captured["headers"] = dict(request.headers)
+        captured["body"] = json.loads(request.content.decode("utf-8"))
+        return response(json.dumps(valid()))
+
+    p = OpenRouterProvider(ollama_settings, client=httpx.AsyncClient(transport=httpx.MockTransport(handler)))
+    assert p.available is True
+    assert p._is_openrouter is False
+    assert p._is_groq is False
+    assert asyncio.run(p.extract_mentions([{"page": 1, "text": "Nơi nhận:\n- Sở Y tế;"}], {})) == valid()
+    assert "authorization" not in captured["headers"]
+    assert "provider" not in captured["body"]
+    assert "plugins" not in captured["body"]
+    assert "reasoning" not in captured["body"]
+    assert captured["body"]["reasoning_effort"] == "none"
+    assert captured["body"]["model"] == "qwen3.8:27b"
